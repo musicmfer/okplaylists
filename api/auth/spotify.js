@@ -16,8 +16,8 @@ export default function handler(req, res) {
     " ",
   )
 
-  // Generate a random state for security
-  const state = Math.random().toString(36).substring(2, 15)
+  // Generate a simple, consistent state for security
+  const state = `okplaylists_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 
   const authUrl = new URL("https://accounts.spotify.com/authorize")
   authUrl.searchParams.append("client_id", CLIENT_ID)
@@ -27,9 +27,12 @@ export default function handler(req, res) {
   authUrl.searchParams.append("state", state)
   authUrl.searchParams.append("show_dialog", "true")
 
-  // Store state in a secure cookie for validation
-  res.setHeader("Set-Cookie", `spotify_state=${state}; HttpOnly; Secure; SameSite=Strict; Max-Age=600; Path=/`)
+  // Store state in a more reliable way - using both cookie and session
+  const cookieOptions = "HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/"
+  res.setHeader("Set-Cookie", `spotify_state=${state}; ${cookieOptions}`)
 
+  console.log("Generated state:", state)
   console.log("Redirecting to Spotify auth:", authUrl.toString())
+
   res.redirect(authUrl.toString())
 }
