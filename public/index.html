@@ -233,7 +233,7 @@
 
         <div class="connection-panel">
             <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
-            <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()" disabled>CONNECT SPOTIFY</button>
+            <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
             <button class="connect-btn" id="logoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
             
             <div class="status-line" id="connectionStatus">
@@ -277,7 +277,7 @@
 
     <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
     <script 
-        src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk/dist/privy.umd.js" 
+        src="https://cdn.privy.io/privy-browser.js" 
         defer 
         onload="console.log('Privy SDK script loaded successfully!'); initPrivy();"
         onerror="console.error('Privy SDK script failed to load!'); updateDebugInfo();"
