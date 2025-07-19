@@ -328,12 +328,12 @@
     <div class="container">
         <div class="header">
             <div class="title">OK PLAYLISTS</div>
-            <div class="subtitle">ONCHAIN PLAYLISTS FOR COMMUNITIES</div>
+            <div class="subtitle">DECENTRALIZED MUSIC PLATFORM</div>
             <div class="description">
                 > CONNECT YOUR WALLET AND SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
-                > OWN YOUR PLAYLISTS ONCHAIN INSIDE YOUR COMMUNITY<br>
-                > ONLY THE NFT OWNERS CAN MINT THEIR PLAYLISTS<br>
-                > THIS COLLECTIVE BE THE BACKBONE OF THE FUTURE PLAYLIST APP FOR NFT COMMUNITIES
+                > EXPLORE NFT MUSIC COMMUNITIES AND CURATED COLLECTIONS<br>
+                > MANAGE YOUR MUSICAL IDENTITY IN THE DECENTRALIZED WEB<br>
+                > DISCOVER PLAYLISTS FROM VERIFIED CRYPTO COMMUNITIES
             </div>
         </div>
 
@@ -387,13 +387,20 @@
         </div>
     </div>
 
-     <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
-     <script src="https://sdk.privy.io/web.js" defer></script>
+    <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
+    <script 
+        src="https://cdn.privy.io/privy-browser.js" 
+        defer 
+        onload="console.log('Privy SDK script loaded successfully!'); initPrivy();"
+        onerror="console.error('Privy SDK script failed to load!'); updateDebugInfo();"
+    ></script>
 
+    <script>
         // 🔑 CONFIGURATION - PRIVY ONLY
         const CONFIG = {
             PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
         };
+
         // Global state
         let privy = null;
         let walletConnected = false;
@@ -416,33 +423,31 @@
 
         // Initialize Privy
         async function initPrivy() {
-    try {
-        if (typeof window.Privy === 'undefined') {
-            throw new Error('Privy SDK not available on window.');
+            try {
+                if (typeof window.Privy === 'undefined') {
+                    throw new Error('Privy SDK not found on window.Privy. It might not have loaded correctly.');
+                }
+
+                showSuccess('🔄 Initializing Privy...');
+
+                privy = window.Privy.createPrivyClient({
+                    appId: CONFIG.PRIVY_APP_ID,
+                    loginMethods: ['wallet', 'email', 'google'],
+                    appearance: {
+                        theme: 'dark',
+                        accentColor: '#666666',
+                    },
+                });
+
+                console.log('✅ Privy initialized successfully');
+                showSuccess('✅ Privy initialized successfully!');
+                updateDebugInfo();
+            } catch (error) {
+                console.error('❌ Privy initialization failed:', error);
+                showError('Privy initialization failed: ' + error.message);
+                updateDebugInfo();
+            }
         }
-
-        showSuccess('🔄 Initializing Privy...');
-
-        privy = new Privy({
-            appId: CONFIG.PRIVY_APP_ID,
-            loginMethods: ['wallet', 'email', 'google'],
-            appearance: {
-                theme: 'dark',
-                accentColor: '#666666',
-            },
-        });
-
-        await privy.ready; // ⬅️ wait for it to initialize
-
-        console.log('✅ Privy initialized successfully');
-        showSuccess('✅ Privy initialized successfully!');
-        updateDebugInfo();
-    } catch (error) {
-        console.error('❌ Privy initialization failed:', error);
-        showError('Privy initialization failed: ' + error.message);
-        updateDebugInfo();
-    }
-}
 
         // Utility functions
         function showError(message) {
@@ -697,25 +702,7 @@
             
             updateConnectionStatus();
             updateDebugInfo();
-        // Inside document.addEventListener('DOMContentLoaded', ...)
-if (typeof window.Privy !== 'undefined') {
-    initPrivy();
-} else {
-    console.warn('Privy not loaded yet. Retrying...');
-    let retryCount = 0;
-    const interval = setInterval(() => {
-        if (typeof window.Privy !== 'undefined') {
-            initPrivy();
-            clearInterval(interval);
-        }
-        retryCount++;
-        if (retryCount > 20) {
-            clearInterval(interval);
-            showError('❌ Privy SDK failed to load.');
-            updateDebugInfo();
-        }
-    }, 500);
-}
+            
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
             
