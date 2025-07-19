@@ -157,7 +157,7 @@
     }
 
     .status-connected {
-        color: #66ff66;
+        color: #fff;
     }
 
     .status-disconnected {
@@ -200,14 +200,15 @@
         letter-spacing: 1px;
     }
 
+    /* New/Updated Styles for List View and Expandable Details */
     .playlist-grid {
         display: flex;
         flex-direction: column;
         gap: 10px;
         padding: 10px;
-        max-height: 400px;
-        overflow-y: auto;
-        border: 1px solid #333;
+        max-height: 400px; /* Make it scrollable */
+        overflow-y: auto; /* Enable vertical scrolling */
+        border: 1px solid #333; /* Add border for scrollable area */
         background: rgba(255, 255, 255, 0.01);
     }
 
@@ -217,8 +218,8 @@
         padding: 10px;
         text-align: left;
         display: flex;
-        flex-direction: column;
-        cursor: pointer;
+        flex-direction: column; /* Stack collapsed and expanded parts */
+        cursor: pointer; /* Indicate clickable */
         transition: background 0.2s ease;
     }
 
@@ -271,7 +272,7 @@
     }
 
     .playlist-expanded-details {
-        display: none;
+        display: none; /* Hidden by default */
         margin-top: 10px;
         padding-top: 10px;
         border-top: 1px solid #444;
@@ -280,7 +281,7 @@
     }
 
     .playlist-card.expanded .playlist-expanded-details {
-        display: block;
+        display: block; /* Show when expanded */
     }
 
     .playlist-expanded-details strong {
@@ -291,8 +292,8 @@
         list-style: none;
         padding: 0;
         margin-top: 5px;
-        max-height: 150px;
-        overflow-y: auto;
+        max-height: 150px; /* Limit height for track list */
+        overflow-y: auto; /* Scroll for track list */
         border: 1px solid #222;
         padding: 5px;
         background: rgba(0,0,0,0.2);
@@ -309,6 +310,7 @@
         border-bottom: none;
     }
 
+
     @media (max-width: 768px) {
         .title {
             font-size: 32px;
@@ -320,6 +322,7 @@
             margin: 10px auto;
             width: 200px;
         }
+        /* Playlist grid already stacks on small screens due to flex-direction: column */
     }
 </style>
 ```
@@ -389,14 +392,13 @@
     </div>
 </div>
 
-<!-- Load Privy SDK -->
-<script src="https://unpkg.com/@privy-io/react-auth@latest/dist/index.umd.js"></script>
-<script>
+ <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
+ <script src="https://sdk.privy.io/web.js" defer></script>
+  <script>
     // 🔑 CONFIGURATION - PRIVY ONLY
     const CONFIG = {
         PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
     };
-
     // Global state
     let privy = null;
     let walletConnected = false;
@@ -407,105 +409,49 @@
     function updateDebugInfo() {
         const debugContent = document.getElementById('debugContent');
         debugContent.innerHTML = `
-            <strong>Privy SDK:</strong> ${typeof window.PrivyAuth !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
+            <strong>Privy SDK:</strong> ${typeof window.Privy !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
             <strong>Privy Client:</strong> ${privy ? '✅ Initialized' : '❌ Not initialized'}<br>
             <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
             <strong>User Address:</strong> ${userAddress || 'None'}<br>
-            <strong>User Status:</strong> ${privy ? (privy.authenticated ? 'Authenticated' : 'Not authenticated') : 'N/A'}<br>
             <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
             <strong>Current URL:</strong> ${window.location.href}<br>
+            <strong>Init Privy:</strong> <button onclick="initPrivy()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Initialize Privy</button>
         `;
     }
 
     // Initialize Privy
     async function initPrivy() {
-        try {
-            if (typeof window.PrivyAuth === 'undefined') {
-                throw new Error('Privy SDK not available');
-            }
-
-            console.log('🔄 Initializing Privy...');
-            showSuccess('🔄 Initializing Privy...');
-
-            privy = window.PrivyAuth.createPrivyClient({
-                appId: CONFIG.PRIVY_APP_ID,
-                config: {
-                    loginMethods: ['wallet', 'email'],
-                    appearance: {
-                        theme: 'dark',
-                        accentColor: '#666666',
-                    },
-                    // Add supported chains if needed
-                    supportedChains: [
-                        {
-                            id: 1,
-                            name: 'Ethereum',
-                            network: 'homestead',
-                            nativeCurrency: {
-                                name: 'Ether',
-                                symbol: 'ETH',
-                                decimals: 18,
-                            },
-                            rpcUrls: ['https://mainnet.infura.io/v3/'],
-                        }
-                    ],
-                }
-            });
-
-            // Listen for authentication changes
-            privy.onAuthStateChange((isAuthenticated) => {
-                console.log('Auth state changed:', isAuthenticated);
-                if (isAuthenticated) {
-                    const user = privy.user;
-                    if (user && user.wallet) {
-                        userAddress = user.wallet.address;
-                        walletConnected = true;
-                        updateWalletUI();
-                    }
-                } else {
-                    walletConnected = false;
-                    userAddress = null;
-                    updateWalletUI();
-                }
-                updateConnectionStatus();
-                updateDebugInfo();
-            });
-
-            console.log('✅ Privy initialized successfully');
-            showSuccess('✅ Privy initialized successfully!');
-            updateDebugInfo();
-
-            // Check if user is already authenticated
-            if (privy.authenticated && privy.user && privy.user.wallet) {
-                userAddress = privy.user.wallet.address;
-                walletConnected = true;
-                updateWalletUI();
-                updateConnectionStatus();
-            }
-
-        } catch (error) {
-            console.error('❌ Privy initialization failed:', error);
-            showError('Privy initialization failed: ' + error.message);
-            updateDebugInfo();
-        }
+try {
+    if (typeof window.Privy === 'undefined') {
+        throw new Error('Privy SDK not available on window.');
     }
 
-    // Update wallet UI
-    function updateWalletUI() {
-        const walletBtn = document.getElementById('walletBtn');
-        if (walletConnected) {
-            walletBtn.textContent = `CONNECTED: ${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
-            walletBtn.disabled = true;
-            walletBtn.style.background = '#4CAF50';
-            walletBtn.style.borderColor = '#4CAF50';
-        } else {
-            walletBtn.textContent = 'CONNECT WALLET';
-            walletBtn.disabled = false;
-            walletBtn.style.background = '#666';
-            walletBtn.style.borderColor = '#666';
-        }
-    }
+    showSuccess('🔄 Initializing Privy...');
 
+    privy = new Privy({
+        appId: CONFIG.PRIVY_APP_ID,
+        loginMethods: ['wallet', 'email', 'google'],
+        appearance: {
+            theme: 'dark',
+            accentColor: '#666666',
+        },
+    });
+
+    await privy.ready; // ⬅️ wait for it to initialize
+
+    console.log('✅ Privy initialized successfully');
+    showSuccess('✅ Privy initialized successfully!');
+    updateDebugInfo();
+} catch (error) {
+    console.error('❌ Privy initialization failed:', error);
+    showError('Privy initialization failed: ' + error.message);
+    updateDebugInfo();
+}
+```
+
+}
+
+```
     // Utility functions
     function showError(message) {
         const errorEl = document.getElementById('errorMessage');
@@ -548,16 +494,32 @@
     async function connectWallet() {
         try {
             if (!privy) {
-                showError('Privy not initialized. Please refresh the page.');
+                showError('Privy not initialized. Click "Initialize Privy" or refresh page.');
                 return;
             }
 
             document.getElementById('walletBtn').textContent = 'CONNECTING...';
             console.log('🔄 Attempting Privy wallet connection...');
             
-            await privy.login();
+            await privy.login(); // This will open Privy's modal
+            const user = privy.user;
             
-            // The onAuthStateChange callback will handle the UI updates
+            if (user && user.wallet) {
+                userAddress = user.wallet.address;
+                walletConnected = true;
+                
+                document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
+                document.getElementById('walletBtn').disabled = true;
+                // document.getElementById('spotifyBtn').disabled = false; // Spotify button is now enabled by default
+                
+                showSuccess('✅ Wallet connected via Privy!');
+                updateConnectionStatus();
+                updateDebugInfo();
+                
+                console.log('✅ Wallet connected:', userAddress);
+            } else {
+                throw new Error('No wallet found in Privy user after login. Please try again.');
+            }
             
         } catch (error) {
             console.error('❌ Wallet connection failed:', error);
@@ -619,7 +581,7 @@
             const response = await fetch('/api/spotify/playlists');
             
             if (!response.ok) {
-                const errorText = await response.text();
+                const errorText = await response.text(); // Get raw error text
                 console.error('Frontend: Playlists API response not OK. Status:', response.status, 'Body:', errorText);
                 
                 if (response.status === 401) {
@@ -640,7 +602,7 @@
             console.log('Frontend: Playlists fetched successfully:', data.playlists);
 
             if (data.playlists && data.playlists.length > 0) {
-                playlistGrid.innerHTML = '';
+                playlistGrid.innerHTML = ''; // Clear loading message
                 data.playlists.forEach(playlist => {
                     const playlistCardHtml = `
                         <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
@@ -664,7 +626,7 @@
                     `;
                     playlistGrid.innerHTML += playlistCardHtml;
                 });
-                toggleSection('playlists');
+                toggleSection('playlists'); // Open the playlists section
             } else {
                 playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No public playlists found or created by you.</p>';
             }
@@ -676,15 +638,18 @@
         }
     }
 
-    // Toggle playlist details
+    // Toggle playlist details and fetch if not already loaded
     async function togglePlaylistDetails(cardElement, playlistId) {
         const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
         
         if (cardElement.classList.contains('expanded')) {
+            // Collapse
             cardElement.classList.remove('expanded');
         } else {
+            // Expand
             cardElement.classList.add('expanded');
             
+            // Check if details are already loaded
             if (expandedDetails.dataset.loaded !== 'true') {
                 try {
                     expandedDetails.innerHTML = '<p style="text-align: center;">🔄 Loading details...</p>';
@@ -713,7 +678,7 @@
                         <ul>${tracksHtml}</ul>
                         <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>
                     `;
-                    expandedDetails.dataset.loaded = 'true';
+                    expandedDetails.dataset.loaded = 'true'; // Mark as loaded
                 } catch (error) {
                     console.error('Frontend: Error fetching playlist details:', error);
                     expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
@@ -721,6 +686,7 @@
             }
         }
     }
+
 
     // Update connection status display
     function updateConnectionStatus() {
@@ -739,30 +705,31 @@
         
         updateConnectionStatus();
         updateDebugInfo();
+    // Inside document.addEventListener('DOMContentLoaded', ...)
+```
 
-        // Initialize Privy when SDK is loaded
-        if (typeof window.PrivyAuth !== 'undefined') {
-            initPrivy();
-        } else {
-            console.warn('Privy not loaded yet. Retrying...');
-            let retryCount = 0;
-            const interval = setInterval(() => {
-                if (typeof window.PrivyAuth !== 'undefined') {
-                    initPrivy();
-                    clearInterval(interval);
-                }
-                retryCount++;
-                if (retryCount > 20) {
-                    clearInterval(interval);
-                    showError('❌ Privy SDK failed to load.');
-                    updateDebugInfo();
-                }
-            }, 500);
-        }
+if (typeof window.Privy !== ‘undefined’) {
+initPrivy();
+} else {
+console.warn(‘Privy not loaded yet. Retrying…’);
+let retryCount = 0;
+const interval = setInterval(() => {
+if (typeof window.Privy !== ‘undefined’) {
+initPrivy();
+clearInterval(interval);
+}
+retryCount++;
+if (retryCount > 20) {
+clearInterval(interval);
+showError(‘❌ Privy SDK failed to load.’);
+updateDebugInfo();
+}
+}, 500);
+}
+// Check URL parameters for auth results
+const urlParams = new URLSearchParams(window.location.search);
 
-        // Check URL parameters for auth results
-        const urlParams = new URLSearchParams(window.location.search);
-        
+```
         if (urlParams.get('spotify_connected') === 'true') {
             spotifyConnected = true;
             document.getElementById('spotifyBtn').style.display = 'none';
@@ -771,6 +738,7 @@
             updateConnectionStatus();
             showSuccess('✅ Spotify connected successfully!');
             
+            // Fetch playlists immediately after successful Spotify connection
             fetchPlaylists();
 
             // Clean URL
@@ -782,6 +750,12 @@
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        // Also check if Spotify is already connected (e.g., on refresh)
+        // This requires a way to persist spotifyConnected state, e.g., via a cookie or local storage
+        // For now, we'll rely on the URL param for initial connection.
+        // If you want to persist Spotify connection across refreshes, we'd need to check for the presence of the spotify_access_token cookie.
+        // For this iteration, let's assume a refresh means re-connecting Spotify if not explicitly in the URL.
     });
 </script>
 ```
