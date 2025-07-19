@@ -388,10 +388,7 @@
     </div>
 
     <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
-    <script 
-        src="https://privy.io/sdk/web.js" 
-        defer 
-    ></script>
+  <script src="https://sdk.privy.io/web.js" defer></script>
 
     <script>
         // 🔑 CONFIGURATION - PRIVY ONLY
@@ -421,31 +418,33 @@
 
         // Initialize Privy
         async function initPrivy() {
-            try {
-                if (typeof window.Privy === 'undefined') {
-                    throw new Error('Privy SDK not found on window.Privy. It might not have loaded correctly.');
-                }
-
-                showSuccess('🔄 Initializing Privy...');
-
-                privy = window.Privy.createPrivyClient({
-                    appId: CONFIG.PRIVY_APP_ID,
-                    loginMethods: ['wallet', 'email', 'google'],
-                    appearance: {
-                        theme: 'dark',
-                        accentColor: '#666666',
-                    },
-                });
-
-                console.log('✅ Privy initialized successfully');
-                showSuccess('✅ Privy initialized successfully!');
-                updateDebugInfo();
-            } catch (error) {
-                console.error('❌ Privy initialization failed:', error);
-                showError('Privy initialization failed: ' + error.message);
-                updateDebugInfo();
-            }
+    try {
+        if (typeof window.Privy === 'undefined') {
+            throw new Error('Privy SDK not available on window.');
         }
+
+        showSuccess('🔄 Initializing Privy...');
+
+        privy = new window.Privy({
+            appId: CONFIG.PRIVY_APP_ID,
+            loginMethods: ['wallet', 'email', 'google'],
+            appearance: {
+                theme: 'dark',
+                accentColor: '#666666',
+            },
+        });
+
+        await privy.ready; // ⬅️ wait for it to initialize
+
+        console.log('✅ Privy initialized successfully');
+        showSuccess('✅ Privy initialized successfully!');
+        updateDebugInfo();
+    } catch (error) {
+        console.error('❌ Privy initialization failed:', error);
+        showError('Privy initialization failed: ' + error.message);
+        updateDebugInfo();
+    }
+}
 
         // Utility functions
         function showError(message) {
