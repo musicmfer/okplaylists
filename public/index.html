@@ -198,35 +198,44 @@
             letter-spacing: 1px;
         }
 
+        /* New/Updated Styles for List View */
         .playlist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            display: flex; /* Use flexbox for a list layout */
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Smaller gap between list items */
+            padding: 10px; /* Reduced padding */
         }
 
         .playlist-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid #333;
-            padding: 15px;
-            text-align: center;
+            padding: 10px; /* Smaller padding */
+            text-align: left; /* Align text to left for list */
+            display: flex; /* Use flex for image and text side-by-side */
+            align-items: center; /* Vertically align items */
             transition: transform 0.2s ease;
         }
 
         .playlist-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px); /* Smaller hover effect */
         }
 
         .playlist-card img {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
+            width: 50px; /* Much smaller image size */
+            height: 50px; /* Ensure square aspect ratio */
+            margin-right: 10px; /* Space between image and text */
             border: 1px solid #555;
+            flex-shrink: 0; /* Prevent image from shrinking */
+        }
+
+        .playlist-info {
+            flex-grow: 1; /* Allow info to take available space */
+            overflow: hidden; /* Hide overflow for text ellipsis */
         }
 
         .playlist-card h5 {
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 12px; /* Smaller font size */
+            margin-bottom: 2px; /* Reduced margin */
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
@@ -234,15 +243,16 @@
         }
 
         .playlist-card p {
-            font-size: 11px;
+            font-size: 10px; /* Smaller font size */
             color: #999;
-            margin-bottom: 5px;
+            margin-bottom: 2px; /* Reduced margin */
         }
 
         .playlist-card a {
             color: #66ccff;
             text-decoration: none;
-            font-size: 11px;
+            font-size: 10px; /* Smaller font size */
+            white-space: nowrap;
         }
 
         .playlist-card a:hover {
@@ -261,9 +271,7 @@
                 margin: 10px auto;
                 width: 200px;
             }
-            .playlist-grid {
-                grid-template-columns: 1fr; /* Stack playlists on small screens */
-            }
+            /* Playlist grid already stacks on small screens due to flex-direction: column */
         }
     </style>
 </head>
@@ -546,17 +554,19 @@
                     data.playlists.forEach(playlist => {
                         const playlistCard = `
                             <div class="playlist-card">
-                                <img src="${playlist.cover || '/placeholder.svg?height=180&width=180&text=No+Image'}" alt="${playlist.name} cover">
-                                <h5>${playlist.name}</h5>
-                                <p>${playlist.tracks} tracks</p>
-                                <a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a>
+                                <img src="${playlist.cover || '/placeholder.svg?height=50&width=50&text=No+Image'}" alt="${playlist.name} cover">
+                                <div class="playlist-info">
+                                    <h5>${playlist.name}</h5>
+                                    <p>${playlist.tracks} tracks</p>
+                                    <a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a>
+                                </div>
                             </div>
                         `;
                         playlistGrid.innerHTML += playlistCard;
                     });
                     toggleSection('playlists'); // Open the playlists section
                 } else {
-                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No playlists found or available.</p>';
+                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No public playlists found or created by you.</p>';
                 }
 
             } catch (error) {
