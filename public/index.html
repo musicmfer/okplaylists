@@ -378,7 +378,7 @@
 
         <div class="connection-panel">
             <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
-            <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()" disabled>CONNECT SPOTIFY</button>
+            <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
             <button class="connect-btn" id="logoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
             
             <div class="status-line" id="connectionStatus">
@@ -442,10 +442,13 @@
         </div>
     </div>
 
+    <!-- Load Web3 libraries -->
+    <script src="https://unpkg.com/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+
     <script>
         // 🔑 CONFIGURATION
         const CONFIG = {
-            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z',
             SPOTIFY_CLIENT_ID: '8f02c93339da4f9bbf26159dad43053a',
             SPOTIFY_REDIRECT_URI: 'https://okplaylists.vercel.app/api/auth/callback',
             NFT_CONTRACTS: {
@@ -455,7 +458,7 @@
         };
 
         // Global state
-        let privyClient = null;
+        let web3 = null;
         let walletConnected = false;
         let spotifyConnected = false;
         let userPlaylists = [];
@@ -466,78 +469,99 @@
         function updateDebugInfo() {
             const debugContent = document.getElementById('debugContent');
             debugContent.innerHTML = `
-                <strong>Privy SDK:</strong> ${typeof window.Privy !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
+                <strong>Web3:</strong> ${typeof window.Web3 !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
+                <strong>WalletConnect:</strong> ${typeof window.WalletConnectProvider !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
                 <strong>MetaMask:</strong> ${typeof window.ethereum !== 'undefined' ? '✅ Available' : '❌ Not available'}<br>
                 <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>User Address:</strong> ${userAddress || 'None'}<br>
                 <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>Current URL:</strong> ${window.location.href}<br>
+                <strong>Browser:</strong> ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Other'}<br>
                 <strong>API Test:</strong> <button onclick="testAPI()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Test Spotify API</button><br>
-                <strong>Load Privy:</strong> <button onclick="loadPrivyManually()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Reload Privy SDK</button>
+                <strong>Force Connect:</strong> <button onclick="forceWalletConnect()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Force Wallet</button>
             `;
         }
 
-        // Manually load Privy SDK
-        async function loadPrivyManually() {
+        // Force wallet connection with multiple methods
+        async function forceWalletConnect() {
             try {
-                showSuccess('🔄 Loading Privy SDK...');
+                showSuccess('🔄 Trying all wallet connection methods...');
                 
-                // Remove existing script if any
-                const existingScript = document.querySelector('script[src*="privy"]');
-                if (existingScript) {
-                    existingScript.remove();
-                }
-
-                // Try multiple CDN sources
-                const privySources = [
-                    'https://unpkg.com/@privy-io/react-auth@latest/dist/index.umd.js',
-                    'https://cdn.jsdelivr.net/npm/@privy-io/react-auth@latest/dist/index.umd.js',
-                    'https://unpkg.com/@privy-io/js-sdk@latest/dist/index.umd.js'
-                ];
-
-                for (const src of privySources) {
-                    try {
-                        await loadScript(src);
-                        if (typeof window.Privy !== 'undefined') {
-                            showSuccess('✅ Privy SDK loaded successfully!');
-                            await initPrivy();
-                            updateDebugInfo();
-                            return;
-                        }
-                    } catch (error) {
-                        console.log(`Failed to load from ${src}:`, error);
+                // Method 1: Direct ethereum request
+                if (window.ethereum) {
+                    console.log('🔄 Trying window.ethereum...');
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        walletConnected = true;
+                        showSuccess('✅ Connected via window.ethereum!');
+                        updateConnectionStatus();
+                        updateDebugInfo();
+                        return;
                     }
                 }
 
-                throw new Error('All Privy CDN sources failed');
+                // Method 2: Try Web3
+                if (typeof window.Web3 !== 'undefined' && window.ethereum) {
+                    console.log('🔄 Trying Web3...');
+                    web3 = new window.Web3(window.ethereum);
+                    await window.ethereum.enable();
+                    const accounts = await web3.eth.getAccounts();
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        walletConnected = true;
+                        showSuccess('✅ Connected via Web3!');
+                        updateConnectionStatus();
+                        updateDebugInfo();
+                        return;
+                    }
+                }
+
+                // Method 3: WalletConnect
+                if (typeof window.WalletConnectProvider !== 'undefined') {
+                    console.log('🔄 Trying WalletConnect...');
+                    const provider = new window.WalletConnectProvider.default({
+                        infuraId: "9aa3d95b3bc440fa88ea12eaa4456161", // Public Infura ID
+                    });
+                    
+                    await provider.enable();
+                    web3 = new window.Web3(provider);
+                    const accounts = await web3.eth.getAccounts();
+                    
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        walletConnected = true;
+                        showSuccess('✅ Connected via WalletConnect!');
+                        updateConnectionStatus();
+                        updateDebugInfo();
+                        return;
+                    }
+                }
+
+                throw new Error('No wallet connection method worked');
+                
             } catch (error) {
-                console.error('❌ Failed to load Privy:', error);
-                showError('Failed to load Privy SDK: ' + error.message);
+                console.error('❌ Force wallet connect failed:', error);
+                showError('All wallet connection methods failed: ' + error.message);
                 updateDebugInfo();
             }
-        }
-
-        // Helper function to load scripts
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
         }
 
         // Test API endpoint
         async function testAPI() {
             try {
+                showSuccess('🔄 Testing Spotify API...');
                 const response = await fetch('/api/auth/spotify', { 
                     method: 'GET',
                     redirect: 'manual'
                 });
                 
+                console.log('API Response:', response);
+                
                 if (response.type === 'opaqueredirect' || response.status === 0 || response.status === 302) {
                     showSuccess('✅ Spotify API endpoint is working!');
+                } else if (response.status === 404) {
+                    showError('❌ API endpoint not found - check Vercel Functions deployment');
                 } else {
                     showError(`❌ API returned status: ${response.status}`);
                 }
@@ -555,7 +579,7 @@
             successEl.style.display = 'none';
             setTimeout(() => {
                 errorEl.style.display = 'none';
-            }, 5000);
+            }, 8000);
             console.error('Error:', message);
         }
 
@@ -584,140 +608,63 @@
             }
         }
 
-        // Initialize Privy
-        async function initPrivy() {
-            try {
-                if (typeof window.Privy === 'undefined') {
-                    throw new Error('Privy SDK not loaded');
-                }
-
-                // Try different initialization methods
-                if (window.Privy.createPrivyClient) {
-                    privyClient = window.Privy.createPrivyClient({
-                        appId: CONFIG.PRIVY_APP_ID,
-                    });
-                } else if (window.Privy.PrivyProvider) {
-                    // Alternative initialization
-                    privyClient = new window.Privy.PrivyProvider({
-                        appId: CONFIG.PRIVY_APP_ID,
-                    });
-                } else {
-                    throw new Error('Unknown Privy SDK structure');
-                }
-
-                console.log('✅ Privy initialized successfully');
-                updateDebugInfo();
-            } catch (error) {
-                console.error('❌ Privy initialization failed:', error);
-                updateDebugInfo();
-            }
-        }
-
-        // Wallet connection - Multiple methods with better fallbacks
+        // Wallet connection - Simplified and more reliable
         async function connectWallet() {
             try {
                 document.getElementById('walletBtn').textContent = 'CONNECTING...';
                 console.log('🔄 Attempting wallet connection...');
                 
-                // Method 1: Try Privy first (if available)
-                if (privyClient) {
-                    console.log('🔄 Trying Privy connection...');
-                    try {
-                        await privyClient.login();
-                        const user = privyClient.user;
-                        
-                        if (user && user.wallet) {
-                            userAddress = user.wallet.address;
-                            walletConnected = true;
-                            console.log('✅ Wallet connected via Privy:', userAddress);
-                        } else {
-                            throw new Error('No wallet found in Privy user');
-                        }
-                    } catch (privyError) {
-                        console.error('❌ Privy failed, trying MetaMask:', privyError);
-                        throw privyError;
-                    }
-                } 
-                // Method 2: Try MetaMask
-                else if (typeof window.ethereum !== 'undefined') {
-                    console.log('🔄 Trying MetaMask connection...');
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                    userAddress = accounts[0];
-                    walletConnected = true;
-                    console.log('✅ Wallet connected via MetaMask:', userAddress);
-                } 
-                // Method 3: Try to detect other wallets
-                else if (window.web3) {
-                    console.log('🔄 Trying Web3 connection...');
-                    const accounts = await window.web3.eth.getAccounts();
-                    if (accounts.length > 0) {
-                        userAddress = accounts[0];
-                        walletConnected = true;
-                        console.log('✅ Wallet connected via Web3:', userAddress);
+                // Check if we're in a mobile browser
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    showError('Mobile wallet connection coming soon. Please use desktop browser with MetaMask.');
+                    document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+                    return;
+                }
+
+                // Try the force connect method
+                await forceWalletConnect();
+                
+                if (walletConnected) {
+                    document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
+                    document.getElementById('walletBtn').disabled = true;
+                    document.getElementById('spotifyBtn').disabled = false;
+                    
+                    // Show community status
+                    const communityStatus = document.getElementById('communityStatus');
+                    const communityInfo = document.getElementById('communityInfo');
+                    
+                    // Simulate NFT check (50% chance for demo)
+                    const hasNFT = Math.random() > 0.5;
+                    if (hasNFT) {
+                        const communities = ['OK COMPUTERS #420', 'MFER #69'];
+                        const randomCommunity = communities[Math.floor(Math.random() * communities.length)];
+                        communityInfo.innerHTML = `COMMUNITY: <span class="status-connected">${randomCommunity}</span>`;
                     } else {
-                        throw new Error('No accounts found in Web3');
+                        communityInfo.innerHTML = `COMMUNITY: <span class="status-disconnected">NONE FOUND</span>`;
                     }
-                }
-                // Method 4: No wallet available
-                else {
-                    throw new Error('No wallet found. Please install MetaMask, use a Web3 browser, or enable wallet extensions.');
-                }
-                
-                document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
-                document.getElementById('walletBtn').disabled = true;
-                document.getElementById('spotifyBtn').disabled = false;
-                
-                showSuccess('Wallet connected successfully!');
-                updateConnectionStatus();
-                updateDebugInfo();
-                
-                // Show community status
-                const communityStatus = document.getElementById('communityStatus');
-                const communityInfo = document.getElementById('communityInfo');
-                
-                // Simulate NFT check (50% chance for demo)
-                const hasNFT = Math.random() > 0.5;
-                if (hasNFT) {
-                    const communities = ['OK COMPUTERS #420', 'MFER #69'];
-                    const randomCommunity = communities[Math.floor(Math.random() * communities.length)];
-                    communityInfo.innerHTML = `COMMUNITY: <span class="status-connected">${randomCommunity}</span>`;
+                    communityStatus.style.display = 'block';
                 } else {
-                    communityInfo.innerHTML = `COMMUNITY: <span class="status-disconnected">NONE FOUND</span>`;
+                    throw new Error('Wallet connection failed');
                 }
-                communityStatus.style.display = 'block';
                 
             } catch (error) {
                 console.error('❌ Wallet connection failed:', error);
-                showError('Wallet connection failed: ' + error.message);
+                showError('Wallet connection failed: ' + error.message + '. Please install MetaMask or use a Web3 browser.');
                 document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
                 updateDebugInfo();
             }
         }
 
-        // Spotify connection - redirect to our auth endpoint
+        // Spotify connection - Direct redirect
         function connectSpotify() {
             try {
                 document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
                 console.log('🔄 Redirecting to Spotify auth...');
                 
-                // Test if API endpoint exists first
-                fetch('/api/auth/spotify', { 
-                    method: 'GET',
-                    redirect: 'manual'
-                }).then(response => {
-                    if (response.type === 'opaqueredirect' || response.status === 0 || response.status === 302) {
-                        // API is working, redirect
-                        window.location.href = '/api/auth/spotify';
-                    } else {
-                        throw new Error(`API endpoint returned status: ${response.status}`);
-                    }
-                }).catch(error => {
-                    console.error('❌ Spotify API test failed:', error);
-                    showError('Spotify API endpoint not working: ' + error.message);
-                    document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
-                });
+                // Direct redirect to Spotify API
+                window.location.href = '/api/auth/spotify';
                 
             } catch (error) {
                 console.error('❌ Spotify connection failed:', error);
@@ -955,9 +902,6 @@
             
             updateConnectionStatus();
             updateDebugInfo();
-            
-            // Try to load Privy automatically
-            loadPrivyManually();
             
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
