@@ -35,16 +35,26 @@ export default async function handler(req, res) {
     console.log(`Playlists API: Successfully fetched ${data.items.length} playlists`)
 
     // Transform data for frontend
-    const playlists = data.items.map((playlist) => ({
-      id: playlist.id,
-      name: playlist.name,
-      description: playlist.description || "No description available",
-      tracks: playlist.tracks.total,
-      cover: playlist.images[0]?.url || null,
-      spotifyUrl: playlist.external_urls.spotify,
-      owner: playlist.owner.display_name,
-      public: playlist.public,
-    }))
+    const playlists = data.items.map((playlist) => {
+      // Safely get the cover image URL
+      const coverUrl = playlist.images && playlist.images.length > 0 ? playlist.images[0].url : null
+
+      // Log playlist images for debugging
+      if (!playlist.images || playlist.images.length === 0) {
+        console.warn(`Playlists API: Playlist "${playlist.name}" (ID: ${playlist.id}) has no images.`)
+      }
+
+      return {
+        id: playlist.id,
+        name: playlist.name,
+        description: playlist.description || "No description available",
+        tracks: playlist.tracks.total,
+        cover: coverUrl, // Use the safely determined coverUrl
+        spotifyUrl: playlist.external_urls.spotify,
+        owner: playlist.owner.display_name,
+        public: playlist.public,
+      }
+    })
 
     res.json({ playlists })
   } catch (error) {
