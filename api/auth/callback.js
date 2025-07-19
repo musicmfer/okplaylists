@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     console.log("Token exchange successful")
 
     // Set secure cookies with tokens
-    const cookieOptions = "HttpOnly; Secure; SameSite=Lax; Path=/"
+    const cookieOptions = "HttpOnly; Secure; SameSite=None; Path=/" // Use SameSite=None here too
 
     res.setHeader("Set-Cookie", [
       `spotify_access_token=${tokenData.access_token}; ${cookieOptions}; Max-Age=3600`,

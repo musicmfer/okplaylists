@@ -27,8 +27,9 @@ export default function handler(req, res) {
   authUrl.searchParams.append("state", state)
   authUrl.searchParams.append("show_dialog", "true")
 
-  // Store state in a more reliable way - using both cookie and session
-  const cookieOptions = "HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/"
+  // Store state in a more reliable way - using SameSite=None and Secure
+  // This is crucial for cross-site redirects like OAuth
+  const cookieOptions = "HttpOnly; Secure; SameSite=None; Max-Age=600; Path=/"
   res.setHeader("Set-Cookie", `spotify_state=${state}; ${cookieOptions}`)
 
   console.log("Generated state:", state)
