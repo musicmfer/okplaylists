@@ -275,8 +275,8 @@
         </div>
     </div>
 
-    <!-- Load ONLY Privy SDK -->
-    <script src="https://unpkg.com/@privy-io/react-auth@1.88.4/dist/index.umd.js"></script>
+    <!-- Load ONLY Privy SDK - using a more direct UMD build -->
+    <script src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk/dist/privy.umd.js"></script>
 
     <script>
         // 🔑 CONFIGURATION - PRIVY ONLY
@@ -294,7 +294,7 @@
         function updateDebugInfo() {
             const debugContent = document.getElementById('debugContent');
             debugContent.innerHTML = `
-                <strong>Privy SDK:</strong> ${typeof window.PrivyAuth !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
+                <strong>Privy SDK:</strong> ${typeof window.Privy !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
                 <strong>Privy Client:</strong> ${privy ? '✅ Initialized' : '❌ Not initialized'}<br>
                 <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>User Address:</strong> ${userAddress || 'None'}<br>
@@ -307,14 +307,20 @@
         // Initialize Privy
         async function initPrivy() {
             try {
-                if (typeof window.PrivyAuth === 'undefined') {
-                    throw new Error('Privy SDK not loaded');
+                if (typeof window.Privy === 'undefined') {
+                    throw new Error('Privy SDK not found on window.Privy. It might not have loaded correctly.');
                 }
 
                 showSuccess('🔄 Initializing Privy...');
 
-                privy = window.PrivyAuth.createPrivyClient({
+                privy = window.Privy.createPrivyClient({
                     appId: CONFIG.PRIVY_APP_ID,
+                    // Add any other Privy config here, e.g., login methods
+                    loginMethods: ['wallet', 'email', 'google'], // Example: allow wallet, email, Google login
+                    appearance: {
+                        theme: 'dark',
+                        accentColor: '#666666',
+                    },
                 });
 
                 console.log('✅ Privy initialized successfully');
@@ -369,14 +375,14 @@
         async function connectWallet() {
             try {
                 if (!privy) {
-                    showError('Privy not initialized. Click "Initialize Privy" first.');
+                    showError('Privy not initialized. Click "Initialize Privy" or refresh page.');
                     return;
                 }
 
                 document.getElementById('walletBtn').textContent = 'CONNECTING...';
                 console.log('🔄 Attempting Privy wallet connection...');
                 
-                await privy.login();
+                await privy.login(); // This will open Privy's modal
                 const user = privy.user;
                 
                 if (user && user.wallet) {
@@ -393,7 +399,7 @@
                     
                     console.log('✅ Wallet connected:', userAddress);
                 } else {
-                    throw new Error('No wallet found in Privy user');
+                    throw new Error('No wallet found in Privy user after login. Please try again.');
                 }
                 
             } catch (error) {
@@ -464,10 +470,10 @@
             updateConnectionStatus();
             updateDebugInfo();
             
-            // Auto-initialize Privy
+            // Auto-initialize Privy after a short delay to ensure script loads
             setTimeout(() => {
                 initPrivy();
-            }, 1000);
+            }, 500); // Reduced delay
             
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
