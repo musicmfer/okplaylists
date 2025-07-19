@@ -442,13 +442,10 @@
         </div>
     </div>
 
-    <!-- Load Privy SDK -->
-    <script src="https://unpkg.com/@privy-io/js-sdk@1.0.0/dist/index.umd.js"></script>
-
     <script>
         // 🔑 CONFIGURATION
         const CONFIG = {
-            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z', // ✅ Updated with your correct App ID
+            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z',
             SPOTIFY_CLIENT_ID: '8f02c93339da4f9bbf26159dad43053a',
             SPOTIFY_REDIRECT_URI: 'https://okplaylists.vercel.app/api/auth/callback',
             NFT_CONTRACTS: {
@@ -475,8 +472,60 @@
                 <strong>User Address:</strong> ${userAddress || 'None'}<br>
                 <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>Current URL:</strong> ${window.location.href}<br>
-                <strong>API Test:</strong> <button onclick="testAPI()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Test Spotify API</button>
+                <strong>API Test:</strong> <button onclick="testAPI()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Test Spotify API</button><br>
+                <strong>Load Privy:</strong> <button onclick="loadPrivyManually()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Reload Privy SDK</button>
             `;
+        }
+
+        // Manually load Privy SDK
+        async function loadPrivyManually() {
+            try {
+                showSuccess('🔄 Loading Privy SDK...');
+                
+                // Remove existing script if any
+                const existingScript = document.querySelector('script[src*="privy"]');
+                if (existingScript) {
+                    existingScript.remove();
+                }
+
+                // Try multiple CDN sources
+                const privySources = [
+                    'https://unpkg.com/@privy-io/react-auth@latest/dist/index.umd.js',
+                    'https://cdn.jsdelivr.net/npm/@privy-io/react-auth@latest/dist/index.umd.js',
+                    'https://unpkg.com/@privy-io/js-sdk@latest/dist/index.umd.js'
+                ];
+
+                for (const src of privySources) {
+                    try {
+                        await loadScript(src);
+                        if (typeof window.Privy !== 'undefined') {
+                            showSuccess('✅ Privy SDK loaded successfully!');
+                            await initPrivy();
+                            updateDebugInfo();
+                            return;
+                        }
+                    } catch (error) {
+                        console.log(`Failed to load from ${src}:`, error);
+                    }
+                }
+
+                throw new Error('All Privy CDN sources failed');
+            } catch (error) {
+                console.error('❌ Failed to load Privy:', error);
+                showError('Failed to load Privy SDK: ' + error.message);
+                updateDebugInfo();
+            }
+        }
+
+        // Helper function to load scripts
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
         }
 
         // Test API endpoint
@@ -542,9 +591,19 @@
                     throw new Error('Privy SDK not loaded');
                 }
 
-                privyClient = window.Privy.createPrivyClient({
-                    appId: CONFIG.PRIVY_APP_ID,
-                });
+                // Try different initialization methods
+                if (window.Privy.createPrivyClient) {
+                    privyClient = window.Privy.createPrivyClient({
+                        appId: CONFIG.PRIVY_APP_ID,
+                    });
+                } else if (window.Privy.PrivyProvider) {
+                    // Alternative initialization
+                    privyClient = new window.Privy.PrivyProvider({
+                        appId: CONFIG.PRIVY_APP_ID,
+                    });
+                } else {
+                    throw new Error('Unknown Privy SDK structure');
+                }
 
                 console.log('✅ Privy initialized successfully');
                 updateDebugInfo();
@@ -554,13 +613,13 @@
             }
         }
 
-        // Wallet connection - Multiple methods
+        // Wallet connection - Multiple methods with better fallbacks
         async function connectWallet() {
             try {
                 document.getElementById('walletBtn').textContent = 'CONNECTING...';
                 console.log('🔄 Attempting wallet connection...');
                 
-                // Method 1: Try Privy first
+                // Method 1: Try Privy first (if available)
                 if (privyClient) {
                     console.log('🔄 Trying Privy connection...');
                     try {
@@ -575,11 +634,11 @@
                             throw new Error('No wallet found in Privy user');
                         }
                     } catch (privyError) {
-                        console.error('❌ Privy failed:', privyError);
+                        console.error('❌ Privy failed, trying MetaMask:', privyError);
                         throw privyError;
                     }
                 } 
-                // Method 2: Fallback to MetaMask
+                // Method 2: Try MetaMask
                 else if (typeof window.ethereum !== 'undefined') {
                     console.log('🔄 Trying MetaMask connection...');
                     const accounts = await window.ethereum.request({ 
@@ -589,9 +648,21 @@
                     walletConnected = true;
                     console.log('✅ Wallet connected via MetaMask:', userAddress);
                 } 
-                // Method 3: No wallet available
+                // Method 3: Try to detect other wallets
+                else if (window.web3) {
+                    console.log('🔄 Trying Web3 connection...');
+                    const accounts = await window.web3.eth.getAccounts();
+                    if (accounts.length > 0) {
+                        userAddress = accounts[0];
+                        walletConnected = true;
+                        console.log('✅ Wallet connected via Web3:', userAddress);
+                    } else {
+                        throw new Error('No accounts found in Web3');
+                    }
+                }
+                // Method 4: No wallet available
                 else {
-                    throw new Error('No wallet found. Please install MetaMask or enable Web3.');
+                    throw new Error('No wallet found. Please install MetaMask, use a Web3 browser, or enable wallet extensions.');
                 }
                 
                 document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
@@ -885,20 +956,8 @@
             updateConnectionStatus();
             updateDebugInfo();
             
-            // Initialize Privy when SDK loads
-            if (typeof window.Privy !== 'undefined') {
-                initPrivy();
-            } else {
-                // Wait for Privy to load
-                setTimeout(() => {
-                    if (typeof window.Privy !== 'undefined') {
-                        initPrivy();
-                    } else {
-                        console.error('❌ Privy SDK failed to load');
-                        updateDebugInfo();
-                    }
-                }, 2000);
-            }
+            // Try to load Privy automatically
+            loadPrivyManually();
             
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
