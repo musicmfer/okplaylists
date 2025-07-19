@@ -517,25 +517,25 @@
             playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">🔄 Loading playlists...</p>';
             
             try {
-                console.log('Frontend: Attempting to fetch playlists...');
+                console.log('Frontend: Attempting to fetch playlists from /api/spotify/playlists...');
                 const response = await fetch('/api/spotify/playlists');
                 
-                if (response.status === 401) {
-                    // Token expired or not authenticated, prompt re-auth
-                    showError('Spotify session expired. Please reconnect Spotify.');
-                    spotifyConnected = false;
-                    updateConnectionStatus();
-                    document.getElementById('spotifyBtn').style.display = 'inline-block';
-                    document.getElementById('logoutBtn').style.display = 'none';
-                    document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
-                    document.getElementById('spotifyBtn').disabled = false;
-                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
-                    return;
-                }
-
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`Failed to fetch playlists: ${errorData.error || response.statusText}`);
+                    const errorText = await response.text(); // Get raw error text
+                    console.error('Frontend: Playlists API response not OK. Status:', response.status, 'Body:', errorText);
+                    
+                    if (response.status === 401) {
+                        showError('Spotify session expired or not authenticated. Please reconnect Spotify.');
+                        spotifyConnected = false;
+                        updateConnectionStatus();
+                        document.getElementById('spotifyBtn').style.display = 'inline-block';
+                        document.getElementById('logoutBtn').style.display = 'none';
+                        document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
+                        document.getElementById('spotifyBtn').disabled = false;
+                        playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                        return;
+                    }
+                    throw new Error(`Failed to fetch playlists: ${response.status} - ${errorText}`);
                 }
 
                 const data = await response.json();

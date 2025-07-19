@@ -5,14 +5,15 @@ export default async function handler(req, res) {
   }
 
   const accessToken = req.cookies.spotify_access_token
+  console.log("Playlists API: Access Token from cookies:", accessToken ? "Present" : "Missing")
 
   if (!accessToken) {
-    console.log("Playlists API: No access token found in cookies.")
+    console.log("Playlists API: No access token found in cookies. Returning 401.")
     return res.status(401).json({ error: "Not authenticated" })
   }
 
   try {
-    console.log("Playlists API: Fetching playlists from Spotify API...")
+    console.log("Playlists API: Fetching playlists from Spotify API with token...")
 
     const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
       headers: {
