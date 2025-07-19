@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
-  <script src="https://sdk.privy.io/web.js" defer></script>
-
-    <script>
-        // 🔑 CONFIGURATION - PRIVY ONLY
-        const CONFIG = {
-            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
-        };
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
@@ -395,7 +387,13 @@
         </div>
     </div>
 
+     <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
+     <script src="https://sdk.privy.io/web.js" defer></script>
 
+        // 🔑 CONFIGURATION - PRIVY ONLY
+        const CONFIG = {
+            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
+        };
         // Global state
         let privy = null;
         let walletConnected = false;
