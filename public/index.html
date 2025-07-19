@@ -198,44 +198,54 @@
             letter-spacing: 1px;
         }
 
-        /* New/Updated Styles for List View */
+        /* New/Updated Styles for List View and Expandable Details */
         .playlist-grid {
-            display: flex; /* Use flexbox for a list layout */
-            flex-direction: column; /* Stack items vertically */
-            gap: 10px; /* Smaller gap between list items */
-            padding: 10px; /* Reduced padding */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            max-height: 400px; /* Make it scrollable */
+            overflow-y: auto; /* Enable vertical scrolling */
+            border: 1px solid #333; /* Add border for scrollable area */
+            background: rgba(255, 255, 255, 0.01);
         }
 
         .playlist-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid #333;
-            padding: 10px; /* Smaller padding */
-            text-align: left; /* Align text to left for list */
-            display: flex; /* Use flex for image and text side-by-side */
-            align-items: center; /* Vertically align items */
-            transition: transform 0.2s ease;
+            padding: 10px;
+            text-align: left;
+            display: flex;
+            flex-direction: column; /* Stack collapsed and expanded parts */
+            cursor: pointer; /* Indicate clickable */
+            transition: background 0.2s ease;
         }
 
         .playlist-card:hover {
-            transform: translateY(-2px); /* Smaller hover effect */
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .playlist-collapsed-view {
+            display: flex;
+            align-items: center;
         }
 
         .playlist-card img {
-            width: 50px; /* Much smaller image size */
-            height: 50px; /* Ensure square aspect ratio */
-            margin-right: 10px; /* Space between image and text */
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
             border: 1px solid #555;
-            flex-shrink: 0; /* Prevent image from shrinking */
+            flex-shrink: 0;
         }
 
         .playlist-info {
-            flex-grow: 1; /* Allow info to take available space */
-            overflow: hidden; /* Hide overflow for text ellipsis */
+            flex-grow: 1;
+            overflow: hidden;
         }
 
         .playlist-card h5 {
-            font-size: 12px; /* Smaller font size */
-            margin-bottom: 2px; /* Reduced margin */
+            font-size: 12px;
+            margin-bottom: 2px;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
@@ -243,20 +253,59 @@
         }
 
         .playlist-card p {
-            font-size: 10px; /* Smaller font size */
+            font-size: 10px;
             color: #999;
-            margin-bottom: 2px; /* Reduced margin */
+            margin-bottom: 2px;
         }
 
         .playlist-card a {
             color: #66ccff;
             text-decoration: none;
-            font-size: 10px; /* Smaller font size */
+            font-size: 10px;
             white-space: nowrap;
         }
 
         .playlist-card a:hover {
             text-decoration: underline;
+        }
+
+        .playlist-expanded-details {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+            font-size: 11px;
+            color: #ccc;
+        }
+
+        .playlist-card.expanded .playlist-expanded-details {
+            display: block; /* Show when expanded */
+        }
+
+        .playlist-expanded-details strong {
+            color: #fff;
+        }
+
+        .playlist-expanded-details ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 5px;
+            max-height: 150px; /* Limit height for track list */
+            overflow-y: auto; /* Scroll for track list */
+            border: 1px solid #222;
+            padding: 5px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .playlist-expanded-details li {
+            padding: 2px 0;
+            border-bottom: 1px dashed #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .playlist-expanded-details li:last-child {
+            border-bottom: none;
         }
 
 
@@ -552,17 +601,27 @@
                 if (data.playlists && data.playlists.length > 0) {
                     playlistGrid.innerHTML = ''; // Clear loading message
                     data.playlists.forEach(playlist => {
-                        const playlistCard = `
-                            <div class="playlist-card">
-                                <img src="${playlist.cover || '/placeholder.svg?height=50&width=50&text=No+Image'}" alt="${playlist.name} cover">
-                                <div class="playlist-info">
-                                    <h5>${playlist.name}</h5>
-                                    <p>${playlist.tracks} tracks</p>
-                                    <a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a>
+                        const playlistCardHtml = `
+                            <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+                                <div class="playlist-collapsed-view">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=50&width=50&text=No+Image'}" alt="${playlist.name} cover">
+                                    <div class="playlist-info">
+                                        <h5>${playlist.name}</h5>
+                                        <p>${playlist.tracks} tracks</p>
+                                    </div>
+                                </div>
+                                <div class="playlist-expanded-details">
+                                    <p><strong>Description:</strong> <span class="playlist-description">${playlist.description || 'N/A'}</span></p>
+                                    <p><strong>Total Duration:</strong> <span class="playlist-duration">Loading...</span></p>
+                                    <p><strong>Songs:</strong></p>
+                                    <ul class="playlist-songs">
+                                        <li>Loading songs...</li>
+                                    </ul>
+                                    <p><a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a></p>
                                 </div>
                             </div>
                         `;
-                        playlistGrid.innerHTML += playlistCard;
+                        playlistGrid.innerHTML += playlistCardHtml;
                     });
                     toggleSection('playlists'); // Open the playlists section
                 } else {
@@ -573,6 +632,55 @@
                 console.error('Frontend: Error fetching playlists:', error);
                 showError('Failed to load playlists: ' + error.message);
                 playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> Error loading playlists. Please try again.</p>';
+            }
+        }
+
+        // Toggle playlist details and fetch if not already loaded
+        async function togglePlaylistDetails(cardElement, playlistId) {
+            const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
+            
+            if (cardElement.classList.contains('expanded')) {
+                // Collapse
+                cardElement.classList.remove('expanded');
+            } else {
+                // Expand
+                cardElement.classList.add('expanded');
+                
+                // Check if details are already loaded
+                if (expandedDetails.dataset.loaded !== 'true') {
+                    try {
+                        expandedDetails.innerHTML = '<p style="text-align: center;">🔄 Loading details...</p>';
+                        console.log(`Frontend: Fetching details for playlist ID: ${playlistId}`);
+                        const response = await fetch(`/api/spotify/playlist/${playlistId}`);
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Failed to fetch playlist details: ${response.status} - ${errorText}`);
+                        }
+
+                        const details = await response.json();
+                        console.log('Frontend: Playlist details fetched:', details);
+
+                        let tracksHtml = '';
+                        if (details.tracks && details.tracks.length > 0) {
+                            tracksHtml = details.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('');
+                        } else {
+                            tracksHtml = '<li>No songs found.</li>';
+                        }
+
+                        expandedDetails.innerHTML = `
+                            <p><strong>Description:</strong> ${details.description || 'N/A'}</p>
+                            <p><strong>Total Duration:</strong> ${details.totalDuration || 'N/A'}</p>
+                            <p><strong>Songs (${details.totalTracks}):</strong></p>
+                            <ul>${tracksHtml}</ul>
+                            <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>
+                        `;
+                        expandedDetails.dataset.loaded = 'true'; // Mark as loaded
+                    } catch (error) {
+                        console.error('Frontend: Error fetching playlist details:', error);
+                        expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
+                    }
+                }
             }
         }
 

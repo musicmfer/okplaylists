@@ -1,4 +1,4 @@
-// Get user's Spotify playlists
+// Get user's Spotify playlists with pagination and filtering
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" })
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log("Playlists API: Fetching user profile to get user ID...")
+    console.log("Playlists API: Fetching user profile to get user ID for filtering...")
     // Fetch user profile to get the current user's ID
     const userProfileResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: {
@@ -35,48 +35,58 @@ export default async function handler(req, res) {
     const currentUserId = userProfile.id
     console.log("Playlists API: Current user ID:", currentUserId)
 
-    console.log("Playlists API: Fetching playlists from Spotify API with token...")
+    let allPlaylists = []
+    let nextUrl = "https://api.spotify.com/v1/me/playlists?limit=50" // Max limit per request
 
-    const playlistsResponse = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    console.log("Playlists API: Starting pagination to fetch all playlists...")
+    while (nextUrl) {
+      const playlistsResponse = await fetch(nextUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
 
-    if (!playlistsResponse.ok) {
-      const errorBody = await playlistsResponse.text()
-      console.error(
-        "Playlists API: Spotify Playlists API error:",
-        playlistsResponse.status,
-        playlistsResponse.statusText,
-        errorBody,
-      )
-      if (playlistsResponse.status === 401) {
-        return res.status(401).json({ error: "Token expired or invalid" })
+      if (!playlistsResponse.ok) {
+        const errorBody = await playlistsResponse.text()
+        console.error(
+          "Playlists API: Spotify Playlists API error during pagination:",
+          playlistsResponse.status,
+          playlistsResponse.statusText,
+          errorBody,
+        )
+        if (playlistsResponse.status === 401) {
+          throw new Error("Token expired or invalid during playlist fetch.")
+        }
+        throw new Error(`Spotify Playlists API error: ${playlistsResponse.status} - ${errorBody}`)
       }
-      throw new Error(`Spotify Playlists API error: ${playlistsResponse.status} - ${errorBody}`)
+
+      const data = await playlistsResponse.json()
+      allPlaylists = allPlaylists.concat(data.items)
+      nextUrl = data.next // Get the URL for the next page, or null if no more pages
+      console.log(
+        `Playlists API: Fetched ${data.items.length} playlists. Total so far: ${allPlaylists.length}. Next URL: ${nextUrl ? "Yes" : "No"}`,
+      )
     }
 
-    const data = await playlistsResponse.json()
-    console.log(`Playlists API: Successfully fetched ${data.items.length} raw playlists`)
+    console.log(`Playlists API: Finished fetching all raw playlists. Total: ${allPlaylists.length}`)
 
     // Filter playlists: only public and owned by the current user
-    const filteredPlaylists = data.items.filter((playlist) => {
+    const filteredPlaylists = allPlaylists.filter((playlist) => {
       const isPublic = playlist.public === true
       const isOwnedByUser = playlist.owner.id === currentUserId
 
       if (!isPublic) {
-        console.log(`Playlists API: Filtering out private playlist: "${playlist.name}" (ID: ${playlist.id})`)
+        // console.log(`Playlists API: Filtering out private playlist: "${playlist.name}" (ID: ${playlist.id})`)
       }
       if (!isOwnedByUser) {
-        console.log(
-          `Playlists API: Filtering out playlist not owned by user: "${playlist.name}" (ID: ${playlist.id}) owned by ${playlist.owner.display_name}`,
-        )
+        // console.log(
+        //   `Playlists API: Filtering out playlist not owned by user: "${playlist.name}" (ID: ${playlist.id}) owned by ${playlist.owner.display_name}`,
+        // )
       }
       return isPublic && isOwnedByUser
     })
 
-    console.log(`Playlists API: ${filteredPlaylists.length} playlists after filtering.`)
+    console.log(`Playlists API: ${filteredPlaylists.length} playlists after filtering (public and owned by user).`)
 
     // Transform data for frontend
     const playlists = filteredPlaylists.map((playlist) => {
