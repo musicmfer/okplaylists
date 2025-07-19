@@ -391,8 +391,6 @@
     <script 
         src="https://privy.io/sdk/web.js" 
         defer 
-        onload="console.log('Privy SDK script loaded successfully!'); initPrivy();"
-        onerror="console.error('Privy SDK script failed to load!'); updateDebugInfo();"
     ></script>
 
     <script>
@@ -702,7 +700,25 @@
             
             updateConnectionStatus();
             updateDebugInfo();
-            
+        // Inside document.addEventListener('DOMContentLoaded', ...)
+if (typeof window.Privy !== 'undefined') {
+    initPrivy();
+} else {
+    console.warn('Privy not loaded yet. Retrying...');
+    let retryCount = 0;
+    const interval = setInterval(() => {
+        if (typeof window.Privy !== 'undefined') {
+            initPrivy();
+            clearInterval(interval);
+        }
+        retryCount++;
+        if (retryCount > 10) {
+            clearInterval(interval);
+            showError('❌ Privy SDK failed to load.');
+            updateDebugInfo();
+        }
+    }, 500);
+}
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
             
