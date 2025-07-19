@@ -198,6 +198,58 @@
             letter-spacing: 1px;
         }
 
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .playlist-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .playlist-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .playlist-card img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border: 1px solid #555;
+        }
+
+        .playlist-card h5 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-card p {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .playlist-card a {
+            color: #66ccff;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .playlist-card a:hover {
+            text-decoration: underline;
+        }
+
+
         @media (max-width: 768px) {
             .title {
                 font-size: 32px;
@@ -208,6 +260,9 @@
                 display: block;
                 margin: 10px auto;
                 width: 200px;
+            }
+            .playlist-grid {
+                grid-template-columns: 1fr; /* Stack playlists on small screens */
             }
         }
     </style>
@@ -250,8 +305,8 @@
                 YOUR PLAYLISTS
             </div>
             <div class="section-content" id="playlists">
-                <div id="playlistGrid">
-                    <p style="color: #666; text-align: center; padding: 20px;">
+                <div id="playlistGrid" class="playlist-grid">
+                    <p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">
                         > CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS
                     </p>
                 </div>
@@ -395,7 +450,7 @@
                     
                     document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
                     document.getElementById('walletBtn').disabled = true;
-                    document.getElementById('spotifyBtn').disabled = false;
+                    // document.getElementById('spotifyBtn').disabled = false; // Spotify button is now enabled by default
                     
                     showSuccess('✅ Wallet connected via Privy!');
                     updateConnectionStatus();
@@ -446,7 +501,7 @@
                     document.getElementById('spotifyBtn').disabled = false;
                     
                     document.getElementById('playlistGrid').innerHTML = 
-                        '<p style="color: #666; text-align: center; padding: 20px;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                        '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
                     
                     updateConnectionStatus();
                     showSuccess('Logged out from Spotify');
@@ -455,6 +510,62 @@
                 showError('Logout failed: ' + error.message);
             }
         }
+
+        // Fetch and display playlists
+        async function fetchPlaylists() {
+            const playlistGrid = document.getElementById('playlistGrid');
+            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">🔄 Loading playlists...</p>';
+            
+            try {
+                console.log('Frontend: Attempting to fetch playlists...');
+                const response = await fetch('/api/spotify/playlists');
+                
+                if (response.status === 401) {
+                    // Token expired or not authenticated, prompt re-auth
+                    showError('Spotify session expired. Please reconnect Spotify.');
+                    spotifyConnected = false;
+                    updateConnectionStatus();
+                    document.getElementById('spotifyBtn').style.display = 'inline-block';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
+                    document.getElementById('spotifyBtn').disabled = false;
+                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to fetch playlists: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Frontend: Playlists fetched successfully:', data.playlists);
+
+                if (data.playlists && data.playlists.length > 0) {
+                    playlistGrid.innerHTML = ''; // Clear loading message
+                    data.playlists.forEach(playlist => {
+                        const playlistCard = `
+                            <div class="playlist-card">
+                                <img src="${playlist.cover || '/placeholder.svg?height=180&width=180'}" alt="${playlist.name} cover">
+                                <h5>${playlist.name}</h5>
+                                <p>${playlist.tracks} tracks</p>
+                                <a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a>
+                            </div>
+                        `;
+                        playlistGrid.innerHTML += playlistCard;
+                    });
+                    toggleSection('playlists'); // Open the playlists section
+                } else {
+                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No playlists found or available.</p>';
+                }
+
+            } catch (error) {
+                console.error('Frontend: Error fetching playlists:', error);
+                showError('Failed to load playlists: ' + error.message);
+                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> Error loading playlists. Please try again.</p>';
+            }
+        }
+
 
         // Update connection status display
         function updateConnectionStatus() {
@@ -485,6 +596,9 @@
                 updateConnectionStatus();
                 showSuccess('✅ Spotify connected successfully!');
                 
+                // Fetch playlists immediately after successful Spotify connection
+                fetchPlaylists();
+
                 // Clean URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (urlParams.get('error')) {
@@ -494,6 +608,12 @@
                 // Clean URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
+
+            // Also check if Spotify is already connected (e.g., on refresh)
+            // This requires a way to persist spotifyConnected state, e.g., via a cookie or local storage
+            // For now, we'll rely on the URL param for initial connection.
+            // If you want to persist Spotify connection across refreshes, we'd need to check for the presence of the spotify_access_token cookie.
+            // For this iteration, let's assume a refresh means re-connecting Spotify if not explicitly in the URL.
         });
     </script>
 </body>

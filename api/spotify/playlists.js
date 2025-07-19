@@ -7,11 +7,12 @@ export default async function handler(req, res) {
   const accessToken = req.cookies.spotify_access_token
 
   if (!accessToken) {
+    console.log("Playlists API: No access token found in cookies.")
     return res.status(401).json({ error: "Not authenticated" })
   }
 
   try {
-    console.log("Fetching playlists from Spotify API...")
+    console.log("Playlists API: Fetching playlists from Spotify API...")
 
     const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
       headers: {
@@ -20,16 +21,17 @@ export default async function handler(req, res) {
     })
 
     if (!response.ok) {
-      console.error("Spotify API error:", response.status, response.statusText)
+      const errorBody = await response.text()
+      console.error("Playlists API: Spotify API error:", response.status, response.statusText, errorBody)
       if (response.status === 401) {
         // Token expired, try to refresh
-        return res.status(401).json({ error: "Token expired" })
+        return res.status(401).json({ error: "Token expired or invalid" })
       }
-      throw new Error(`Spotify API error: ${response.status}`)
+      throw new Error(`Spotify API error: ${response.status} - ${errorBody}`)
     }
 
     const data = await response.json()
-    console.log(`Successfully fetched ${data.items.length} playlists`)
+    console.log(`Playlists API: Successfully fetched ${data.items.length} playlists`)
 
     // Transform data for frontend
     const playlists = data.items.map((playlist) => ({
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
 
     res.json({ playlists })
   } catch (error) {
-    console.error("Playlists fetch error:", error)
-    res.status(500).json({ error: "Failed to fetch playlists" })
+    console.error("Playlists API: Playlists fetch error:", error)
+    res.status(500).json({ error: "Failed to fetch playlists", details: error.message })
   }
 }
