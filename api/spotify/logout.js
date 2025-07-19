@@ -4,8 +4,10 @@ export default function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" })
   }
 
+  console.log("Logging out from Spotify...")
+
   // Clear all Spotify cookies
-  const clearCookie = "HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+  const clearCookie = "HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/"
 
   res.setHeader("Set-Cookie", [
     `spotify_access_token=; ${clearCookie}`,

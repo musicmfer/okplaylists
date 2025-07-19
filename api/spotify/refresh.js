@@ -14,6 +14,8 @@ export default async function handler(req, res) {
     const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID
     const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET
 
+    console.log("Refreshing Spotify token...")
+
     const response = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: {
@@ -27,13 +29,15 @@ export default async function handler(req, res) {
     })
 
     if (!response.ok) {
+      console.error("Token refresh failed:", response.status)
       throw new Error(`Token refresh failed: ${response.status}`)
     }
 
     const tokenData = await response.json()
+    console.log("Token refresh successful")
 
     // Update access token cookie
-    const cookieOptions = "HttpOnly; Secure; SameSite=Strict; Max-Age=3600"
+    const cookieOptions = "HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/"
     res.setHeader("Set-Cookie", `spotify_access_token=${tokenData.access_token}; ${cookieOptions}`)
 
     res.json({ success: true })

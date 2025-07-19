@@ -11,6 +11,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log("Fetching playlists from Spotify API...")
+
     const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -18,6 +20,7 @@ export default async function handler(req, res) {
     })
 
     if (!response.ok) {
+      console.error("Spotify API error:", response.status, response.statusText)
       if (response.status === 401) {
         // Token expired, try to refresh
         return res.status(401).json({ error: "Token expired" })
@@ -26,6 +29,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json()
+    console.log(`Successfully fetched ${data.items.length} playlists`)
 
     // Transform data for frontend
     const playlists = data.items.map((playlist) => ({

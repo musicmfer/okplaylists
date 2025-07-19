@@ -8,6 +8,7 @@ export default function handler(req, res) {
   const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI
 
   if (!CLIENT_ID || !REDIRECT_URI) {
+    console.error("Missing Spotify configuration:", { CLIENT_ID: !!CLIENT_ID, REDIRECT_URI: !!REDIRECT_URI })
     return res.status(500).json({ error: "Missing Spotify configuration" })
   }
 
@@ -27,7 +28,8 @@ export default function handler(req, res) {
   authUrl.searchParams.append("show_dialog", "true")
 
   // Store state in a secure cookie for validation
-  res.setHeader("Set-Cookie", `spotify_state=${state}; HttpOnly; Secure; SameSite=Strict; Max-Age=600`)
+  res.setHeader("Set-Cookie", `spotify_state=${state}; HttpOnly; Secure; SameSite=Strict; Max-Age=600; Path=/`)
 
+  console.log("Redirecting to Spotify auth:", authUrl.toString())
   res.redirect(authUrl.toString())
 }
