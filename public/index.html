@@ -60,9 +60,6 @@
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
         
-        /* Profile header - ALWAYS has underline */
-        .profile-header { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; font-weight: 700; }
-
         /* Expandable card headers - underline ONLY when expanded */
         .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; font-weight: 700; }
         .expandable-header:hover { opacity: 0.8; }
@@ -72,7 +69,7 @@
         .expandable-content { display: none; }
         .expandable-content.active { display: block; }
 
-        /* Profile Card */
+        /* Profile Card - No header, no underline */
         .profile-card { display: flex; align-items: flex-start; gap: 15px; position: relative; }
         .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
@@ -121,6 +118,15 @@
         .item-info { flex: 1; }
         .item-name { font-size: 11px; color: #fff; font-weight: 400; }
         .item-detail { font-size: 9px; color: #999; font-weight: 400; }
+
+        /* Clickable items - hover effects */
+        .clickable-item {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .clickable-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
 
         /* Playlist items */
         .playlist-item { 
@@ -259,7 +265,6 @@
             <div class="dashboard-grid">
                 <!-- Profile Card with Library & Genres -->
                 <div class="dashboard-card">
-                    <h3 class="profile-header">🎵 Your Profile</h3>
                     <div id="profileContent" class="profile-card">
                         <p>Loading...</p>
                     </div>
@@ -392,6 +397,13 @@
             return textWidth > (element.offsetWidth - 8);
         }
 
+        // Open Spotify URL
+        function openSpotify(url) {
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
         // --- SPOTIFY ---
         function connectSpotify() {
             document.getElementById('spotifyBtn').disabled = true;
@@ -467,10 +479,10 @@
                 }, 100);
             }
 
-            // Top Artists - Show all available (up to 20)
+            // Top Artists - Show all available (up to 20) with Spotify links
             const artistsContent = document.getElementById('topArtistsContent');
             artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
-                <li>
+                <li class="clickable-item" onclick="openSpotify('${artist.spotifyUrl}')">
                     <img src="${artist.image || '/placeholder.svg?height=28&width=28'}" alt="${artist.name}">
                     <div class="item-info">
                         <div class="item-name">${artist.name}</div>
@@ -479,10 +491,10 @@
                 </li>
             `).join('');
 
-            // Top Tracks - Show all available (up to 20)
+            // Top Tracks - Show all available (up to 20) with Spotify links
             const tracksContent = document.getElementById('topTracksContent');
             tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
-                <li>
+                <li class="clickable-item" onclick="openSpotify('${track.spotifyUrl}')">
                     <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                     <div class="item-info">
                         <div class="item-name">${track.name}</div>
@@ -491,12 +503,12 @@
                 </li>
             `).join('');
 
-            // Recently Played - Show all available (up to 20)
+            // Recently Played - Show all available (up to 20) with Spotify links
             const recentContent = document.getElementById('recentlyPlayedContent');
             recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
-                    <li>
+                    <li class="clickable-item" onclick="openSpotify('${track.spotifyUrl}')">
                         <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                         <div class="item-info">
                             <div class="item-name">${track.name}</div>

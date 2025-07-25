@@ -110,6 +110,7 @@ export default async function handler(req, res) {
         image: artist.images?.[0]?.url,
         popularity: artist.popularity,
         genres: artist.genres,
+        spotifyUrl: artist.external_urls?.spotify,
       })) || []
 
     // Calculate genre diversity and popularity scores
@@ -143,6 +144,7 @@ export default async function handler(req, res) {
         image: track.album.images?.[0]?.url,
         duration: track.duration_ms,
         popularity: track.popularity,
+        spotifyUrl: track.external_urls?.spotify,
       })) || []
 
     // PROCESS RECENTLY PLAYED
@@ -152,6 +154,7 @@ export default async function handler(req, res) {
         artist: item.track.artists[0].name,
         playedAt: item.played_at,
         image: item.track.album.images?.[0]?.url,
+        spotifyUrl: item.track.external_urls?.spotify,
       })) || []
 
     // PROCESS CURRENTLY PLAYING
