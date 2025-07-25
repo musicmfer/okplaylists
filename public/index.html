@@ -28,92 +28,93 @@
         .dashboard.active { display: block; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
-        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0; }
+        
+        /* ALL headers get underlines like expanded cards */
+        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
 
         /* Expandable card headers - COMPACT with no extra space */
-        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; }
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
         .expandable-header:hover { opacity: 0.8; }
         .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
         .expandable-header.active::after { content: '[-]'; }
-        .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
         .expandable-content { display: none; }
-        .expandable-content.active { display: block; padding-top: 12px; }
+        .expandable-content.active { display: block; }
 
         /* Profile Card */
         .profile-card { display: flex; align-items: flex-start; gap: 15px; }
-        .profile-card img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
+        .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
-        .profile-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .profile-info p { color: #999; font-size: 10px; margin-bottom: 8px; }
+        .profile-info h4 { font-size: 13px; margin-bottom: 3px; }
+        .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; }
 
-        /* Genres */
-        .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .genre-tag { background: #444; padding: 4px 8px; border-radius: 12px; font-size: 9px; }
+        /* Genres - 30% smaller */
+        .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; }
 
         /* Currently Playing */
         .now-playing { background: linear-gradient(45deg, #1db954, #1ed760); padding: 15px; border-radius: 6px; color: #000; }
         .now-playing.not-playing { background: #333; color: #999; }
         .now-playing-content { display: flex; align-items: center; gap: 12px; }
-        .now-playing img { width: 50px; height: 50px; border-radius: 6px; }
-        .now-playing-info h4 { font-size: 13px; margin-bottom: 4px; }
-        .now-playing-info p { font-size: 10px; opacity: 0.8; }
-        .progress-bar { width: 100%; height: 3px; background: rgba(0,0,0,0.3); border-radius: 2px; margin: 8px 0; overflow: hidden; }
+        .now-playing img { width: 35px; height: 35px; border-radius: 6px; }
+        .now-playing-info h4 { font-size: 11px; margin-bottom: 3px; }
+        .now-playing-info p { font-size: 9px; opacity: 0.8; }
+        .progress-bar { width: 100%; height: 3px; background: rgba(0,0,0,0.3); border-radius: 2px; margin: 6px 0; overflow: hidden; }
         .progress-fill { height: 100%; background: #000; transition: width 1s linear; }
 
         /* Playback Controls */
-        .playback-controls { display: flex; gap: 8px; margin-top: 8px; }
-        .control-btn { background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.3); color: #000; padding: 6px 12px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: inherit; }
+        .playback-controls { display: flex; gap: 6px; margin-top: 6px; }
+        .control-btn { background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.3); color: #000; padding: 4px 8px; font-size: 9px; cursor: pointer; border-radius: 3px; font-family: inherit; }
         .control-btn:hover { background: rgba(0,0,0,0.3); }
         .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Lyrics expandable box */
-        .lyrics-section { margin-top: 8px; }
-        .lyrics-header { background: rgba(0,0,0,0.3); padding: 6px 10px; cursor: pointer; font-size: 10px; border: 1px solid rgba(0,0,0,0.4); }
+        .lyrics-section { margin-top: 6px; }
+        .lyrics-header { background: rgba(0,0,0,0.3); padding: 4px 8px; cursor: pointer; font-size: 9px; border: 1px solid rgba(0,0,0,0.4); }
         .lyrics-header:hover { background: rgba(0,0,0,0.4); }
-        .lyrics-content { display: none; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.4); border-top: none; max-height: 200px; overflow-y: auto; }
+        .lyrics-content { display: none; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.4); border-top: none; max-height: 140px; overflow-y: auto; }
         .lyrics-content.active { display: block; }
-        .lyrics-text { white-space: pre-line; font-size: 10px; line-height: 1.4; }
+        .lyrics-text { white-space: pre-line; font-size: 9px; line-height: 1.3; }
 
-        /* Lists - for all expandable content */
-        .item-list { max-height: 200px; overflow-y: auto; }
-        .item-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222; }
+        /* Lists - 30% smaller and more compact */
+        .item-list { max-height: 140px; overflow-y: auto; }
+        .item-list li { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #222; }
         .item-list li:last-child { border-bottom: none; }
-        .item-list img { width: 35px; height: 35px; border-radius: 3px; }
+        .item-list img { width: 25px; height: 25px; border-radius: 3px; }
         .item-info { flex: 1; }
-        .item-name { font-size: 11px; color: #fff; }
-        .item-detail { font-size: 9px; color: #999; }
+        .item-name { font-size: 10px; color: #fff; }
+        .item-detail { font-size: 8px; color: #999; }
 
-        /* Playlist items - NEW STYLE like the image */
-        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 6px 0; border-bottom: 1px solid #222; }
+        /* Playlist items - 30% smaller */
+        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 4px 0; border-bottom: 1px solid #222; }
         .playlist-item:last-child { border-bottom: none; }
         .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .playlist-item-header { display: flex; align-items: center; gap: 8px; }
-        .playlist-item-header img { width: 35px; height: 35px; border-radius: 3px; }
+        .playlist-item-header { display: flex; align-items: center; gap: 6px; }
+        .playlist-item-header img { width: 25px; height: 25px; border-radius: 3px; }
         .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 11px; color: #fff; }
-        .playlist-item-info .item-detail { font-size: 9px; color: #999; }
+        .playlist-item-info .item-name { font-size: 10px; color: #fff; }
+        .playlist-item-info .item-detail { font-size: 8px; color: #999; }
         
-        /* Expanded playlist details - NEW STRUCTURE */
-        .playlist-item-details { display: none; margin-top: 8px; font-size: 10px; color: #ccc; }
+        /* Expanded playlist details - NO EXTRA SPACE */
+        .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; }
         .playlist-item.expanded .playlist-item-details { display: block; }
-        .playlist-detail-row { margin-bottom: 6px; color: #ccc; }
+        .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; }
 
-        /* Black box for songs only */
+        /* Black box for songs only - more compact */
         .playlist-songs-box { 
             background: #000; 
             border: 1px solid #333; 
-            padding: 8px; 
-            margin: 8px 0; 
-            max-height: 150px; 
+            padding: 6px; 
+            margin: 6px 0; 
+            max-height: 105px; 
             overflow-y: auto; 
             border-radius: 3px;
         }
         .playlist-songs-box ul { list-style: none; padding: 0; margin: 0; }
-        .playlist-songs-box li { font-size: 9px; padding: 2px 0; color: #ccc; }
+        .playlist-songs-box li { font-size: 8px; padding: 1px 0; color: #ccc; }
 
         /* White Spotify link */
-        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 10px; }
+        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; }
         .playlist-spotify-link:hover { text-decoration: underline; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; }
@@ -300,10 +301,10 @@
         }
 
         function populateDashboard(data) {
-            // Profile with ALL stats in one line
+            // Profile with ALL stats in one line - 30% smaller
             const profileContent = document.getElementById('profileContent');
             profileContent.innerHTML = `
-                <img src="${data.profile.imageUrl || '/placeholder.svg?height=60&width=60'}" alt="Profile">
+                <img src="${data.profile.imageUrl || '/placeholder.svg?height=42&width=42'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
                     <p>${data.profile.followers} Followers • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
@@ -319,11 +320,11 @@
             // Currently Playing
             updateCurrentlyPlaying(data.activity.currentlyPlaying);
 
-            // Top Artists
+            // Top Artists - 30% smaller
             const artistsContent = document.getElementById('topArtistsContent');
             artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
                 <li>
-                    <img src="${artist.image || '/placeholder.svg?height=35&width=35'}" alt="${artist.name}">
+                    <img src="${artist.image || '/placeholder.svg?height=25&width=25'}" alt="${artist.name}">
                     <div class="item-info">
                         <div class="item-name">${artist.name}</div>
                         <div class="item-detail">Popularity: ${artist.popularity}/100</div>
@@ -331,11 +332,11 @@
                 </li>
             `).join('');
 
-            // Top Tracks
+            // Top Tracks - 30% smaller
             const tracksContent = document.getElementById('topTracksContent');
             tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
                 <li>
-                    <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
+                    <img src="${track.image || '/placeholder.svg?height=25&width=25'}" alt="${track.name}">
                     <div class="item-info">
                         <div class="item-name">${track.name}</div>
                         <div class="item-detail">${track.artist}</div>
@@ -343,13 +344,13 @@
                 </li>
             `).join('');
 
-            // Recently Played
+            // Recently Played - 30% smaller
             const recentContent = document.getElementById('recentlyPlayedContent');
             recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
                     <li>
-                        <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
+                        <img src="${track.image || '/placeholder.svg?height=25&width=25'}" alt="${track.name}">
                         <div class="item-info">
                             <div class="item-name">${track.name}</div>
                             <div class="item-detail">${track.artist} • ${playedAt}</div>
@@ -380,7 +381,7 @@
             content.innerHTML = `
                 <div class="now-playing">
                     <div class="now-playing-content">
-                        <img src="${track.image || '/placeholder.svg?height=50&width=50'}" alt="${track.name}">
+                        <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
                         <div class="now-playing-info">
                             <h4>${track.name}</h4>
                             <p>${track.artist} • ${track.album}</p>
@@ -436,7 +437,7 @@
                         const playlistHtml = `
                             <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
                                 <div class="playlist-item-header">
-                                    <img src="${playlist.cover || '/placeholder.svg?height=35&width=35'}" alt="${playlist.name}">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=25&width=25'}" alt="${playlist.name}">
                                     <div class="playlist-item-info">
                                         <div class="item-name">${playlist.name}</div>
                                         <div class="item-detail">${playlist.tracks} tracks</div>
