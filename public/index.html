@@ -28,15 +28,15 @@
         .dashboard.active { display: block; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
-        .dashboard-card h3 { color: #fff; margin-bottom: 12px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
 
-        /* Expandable card headers - NO BORDER when closed */
-        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; }
+        /* Expandable card headers - COMPACT with no extra space */
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0; }
         .expandable-header:hover { opacity: 0.8; }
         .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
         .expandable-header.active::after { content: '[-]'; }
-        .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; }
-        .expandable-content { display: none; margin-top: 12px; padding-top: 12px; }
+        .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        .expandable-content { display: none; padding-top: 12px; }
         .expandable-content.active { display: block; }
 
         /* Profile Card */
@@ -44,7 +44,7 @@
         .profile-card img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
         .profile-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .profile-info p { color: #999; font-size: 10px; margin-bottom: 4px; }
+        .profile-info p { color: #999; font-size: 10px; margin-bottom: 8px; }
 
         /* Genres */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -83,13 +83,24 @@
         .item-name { font-size: 11px; color: #fff; }
         .item-detail { font-size: 9px; color: #999; }
 
-        /* Playlist items - expandable within the list */
-        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 2px 0; }
+        /* Playlist items - NEW STYLE like the image */
+        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 6px 0; border-bottom: 1px solid #222; }
+        .playlist-item:last-child { border-bottom: none; }
         .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .playlist-item-details { display: none; margin-top: 8px; margin-left: 43px; padding: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid #444; font-size: 9px; color: #ccc; }
+        .playlist-item-header { display: flex; align-items: center; gap: 8px; }
+        .playlist-item-header img { width: 35px; height: 35px; border-radius: 3px; }
+        .playlist-item-info { flex: 1; }
+        .playlist-item-info .item-name { font-size: 11px; color: #fff; }
+        .playlist-item-info .item-detail { font-size: 9px; color: #999; }
+        
+        /* Expanded playlist details - like the image */
+        .playlist-item-details { display: none; margin-top: 8px; padding: 10px; background: rgba(0, 0, 0, 0.4); border: 1px solid #444; font-size: 10px; color: #ccc; }
         .playlist-item.expanded .playlist-item-details { display: block; }
-        .playlist-item-details ul { list-style: none; padding: 0; margin-top: 4px; max-height: 100px; overflow-y: auto; }
-        .playlist-item-details ul li { font-size: 8px; padding: 1px 0; border: none; }
+        .playlist-detail-row { margin-bottom: 6px; }
+        .playlist-detail-row strong { color: #fff; }
+        .playlist-songs-list { margin-top: 8px; max-height: 150px; overflow-y: auto; }
+        .playlist-songs-list ul { list-style: none; padding: 0; margin: 0; }
+        .playlist-songs-list li { font-size: 9px; padding: 2px 0; color: #ccc; border: none; }
         .playlist-item-details a { color: #fff; text-decoration: none; font-size: 9px; }
         .playlist-item-details a:hover { text-decoration: underline; }
 
@@ -146,9 +157,9 @@
                 <div class="dashboard-card">
                     <h3 class="expandable-header" onclick="toggleExpandable('playlists')">🎵 Your Playlists</h3>
                     <div class="expandable-content" id="playlists">
-                        <ul id="playlistsContent" class="item-list">
-                            <li>Loading...</li>
-                        </ul>
+                        <div id="playlistsContent">
+                            <p>Loading...</p>
+                        </div>
                     </div>
                 </div>
 
@@ -277,14 +288,13 @@
         }
 
         function populateDashboard(data) {
-            // Profile with Library & Genres
+            // Profile with ALL stats in one line
             const profileContent = document.getElementById('profileContent');
             profileContent.innerHTML = `
                 <img src="${data.profile.imageUrl || '/placeholder.svg?height=60&width=60'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
-                    <p>${data.profile.followers} Followers</p>
-                    <p>${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
+                    <p>${data.profile.followers} Followers • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
                     
                     <div class="genre-tags">
                         ${data.musicTaste.topGenres.slice(0, 6).map(genre => 
@@ -398,7 +408,7 @@
 
         async function fetchPlaylists() {
             const playlistsContent = document.getElementById('playlistsContent');
-            playlistsContent.innerHTML = '<li style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlists...</li>';
+            playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlists...</p>';
             
             try {
                 const response = await fetch('/api/spotify/playlists');
@@ -412,23 +422,25 @@
                     playlistsContent.innerHTML = '';
                     data.playlists.forEach(playlist => {
                         const playlistHtml = `
-                            <li class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-                                <img src="${playlist.cover || '/placeholder.svg?height=35&width=35'}" alt="${playlist.name}">
-                                <div class="item-info">
-                                    <div class="item-name">${playlist.name}</div>
-                                    <div class="item-detail">${playlist.tracks} tracks</div>
+                            <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+                                <div class="playlist-item-header">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=35&width=35'}" alt="${playlist.name}">
+                                    <div class="playlist-item-info">
+                                        <div class="item-name">${playlist.name}</div>
+                                        <div class="item-detail">${playlist.tracks} tracks</div>
+                                    </div>
                                 </div>
                                 <div class="playlist-item-details">Loading...</div>
-                            </li>
+                            </div>
                         `;
                         playlistsContent.innerHTML += playlistHtml;
                     });
                 } else {
-                    playlistsContent.innerHTML = '<li style="color: #666; text-align: center; padding: 20px;">No public playlists found.</li>';
+                    playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No public playlists found.</p>';
                 }
             } catch (error) {
                 showError('Failed to load playlists: ' + error.message);
-                playlistsContent.innerHTML = '<li style="color: #666; text-align: center; padding: 20px;">Error loading playlists.</li>';
+                playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Error loading playlists.</p>';
             }
         }
 
@@ -446,14 +458,19 @@
                     const playlistDetails = await response.json();
                     
                     let tracksHtml = playlistDetails.tracks && playlistDetails.tracks.length > 0
-                        ? playlistDetails.tracks.slice(0, 10).map(track => `<li>${track.name} - ${track.artist}</li>`).join('')
+                        ? playlistDetails.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('')
                         : '<li>No songs found.</li>';
                     
                     details.innerHTML = `
-                        <p><strong>Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</p>
-                        <p><strong>Top Songs:</strong></p>
-                        <ul>${tracksHtml}</ul>
-                        <p><a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a></p>
+                        <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
+                        <div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
+                        <div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
+                        <div class="playlist-songs-list">
+                            <ul>${tracksHtml}</ul>
+                        </div>
+                        <div class="playlist-detail-row" style="margin-top: 8px;">
+                            <a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a>
+                        </div>
                     `;
                     details.dataset.loaded = 'true';
                 } catch (error) {
