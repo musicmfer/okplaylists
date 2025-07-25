@@ -79,14 +79,14 @@
         .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 700; }
         .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; font-weight: 400; }
 
-        /* Now Playing - Smaller box with conditional scrolling */
+        /* Now Playing - Even smaller box */
         .now-playing-display {
             position: absolute;
             top: 0;
             right: 0;
-            width: 150px;
-            height: 16px;
-            font-size: 8px;
+            width: 130px;
+            height: 14px;
+            font-size: 7px;
             color: #1db954;
             font-weight: 400;
             background: rgba(29, 185, 84, 0.1);
@@ -95,8 +95,9 @@
             overflow: hidden;
             display: flex;
             align-items: center;
-            padding: 0 4px;
+            padding: 0 3px;
         }
+
         .now-playing-text {
             white-space: nowrap;
         }
@@ -112,8 +113,8 @@
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
         .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 400; }
 
-        /* Lists - 20% smaller (10% bigger than before) */
-        .item-list { max-height: 140px; overflow-y: auto; }
+        /* Lists - Increased height for 20 results */
+        .item-list { max-height: 200px; overflow-y: auto; }
         .item-list li { display: flex; align-items: center; gap: 7px; padding: 5px 0; border-bottom: 1px solid #222; }
         .item-list li:last-child { border-bottom: none; }
         .item-list img { width: 28px; height: 28px; border-radius: 3px; }
@@ -125,11 +126,37 @@
         .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 5px 0; border-bottom: 1px solid #222; }
         .playlist-item:last-child { border-bottom: none; }
         .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .playlist-item-header { display: flex; align-items: center; gap: 7px; }
-        .playlist-item-header img { width: 28px; height: 28px; border-radius: 3px; }
-        .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 400; }
-        .playlist-item-info .item-detail { font-size: 9px; color: #999; font-weight: 400; }
+
+        /* Playlist title selection only */
+        .playlist-item-info .item-name {
+            font-size: 11px;
+            color: #fff;
+            font-weight: 400;
+            user-select: text;
+            cursor: text;
+        }
+
+        .playlist-item-info .item-detail {
+            font-size: 9px;
+            color: #999;
+            font-weight: 400;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .playlist-item-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            user-select: none;
+        }
+
+        .playlist-item-header img {
+            width: 28px;
+            height: 28px;
+            border-radius: 3px;
+            user-select: none;
+        }
         
         /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
         .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; font-weight: 400; }
@@ -186,7 +213,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid { grid-template-columns: 1fr; }
-            .now-playing-display { width: 120px; font-size: 7px; }
+            .now-playing-display { width: 100px; font-size: 6px; }
         }
 
         /* Playlists expanded by default */
@@ -407,7 +434,7 @@
                 <img src="${data.profile.imageUrl || '/placeholder.svg?height=42&width=42'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
-                    <p>${data.profile.followers} Followers • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
+                    <p>${data.profile.followers} Followers • ${data.library.totalFollowedArtists} Following • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
                     
                     <div class="genre-tags">
                         ${data.musicTaste.topGenres.slice(0, 6).map(genre => 
@@ -430,9 +457,9 @@
                 }, 100);
             }
 
-            // Top Artists - 10% bigger than before
+            // Top Artists - Show 20 results
             const artistsContent = document.getElementById('topArtistsContent');
-            artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
+            artistsContent.innerHTML = data.musicTaste.topArtists.slice(0, 20).map(artist => `
                 <li>
                     <img src="${artist.image || '/placeholder.svg?height=28&width=28'}" alt="${artist.name}">
                     <div class="item-info">
@@ -442,9 +469,9 @@
                 </li>
             `).join('');
 
-            // Top Tracks - 10% bigger than before
+            // Top Tracks - Show 20 results
             const tracksContent = document.getElementById('topTracksContent');
-            tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
+            tracksContent.innerHTML = data.musicTaste.topTracks.slice(0, 20).map(track => `
                 <li>
                     <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                     <div class="item-info">
@@ -454,9 +481,9 @@
                 </li>
             `).join('');
 
-            // Recently Played - 10% bigger than before
+            // Recently Played - Show 20 results
             const recentContent = document.getElementById('recentlyPlayedContent');
-            recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
+            recentContent.innerHTML = data.activity.recentlyPlayed.slice(0, 20).map(track => {
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
                     <li>
