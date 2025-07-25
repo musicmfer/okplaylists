@@ -36,17 +36,11 @@
         .profile-info h4 { font-size: 15px; margin-bottom: 4px; }
         .profile-info p { color: #999; font-size: 10px; }
 
-        /* Stats Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .stat-item { background: rgba(0, 0, 0, 0.3); padding: 12px; text-align: center; border: 1px solid #444; }
-        .stat-number { font-size: 18px; font-weight: bold; color: #66ff66; }
-        .stat-label { font-size: 9px; color: #999; text-transform: uppercase; }
-
-        /* Music Taste */
-        .taste-scores { display: flex; gap: 15px; margin-bottom: 12px; }
-        .score-item { text-align: center; flex: 1; }
-        .score-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #66ff66; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; font-weight: bold; font-size: 12px; }
-        .score-label { font-size: 9px; color: #999; }
+        /* Library Stats - Inline */
+        .library-stats { display: flex; gap: 15px; flex-wrap: wrap; }
+        .library-stat { background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border: 1px solid #444; text-align: center; flex: 1; min-width: 80px; }
+        .library-stat-number { font-size: 16px; font-weight: bold; color: #66ff66; }
+        .library-stat-label { font-size: 8px; color: #999; text-transform: uppercase; }
 
         /* Lists */
         .item-list { max-height: 180px; overflow-y: auto; }
@@ -73,28 +67,29 @@
         .control-btn:hover { background: rgba(0,0,0,0.3); }
         .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Lyrics Modal */
-        .lyrics-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; z-index: 1000; }
-        .lyrics-modal.active { display: flex; align-items: center; justify-content: center; }
-        .lyrics-content { background: #111; border: 1px solid #333; padding: 20px; max-width: 80%; max-height: 80%; overflow-y: auto; border-radius: 6px; }
-        .lyrics-header { display: flex; justify-content: between; align-items: center; margin-bottom: 15px; }
-        .lyrics-close { background: #666; border: none; color: #fff; padding: 5px 10px; cursor: pointer; font-size: 12px; }
-        .lyrics-text { white-space: pre-line; font-size: 12px; line-height: 1.4; }
-
         /* Genres */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; }
         .genre-tag { background: #444; padding: 4px 8px; border-radius: 12px; font-size: 9px; }
 
-        /* Updated Playlists Section to match dashboard cards */
-        .section { margin-bottom: 15px; }
-        .section-header { background: #666; color: #fff; padding: 10px 15px; cursor: pointer; user-select: none; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; position: relative; }
+        /* EXPANDABLE SECTIONS */
+        .expandable-section { margin-bottom: 15px; border: 1px solid #333; background: rgba(255, 255, 255, 0.01); }
+        .section-header { background: #666; color: #fff; padding: 10px 15px; cursor: pointer; user-select: none; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; position: relative; transition: background 0.2s ease; }
+        .section-header:hover { background: #777; }
         .section-header::after { content: '[+]'; position: absolute; right: 15px; }
         .section-header.active::after { content: '[-]'; }
-        .section-content { display: none; border: 1px solid #333; border-top: none; }
+        .section-content { display: none; padding: 15px; border-top: 1px solid #333; background: rgba(255, 255, 255, 0.02); }
         .section-content.active { display: block; }
 
-        /* NEW: Playlist grid to match dashboard cards */
-        .playlist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.01); }
+        /* Lyrics expandable box */
+        .lyrics-section { margin-top: 8px; }
+        .lyrics-header { background: rgba(0,0,0,0.3); padding: 6px 10px; cursor: pointer; font-size: 10px; border: 1px solid rgba(0,0,0,0.4); }
+        .lyrics-header:hover { background: rgba(0,0,0,0.4); }
+        .lyrics-content { display: none; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.4); border-top: none; max-height: 200px; overflow-y: auto; }
+        .lyrics-content.active { display: block; }
+        .lyrics-text { white-space: pre-line; font-size: 10px; line-height: 1.4; }
+
+        /* Playlist grid to match dashboard cards */
+        .playlist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .playlist-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; cursor: pointer; transition: background 0.2s ease; }
         .playlist-card:hover { background: rgba(255, 255, 255, 0.1); }
         .playlist-card h5 { font-size: 13px; margin-bottom: 8px; color: #fff; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 6px; }
@@ -114,8 +109,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid, .playlist-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .taste-scores { flex-direction: column; gap: 8px; }
+            .library-stats { flex-direction: column; gap: 8px; }
         }
     </style>
 </head>
@@ -159,86 +153,81 @@
                         <p>Loading...</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Library Stats -->
-                <div class="dashboard-card">
-                    <h3>📊 Your Library</h3>
-                    <div id="libraryStatsContent" class="stats-grid">
+            <!-- EXPANDABLE SECTIONS -->
+            
+            <!-- Library Stats -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('library')">📊 Your Library</div>
+                <div class="section-content" id="library">
+                    <div id="libraryStatsContent" class="library-stats">
                         <p>Loading...</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Music Taste Analysis -->
-                <div class="dashboard-card">
-                    <h3>🧬 Music DNA</h3>
-                    <div id="musicTasteContent">
-                        <p>Loading...</p>
-                    </div>
-                </div>
-
-                <!-- Top Artists -->
-                <div class="dashboard-card">
-                    <h3>⭐ Top Artists</h3>
-                    <ul id="topArtistsContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-
-                <!-- Top Tracks -->
-                <div class="dashboard-card">
-                    <h3>🔥 Top Tracks</h3>
-                    <ul id="topTracksContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-
-                <!-- Recently Played -->
-                <div class="dashboard-card">
-                    <h3>⏰ Recently Played</h3>
-                    <ul id="recentlyPlayedContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-
-                <!-- Top Genres -->
-                <div class="dashboard-card">
-                    <h3>🎭 Your Genres</h3>
+            <!-- Top Genres -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('genres')">🎭 Your Genres</div>
+                <div class="section-content" id="genres">
                     <div id="topGenresContent" class="genre-tags">
                         <span>Loading...</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="section-header" onclick="toggleSection('playlists')">YOUR PLAYLISTS</div>
-            <div class="section-content" id="playlists">
-                <div id="playlistGrid" class="playlist-grid">
-                    <p style="color: #666; text-align: center; padding: 20px;">
-                        > CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS
-                    </p>
+            <!-- Top Artists -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('artists')">⭐ Top Artists</div>
+                <div class="section-content" id="artists">
+                    <ul id="topArtistsContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Top Tracks -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('tracks')">🔥 Top Tracks</div>
+                <div class="section-content" id="tracks">
+                    <ul id="topTracksContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recently Played -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('recent')">⏰ Recently Played</div>
+                <div class="section-content" id="recent">
+                    <ul id="recentlyPlayedContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Playlists -->
+            <div class="expandable-section">
+                <div class="section-header" onclick="toggleSection('playlists')">🎵 Your Playlists</div>
+                <div class="section-content" id="playlists">
+                    <div id="playlistGrid" class="playlist-grid">
+                        <p style="color: #666; text-align: center; padding: 20px;">
+                            > CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="footer">OK PLAYLISTS © 2025 | YOUR MUSIC, ANALYZED</div>
-
-        <!-- Lyrics Modal -->
-        <div class="lyrics-modal" id="lyricsModal">
-            <div class="lyrics-content">
-                <div class="lyrics-header">
-                    <h3 id="lyricsTitle">Song Lyrics</h3>
-                    <button class="lyrics-close" onclick="closeLyricsModal()">✕</button>
-                </div>
-                <div class="lyrics-text" id="lyricsText">Loading...</div>
-            </div>
-        </div>
     </div>
 
     <script>
         // --- GLOBAL STATE ---
         let spotifyConnected = false;
         let currentlyPlayingInterval = null;
+        let currentTrackId = null;
 
         // --- UI UPDATES ---
         function updateConnectionStatus() {
@@ -273,6 +262,17 @@
             const header = content.previousElementSibling;
             content.classList.toggle('active');
             header.classList.toggle('active');
+        }
+
+        function toggleLyrics(trackId) {
+            const lyricsContent = document.getElementById(`lyrics-${trackId}`);
+            const lyricsHeader = lyricsContent.previousElementSibling;
+            
+            lyricsContent.classList.toggle('active');
+            
+            if (lyricsContent.classList.contains('active') && !lyricsContent.dataset.loaded) {
+                loadLyrics(trackId);
+            }
         }
 
         // --- SPOTIFY ---
@@ -328,43 +328,28 @@
             // Currently Playing
             updateCurrentlyPlaying(data.activity.currentlyPlaying);
 
-            // Library Stats
+            // Library Stats - Inline
             const libraryContent = document.getElementById('libraryStatsContent');
             libraryContent.innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-number">${data.library.totalSavedTracks}</div>
-                    <div class="stat-label">Saved Songs</div>
+                <div class="library-stat">
+                    <div class="library-stat-number">${data.library.totalSavedTracks}</div>
+                    <div class="library-stat-label">Saved Songs</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">${data.library.totalSavedAlbums}</div>
-                    <div class="stat-label">Saved Albums</div>
+                <div class="library-stat">
+                    <div class="library-stat-number">${data.library.totalSavedAlbums}</div>
+                    <div class="library-stat-label">Saved Albums</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">${data.library.totalPlaylists}</div>
-                    <div class="stat-label">Playlists</div>
+                <div class="library-stat">
+                    <div class="library-stat-number">${data.library.totalPlaylists}</div>
+                    <div class="library-stat-label">Playlists</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">${data.library.estimatedListeningHours}h</div>
-                    <div class="stat-label">Est. Listening</div>
+                <div class="library-stat">
+                    <div class="library-stat-number">${data.library.estimatedListeningHours}h</div>
+                    <div class="library-stat-label">Est. Listening</div>
                 </div>
-            `;
-
-            // Music Taste
-            const tasteContent = document.getElementById('musicTasteContent');
-            tasteContent.innerHTML = `
-                <div class="taste-scores">
-                    <div class="score-item">
-                        <div class="score-circle">${data.musicTaste.mainstreamScore}</div>
-                        <div class="score-label">Mainstream</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-circle">${data.musicTaste.adventurousnessScore}</div>
-                        <div class="score-label">Adventurous</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-circle">${data.musicTaste.genreDiversity}</div>
-                        <div class="score-label">Genres</div>
-                    </div>
+                <div class="library-stat">
+                    <div class="library-stat-number">${data.library.totalFollowedArtists}</div>
+                    <div class="library-stat-label">Following</div>
                 </div>
             `;
 
@@ -422,12 +407,16 @@
                         <p>🎵 Nothing playing right now</p>
                     </div>
                 `;
+                currentTrackId = null;
                 return;
             }
 
             const progressPercent = (track.progress / track.duration) * 100;
             const playPauseBtn = track.isPlaying ? 'PAUSE' : 'PLAY';
             const playPauseAction = track.isPlaying ? 'pause' : 'play';
+            
+            // Extract track ID from Spotify URI or URL if available
+            currentTrackId = track.id || 'demo-track-id';
             
             content.innerHTML = `
                 <div class="now-playing">
@@ -441,7 +430,14 @@
                             </div>
                             <div class="playback-controls">
                                 <button class="control-btn" onclick="controlPlayback('${playPauseAction}')">${playPauseBtn}</button>
-                                <button class="control-btn" onclick="showLyrics('${track.name}', '${track.artist}')">LYRICS</button>
+                            </div>
+                            <div class="lyrics-section">
+                                <div class="lyrics-header" onclick="toggleLyrics('${currentTrackId}')">
+                                    📝 SHOW LYRICS
+                                </div>
+                                <div class="lyrics-content" id="lyrics-${currentTrackId}">
+                                    <div class="lyrics-text">Loading lyrics...</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -490,7 +486,6 @@
                             </div>`;
                         playlistGrid.innerHTML += playlistCardHtml;
                     });
-                    toggleSection('playlists');
                 } else {
                     playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> No public playlists found or created by you.</p>';
                 }
@@ -558,37 +553,20 @@
             }
         }
 
-        // Show lyrics modal
-        async function showLyrics(track, artist) {
-            const modal = document.getElementById('lyricsModal');
-            const title = document.getElementById('lyricsTitle');
-            const text = document.getElementById('lyricsText');
-            
-            title.textContent = `${track} - ${artist}`;
-            text.textContent = 'Loading lyrics...';
-            modal.classList.add('active');
+        // Load lyrics
+        async function loadLyrics(trackId) {
+            const lyricsContent = document.getElementById(`lyrics-${trackId}`);
+            const lyricsText = lyricsContent.querySelector('.lyrics-text');
             
             try {
-                const response = await fetch(`/api/spotify/lyrics?track=${encodeURIComponent(track)}&artist=${encodeURIComponent(artist)}`);
+                const response = await fetch(`/api/spotify/lyrics?trackId=${encodeURIComponent(trackId)}`);
                 const data = await response.json();
-                text.textContent = data.lyrics;
+                lyricsText.textContent = data.lyrics || 'Lyrics not available';
+                lyricsContent.dataset.loaded = 'true';
             } catch (error) {
-                text.textContent = 'Sorry, lyrics could not be loaded at this time.';
+                lyricsText.textContent = 'Sorry, lyrics could not be loaded at this time.';
             }
         }
-
-        // Close lyrics modal
-        function closeLyricsModal() {
-            document.getElementById('lyricsModal').classList.remove('active');
-        }
-
-        // Close modal when clicking outside
-        document.addEventListener('click', (e) => {
-            const modal = document.getElementById('lyricsModal');
-            if (e.target === modal) {
-                closeLyricsModal();
-            }
-        });
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
