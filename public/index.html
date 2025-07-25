@@ -12,12 +12,12 @@
         }
 
         body {
-           font-family: ‘Courier New’, ‘Monaco’, monospace;
-           background: #000;
-           color: #fff;
-           overflow-x: hidden;
-           line-height: 1.2;
-           font-size: 14px;
+            font-family: 'Courier New', 'Monaco', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.2;
+            font-size: 14px;
         }
 
         .container {
@@ -328,13 +328,12 @@
     <div class="container">
         <div class="header">
             <div class="title">OK PLAYLISTS</div>
-            <div class="subtitle">FOR COMMUNITIES</div>
+            <div class="subtitle">DECENTRALIZED MUSIC PLATFORM</div>
             <div class="description">
                 > CONNECT YOUR WALLET AND SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
-                > OWN YOUR PLAYLISTS ONCHAIN — WITHIN YOUR COMMUNITY<br>
-                > A COLLECTIVE OF CURATED PLAYLISTS, EXCLUSIVE TO NFT HOLDERS<br>
-                🆗-' only ok computers and mfers & one playlist per nft for beta
-                *playlist explorer app later, ok?*
+                > EXPLORE NFT MUSIC COMMUNITIES AND CURATED COLLECTIONS<br>
+                > MANAGE YOUR MUSICAL IDENTITY IN THE DECENTRALIZED WEB<br>
+                > DISCOVER PLAYLISTS FROM VERIFIED CRYPTO COMMUNITIES
             </div>
         </div>
 
@@ -388,16 +387,16 @@
         </div>
     </div>
 
-    <!-- Load ONLY Privy SDK - using a more direct UMD build with defer -->
+    <!-- Load the LATEST Privy SDK -->
     <script 
-        src="https://cdn.privy.io/privy-browser.js" 
+        src="https://sdk.privy.io/web.js" 
         defer 
-        onload="console.log('Privy SDK script loaded successfully!'); initPrivy();"
-        onerror="console.error('Privy SDK script failed to load!'); updateDebugInfo();"
+        onload="console.log('✅ Latest Privy SDK loaded successfully!'); initPrivy();"
+        onerror="console.error('❌ Latest Privy SDK failed to load!'); updateDebugInfo();"
     ></script>
 
     <script>
-        // 🔑 CONFIGURATION - PRIVY ONLY
+        // 🔑 CONFIGURATION - LATEST PRIVY SDK
         const CONFIG = {
             PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
         };
@@ -418,36 +417,120 @@
                 <strong>User Address:</strong> ${userAddress || 'None'}<br>
                 <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>Current URL:</strong> ${window.location.href}<br>
+                <strong>Available Privy methods:</strong> ${window.Privy ? Object.keys(window.Privy).join(', ') : 'None'}<br>
                 <strong>Init Privy:</strong> <button onclick="initPrivy()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Initialize Privy</button>
             `;
         }
 
-        // Initialize Privy
+        // Initialize Privy with the latest SDK
         async function initPrivy() {
             try {
                 if (typeof window.Privy === 'undefined') {
-                    throw new Error('Privy SDK not found on window.Privy. It might not have loaded correctly.');
+                    throw new Error('Privy SDK not found on window.Privy. The script may not have loaded correctly.');
                 }
 
-                showSuccess('🔄 Initializing Privy...');
+                console.log('🔄 Available Privy object:', window.Privy);
+                console.log('🔄 Available Privy methods:', Object.keys(window.Privy));
 
-                privy = window.Privy.createPrivyClient({
-                    appId: CONFIG.PRIVY_APP_ID,
-                    loginMethods: ['wallet', 'email', 'google'],
-                    appearance: {
-                        theme: 'dark',
-                        accentColor: '#666666',
-                    },
-                });
+                showSuccess('🔄 Initializing latest Privy SDK...');
 
-                console.log('✅ Privy initialized successfully');
-                showSuccess('✅ Privy initialized successfully!');
+                // Use the new Privy SDK API - PrivyClient constructor
+                if (window.Privy.PrivyClient) {
+                    privy = new window.Privy.PrivyClient({
+                        appId: CONFIG.PRIVY_APP_ID,
+                        config: {
+                            loginMethods: ['wallet', 'email', 'google'],
+                            appearance: {
+                                theme: 'dark',
+                                accentColor: '#666666',
+                            },
+                        }
+                    });
+                } else if (window.Privy.createPrivyClient) {
+                    // Fallback to older API if still available
+                    privy = window.Privy.createPrivyClient({
+                        appId: CONFIG.PRIVY_APP_ID,
+                        loginMethods: ['wallet', 'email', 'google'],
+                        appearance: {
+                            theme: 'dark',
+                            accentColor: '#666666',
+                        },
+                    });
+                } else {
+                    // Try direct initialization
+                    privy = window.Privy({
+                        appId: CONFIG.PRIVY_APP_ID,
+                        config: {
+                            loginMethods: ['wallet', 'email', 'google'],
+                            appearance: {
+                                theme: 'dark',
+                                accentColor: '#666666',
+                            },
+                        }
+                    });
+                }
+
+                console.log('✅ Privy initialized successfully:', privy);
+                showSuccess('✅ Latest Privy SDK initialized successfully!');
                 updateDebugInfo();
+
+                // Set up event listeners for authentication state changes
+                if (privy && privy.on) {
+                    privy.on('ready', () => {
+                        console.log('🔄 Privy is ready');
+                        updateDebugInfo();
+                    });
+
+                    privy.on('login', (user) => {
+                        console.log('✅ User logged in:', user);
+                        handlePrivyLogin(user);
+                    });
+
+                    privy.on('logout', () => {
+                        console.log('🔄 User logged out');
+                        handlePrivyLogout();
+                    });
+                }
+
             } catch (error) {
                 console.error('❌ Privy initialization failed:', error);
                 showError('Privy initialization failed: ' + error.message);
                 updateDebugInfo();
             }
+        }
+
+        // Handle successful Privy login
+        function handlePrivyLogin(user) {
+            if (user && user.wallet && user.wallet.address) {
+                userAddress = user.wallet.address;
+                walletConnected = true;
+                
+                document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
+                document.getElementById('walletBtn').disabled = true;
+                
+                showSuccess('✅ Wallet connected via latest Privy SDK!');
+                updateConnectionStatus();
+                updateDebugInfo();
+                
+                console.log('✅ Wallet connected:', userAddress);
+            } else {
+                console.warn('⚠️ User logged in but no wallet found:', user);
+                showError('Login successful but no wallet found. Please try connecting a wallet.');
+            }
+        }
+
+        // Handle Privy logout
+        function handlePrivyLogout() {
+            userAddress = null;
+            walletConnected = false;
+            
+            document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+            document.getElementById('walletBtn').disabled = false;
+            
+            updateConnectionStatus();
+            updateDebugInfo();
+            
+            console.log('🔄 Wallet disconnected');
         }
 
         // Utility functions
@@ -488,7 +571,7 @@
             }
         }
 
-        // Wallet connection - PRIVY ONLY
+        // Wallet connection - LATEST PRIVY SDK
         async function connectWallet() {
             try {
                 if (!privy) {
@@ -497,26 +580,17 @@
                 }
 
                 document.getElementById('walletBtn').textContent = 'CONNECTING...';
-                console.log('🔄 Attempting Privy wallet connection...');
+                console.log('🔄 Attempting wallet connection with latest Privy SDK...');
                 
-                await privy.login(); // This will open Privy's modal
-                const user = privy.user;
-                
-                if (user && user.wallet) {
-                    userAddress = user.wallet.address;
-                    walletConnected = true;
-                    
-                    document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
-                    document.getElementById('walletBtn').disabled = true;
-                    // document.getElementById('spotifyBtn').disabled = false; // Spotify button is now enabled by default
-                    
-                    showSuccess('✅ Wallet connected via Privy!');
-                    updateConnectionStatus();
-                    updateDebugInfo();
-                    
-                    console.log('✅ Wallet connected:', userAddress);
+                // Use the latest Privy login method
+                if (privy.login) {
+                    await privy.login();
+                } else if (privy.authenticate) {
+                    await privy.authenticate();
+                } else if (privy.connectWallet) {
+                    await privy.connectWallet();
                 } else {
-                    throw new Error('No wallet found in Privy user after login. Please try again.');
+                    throw new Error('No login method found on Privy client. Available methods: ' + Object.keys(privy).join(', '));
                 }
                 
             } catch (error) {
@@ -694,12 +768,12 @@
             const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
             
             document.getElementById('connectionStatus').innerHTML = 
-                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus</span>`;
         }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 OK Playlists initialized - Privy Only');
+            console.log('🚀 OK Playlists initialized - Latest Privy SDK');
             
             updateConnectionStatus();
             updateDebugInfo();
@@ -727,12 +801,6 @@
                 // Clean URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
-
-            // Also check if Spotify is already connected (e.g., on refresh)
-            // This requires a way to persist spotifyConnected state, e.g., via a cookie or local storage
-            // For now, we'll rely on the URL param for initial connection.
-            // If you want to persist Spotify connection across refreshes, we'd need to check for the presence of the spotify_access_token cookie.
-            // For this iteration, let's assume a refresh means re-connecting Spotify if not explicitly in the URL.
         });
     </script>
 </body>
