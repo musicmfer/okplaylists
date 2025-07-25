@@ -407,9 +407,11 @@
         let spotifyConnected = false;
         let userAddress = null;
 
-        // Debug function
+        // Debug function - make it work even if Privy fails
         function updateDebugInfo() {
             const debugContent = document.getElementById('debugContent');
+            if (!debugContent) return;
+            
             debugContent.innerHTML = `
                 <strong>Privy SDK:</strong> ${typeof window.Privy !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
                 <strong>Privy Client:</strong> ${privy ? '✅ Initialized' : '❌ Not initialized'}<br>
@@ -417,7 +419,7 @@
                 <strong>User Address:</strong> ${userAddress || 'None'}<br>
                 <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
                 <strong>Current URL:</strong> ${window.location.href}<br>
-                <strong>Available Privy methods:</strong> ${window.Privy ? Object.keys(window.Privy).join(', ') : 'None'}<br>
+                <strong>Available Privy methods:</strong> ${window.Privy ? Object.keys(window.Privy).join(', ') : 'SDK not loaded yet'}<br>
                 <strong>Init Privy:</strong> <button onclick="initPrivy()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Initialize Privy</button>
             `;
         }
@@ -601,19 +603,21 @@
             }
         }
 
-        // Spotify connection
+        // Spotify connection - Remove any wallet dependency
         function connectSpotify() {
             try {
                 document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
+                document.getElementById('spotifyBtn').disabled = true;
                 console.log('🔄 Redirecting to Spotify auth...');
                 
-                // Direct redirect to fixed Spotify API
+                // Direct redirect to Spotify API - this was working perfectly before
                 window.location.href = '/api/auth/spotify';
                 
             } catch (error) {
                 console.error('❌ Spotify connection failed:', error);
                 showError('Spotify connection failed: ' + error.message);
                 document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
+                document.getElementById('spotifyBtn').disabled = false;
             }
         }
 
@@ -768,15 +772,16 @@
             const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
             
             document.getElementById('connectionStatus').innerHTML = 
-                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus</span>`;
+                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
         }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 OK Playlists initialized - Latest Privy SDK');
             
-            updateConnectionStatus();
+            // Initialize debug info immediately
             updateDebugInfo();
+            updateConnectionStatus();
             
             // Check URL parameters for auth results
             const urlParams = new URLSearchParams(window.location.search);
