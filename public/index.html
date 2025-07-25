@@ -29,14 +29,15 @@
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
         
-        /* ALL headers get underlines like expanded cards */
-        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        /* Profile header - ALWAYS has underline */
+        .profile-header { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
 
-        /* Expandable card headers - COMPACT with no extra space */
-        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        /* Expandable card headers - underline ONLY when expanded */
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; }
         .expandable-header:hover { opacity: 0.8; }
         .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
         .expandable-header.active::after { content: '[-]'; }
+        .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
         .expandable-content { display: none; }
         .expandable-content.active { display: block; }
 
@@ -50,30 +51,6 @@
         /* Genres - 30% smaller */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
         .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; }
-
-        /* Currently Playing */
-        .now-playing { background: linear-gradient(45deg, #1db954, #1ed760); padding: 15px; border-radius: 6px; color: #000; }
-        .now-playing.not-playing { background: #333; color: #999; }
-        .now-playing-content { display: flex; align-items: center; gap: 12px; }
-        .now-playing img { width: 35px; height: 35px; border-radius: 6px; }
-        .now-playing-info h4 { font-size: 11px; margin-bottom: 3px; }
-        .now-playing-info p { font-size: 9px; opacity: 0.8; }
-        .progress-bar { width: 100%; height: 3px; background: rgba(0,0,0,0.3); border-radius: 2px; margin: 6px 0; overflow: hidden; }
-        .progress-fill { height: 100%; background: #000; transition: width 1s linear; }
-
-        /* Playback Controls */
-        .playback-controls { display: flex; gap: 6px; margin-top: 6px; }
-        .control-btn { background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.3); color: #000; padding: 4px 8px; font-size: 9px; cursor: pointer; border-radius: 3px; font-family: inherit; }
-        .control-btn:hover { background: rgba(0,0,0,0.3); }
-        .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Lyrics expandable box */
-        .lyrics-section { margin-top: 6px; }
-        .lyrics-header { background: rgba(0,0,0,0.3); padding: 4px 8px; cursor: pointer; font-size: 9px; border: 1px solid rgba(0,0,0,0.4); }
-        .lyrics-header:hover { background: rgba(0,0,0,0.4); }
-        .lyrics-content { display: none; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.4); border-top: none; max-height: 140px; overflow-y: auto; }
-        .lyrics-content.active { display: block; }
-        .lyrics-text { white-space: pre-line; font-size: 9px; line-height: 1.3; }
 
         /* Lists - 30% smaller and more compact */
         .item-list { max-height: 140px; overflow-y: auto; }
@@ -100,18 +77,18 @@
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; }
 
-        /* Black box for songs only - more compact */
+        /* Black box for songs only - BIGGER from both sides */
         .playlist-songs-box { 
             background: #000; 
             border: 1px solid #333; 
-            padding: 6px; 
+            padding: 10px 12px; 
             margin: 6px 0; 
             max-height: 105px; 
             overflow-y: auto; 
             border-radius: 3px;
         }
         .playlist-songs-box ul { list-style: none; padding: 0; margin: 0; }
-        .playlist-songs-box li { font-size: 8px; padding: 1px 0; color: #ccc; }
+        .playlist-songs-box li { font-size: 8px; padding: 2px 0; color: #ccc; }
 
         /* White Spotify link */
         .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; }
@@ -152,16 +129,8 @@
             <div class="dashboard-grid">
                 <!-- Profile Card with Library & Genres -->
                 <div class="dashboard-card">
-                    <h3>🎵 Your Profile</h3>
+                    <h3 class="profile-header">🎵 Your Profile</h3>
                     <div id="profileContent" class="profile-card">
-                        <p>Loading...</p>
-                    </div>
-                </div>
-
-                <!-- Currently Playing -->
-                <div class="dashboard-card">
-                    <h3>🎧 Now Playing</h3>
-                    <div id="currentlyPlayingContent">
                         <p>Loading...</p>
                     </div>
                 </div>
@@ -252,17 +221,6 @@
             header.classList.toggle('active');
         }
 
-        function toggleLyrics(trackId) {
-            const lyricsContent = document.getElementById(`lyrics-${trackId}`);
-            const lyricsHeader = lyricsContent.previousElementSibling;
-            
-            lyricsContent.classList.toggle('active');
-            
-            if (lyricsContent.classList.contains('active') && !lyricsContent.dataset.loaded) {
-                loadLyrics(trackId);
-            }
-        }
-
         // --- SPOTIFY ---
         function connectSpotify() {
             document.getElementById('spotifyBtn').disabled = true;
@@ -292,9 +250,6 @@
                 const dashboard = await response.json();
                 populateDashboard(dashboard);
                 
-                // Start live updates for currently playing
-                startCurrentlyPlayingUpdates();
-                
             } catch (error) {
                 showError('Failed to load dashboard: ' + error.message);
             }
@@ -316,9 +271,6 @@
                     </div>
                 </div>
             `;
-
-            // Currently Playing
-            updateCurrentlyPlaying(data.activity.currentlyPlaying);
 
             // Top Artists - 30% smaller
             const artistsContent = document.getElementById('topArtistsContent');
@@ -358,65 +310,6 @@
                     </li>
                 `;
             }).join('');
-        }
-
-        function updateCurrentlyPlaying(track) {
-            const content = document.getElementById('currentlyPlayingContent');
-            if (!track) {
-                content.innerHTML = `
-                    <div class="now-playing not-playing">
-                        <p>🎵 Nothing playing right now</p>
-                    </div>
-                `;
-                currentTrackId = null;
-                return;
-            }
-
-            const progressPercent = (track.progress / track.duration) * 100;
-            const playPauseBtn = track.isPlaying ? 'PAUSE' : 'PLAY';
-            const playPauseAction = track.isPlaying ? 'pause' : 'play';
-            
-            currentTrackId = track.id || 'demo-track-id';
-            
-            content.innerHTML = `
-                <div class="now-playing">
-                    <div class="now-playing-content">
-                        <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
-                        <div class="now-playing-info">
-                            <h4>${track.name}</h4>
-                            <p>${track.artist} • ${track.album}</p>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                            </div>
-                            <div class="playback-controls">
-                                <button class="control-btn" onclick="controlPlayback('${playPauseAction}')">${playPauseBtn}</button>
-                            </div>
-                            <div class="lyrics-section">
-                                <div class="lyrics-header" onclick="toggleLyrics('${currentTrackId}')">
-                                    📝 SHOW LYRICS
-                                </div>
-                                <div class="lyrics-content" id="lyrics-${currentTrackId}">
-                                    <div class="lyrics-text">Loading lyrics...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function startCurrentlyPlayingUpdates() {
-            currentlyPlayingInterval = setInterval(async () => {
-                try {
-                    const response = await fetch('/api/spotify/dashboard');
-                    if (response.ok) {
-                        const data = await response.json();
-                        updateCurrentlyPlaying(data.activity.currentlyPlaying);
-                    }
-                } catch (error) {
-                    console.error('Failed to update currently playing:', error);
-                }
-            }, 30000);
         }
 
         async function fetchPlaylists() {
@@ -487,51 +380,6 @@
                 } catch (error) {
                     details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
                 }
-            }
-        }
-
-        // Playback control
-        async function controlPlayback(action) {
-            try {
-                const response = await fetch('/api/spotify/dashboard', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    if (response.status === 404) {
-                        showError('No active Spotify device found. Open Spotify on any device first.');
-                    } else {
-                        showError('Playback control failed: ' + error.error);
-                    }
-                    return;
-                }
-                
-                setTimeout(() => {
-                    if (spotifyConnected) {
-                        fetchDashboard();
-                    }
-                }, 1000);
-                
-            } catch (error) {
-                showError('Playback control error: ' + error.message);
-            }
-        }
-
-        // Load lyrics
-        async function loadLyrics(trackId) {
-            const lyricsContent = document.getElementById(`lyrics-${trackId}`);
-            const lyricsText = lyricsContent.querySelector('.lyrics-text');
-            
-            try {
-                const response = await fetch(`/api/spotify/lyrics?trackId=${encodeURIComponent(trackId)}`);
-                const data = await response.json();
-                lyricsText.textContent = data.lyrics || 'Lyrics not available';
-                lyricsContent.dataset.loaded = 'true';
-            } catch (error) {
-                lyricsText.textContent = 'Sorry, lyrics could not be loaded at this time.';
             }
         }
 
