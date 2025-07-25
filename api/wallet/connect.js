@@ -17,26 +17,33 @@ export default async function handler(req, res) {
   }
 
   try {
-    // NFT contract addresses
+    // NFT contract addresses with their respective blockchains
     const contracts = {
-      "OK COMPUTERS": "0x4E1f41613c9084FdB9E34E11fAE9412427480e56", // OK COMPUTERS contract
-      MFERS: "0x79FCDEF22feeD20eDDacbB2587640e45491b757f", // MFERS contract
+      "OK COMPUTERS": {
+        address: "0x4E1f41613c9084FdB9E34E11fAE9412427480e56", // OK COMPUTERS on Base
+        rpcUrl: "https://mainnet.base.org", // Base mainnet RPC
+        blockchain: "Base",
+      },
+      MFERS: {
+        address: "0x79FCDEF22feeD20eDDacbB2587640e45491b757f", // MFERS on Ethereum
+        rpcUrl: "https://eth.llamarpc.com", // Ethereum mainnet RPC
+        blockchain: "Ethereum",
+      },
     }
 
     const communities = []
 
-    // Check each contract for NFT ownership using free Ethereum RPC
-    for (const [communityName, contractAddress] of Object.entries(contracts)) {
+    // Check each contract for NFT ownership
+    for (const [communityName, contractInfo] of Object.entries(contracts)) {
       try {
-        // Use free Ethereum RPC endpoint
-        const rpcUrl = "https://eth.llamarpc.com" // Free public RPC
+        console.log(`Checking ${communityName} on ${contractInfo.blockchain}...`)
 
         // ERC-721 balanceOf function signature
         const balanceOfSignature = "0x70a08231" // balanceOf(address)
         const paddedAddress = walletAddress.slice(2).padStart(64, "0")
         const callData = balanceOfSignature + paddedAddress
 
-        const response = await fetch(rpcUrl, {
+        const response = await fetch(contractInfo.rpcUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -47,7 +54,7 @@ export default async function handler(req, res) {
             method: "eth_call",
             params: [
               {
-                to: contractAddress,
+                to: contractInfo.address,
                 data: callData,
               },
               "latest",
@@ -57,24 +64,38 @@ export default async function handler(req, res) {
 
         if (response.ok) {
           const data = await response.json()
+          console.log(`${communityName} response:`, data)
 
-          if (data.result && data.result !== "0x") {
+          if (
+            data.result &&
+            data.result !== "0x" &&
+            data.result !== "0x0000000000000000000000000000000000000000000000000000000000000000"
+          ) {
             // Convert hex result to decimal
             const nftCount = Number.parseInt(data.result, 16)
+            console.log(`${communityName} NFT count:`, nftCount)
 
             if (nftCount > 0) {
               communities.push({
                 name: communityName,
-                contract: contractAddress,
+                contract: contractInfo.address,
+                blockchain: contractInfo.blockchain,
               })
+              console.log(`✅ Found ${communityName} NFTs!`)
             }
+          } else {
+            console.log(`❌ No ${communityName} NFTs found`)
           }
+        } else {
+          console.error(`Failed to check ${communityName}:`, response.status)
         }
       } catch (error) {
         console.error(`Error checking ${communityName}:`, error)
         // Continue checking other contracts even if one fails
       }
     }
+
+    console.log("Final communities found:", communities)
 
     // Store wallet connection in cookies (simplified approach)
     const cookieOptions = "HttpOnly; Secure; SameSite=None; Path=/; Max-Age=86400" // 24 hours
