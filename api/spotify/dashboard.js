@@ -1,10 +1,50 @@
 // Comprehensive Spotify dashboard data endpoint
 export default async function handler(req, res) {
+  const accessToken = req.cookies.spotify_access_token
+
+  // Handle playback control requests
+  if (req.method === "POST") {
+    const { action } = req.body || {}
+
+    if (!accessToken) {
+      return res.status(401).json({ error: "Not authenticated" })
+    }
+
+    try {
+      let endpoint = ""
+      const method = "PUT"
+
+      switch (action) {
+        case "play":
+          endpoint = "https://api.spotify.com/v1/me/player/play"
+          break
+        case "pause":
+          endpoint = "https://api.spotify.com/v1/me/player/pause"
+          break
+        default:
+          return res.status(400).json({ error: "Invalid action" })
+      }
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+
+      if (response.status === 204) {
+        return res.json({ success: true })
+      } else if (response.status === 404) {
+        return res.status(404).json({ error: "No active device found" })
+      } else {
+        return res.status(response.status).json({ error: "Playback control failed" })
+      }
+    } catch (error) {
+      return res.status(500).json({ error: "Playback control error", details: error.message })
+    }
+  }
+
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" })
   }
-
-  const accessToken = req.cookies.spotify_access_token
 
   if (!accessToken) {
     return res.status(401).json({ error: "Not authenticated" })

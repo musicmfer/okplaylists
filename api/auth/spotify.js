@@ -22,6 +22,8 @@ export default function handler(req, res) {
     "user-read-recently-played",
     "user-read-currently-playing",
     "user-read-playback-state",
+    "user-read-playback-position",
+    "user-modify-playback-state",
     "user-library-read",
     "user-follow-read",
   ].join(" ")
