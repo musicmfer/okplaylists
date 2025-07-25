@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Orbitron', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
+        body { font-family: 'Oxanium', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
         
         /* Header - styled like dashboard cards */
@@ -18,8 +18,8 @@
             background: rgba(255, 255, 255, 0.05); 
             border: 1px solid #333; 
         }
-        .title { font-size: 36px; font-weight: 900; margin-bottom: 8px; letter-spacing: 6px; }
-        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 400; }
+        .title { font-size: 36px; font-weight: 800; margin-bottom: 8px; letter-spacing: 6px; }
+        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 500; }
         .description { font-size: 11px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.4; font-weight: 400; }
         
         /* Panel - styled like dashboard cards */
@@ -29,7 +29,7 @@
             padding: 15px; 
             margin-bottom: 20px; 
         }
-        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Orbitron', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 700; }
+        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Oxanium', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 600; }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
         .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; font-weight: 400; }
@@ -61,30 +61,39 @@
         .profile-card { display: flex; align-items: flex-start; gap: 15px; position: relative; }
         .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
-        .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 700; }
+        .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 600; }
         .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; font-weight: 400; }
 
-        /* Now Playing - Fixed position, smart overflow */
+        /* Now Playing - Scrollable fixed box */
         .now-playing-display {
             position: absolute;
             top: 0;
             right: 0;
-            max-width: 200px;
+            width: 200px;
+            height: 20px;
             font-size: 9px;
             color: #1db954;
-            font-weight: 400;
+            font-weight: 500;
             background: rgba(29, 185, 84, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
             border: 1px solid rgba(29, 185, 84, 0.3);
-            white-space: nowrap;
+            border-radius: 3px;
             overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            padding: 0 6px;
+        }
+        .now-playing-text {
+            white-space: nowrap;
+            animation: scroll-horizontal 15s linear infinite;
+        }
+        @keyframes scroll-horizontal {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
         /* Genres */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 400; }
+        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 500; }
 
         /* Lists - 20% smaller (10% bigger than before) */
         .item-list { max-height: 140px; overflow-y: auto; }
@@ -92,7 +101,7 @@
         .item-list li:last-child { border-bottom: none; }
         .item-list img { width: 28px; height: 28px; border-radius: 3px; }
         .item-info { flex: 1; }
-        .item-name { font-size: 11px; color: #fff; font-weight: 400; }
+        .item-name { font-size: 11px; color: #fff; font-weight: 500; }
         .item-detail { font-size: 9px; color: #999; font-weight: 400; }
 
         /* Playlist items - 20% smaller (10% bigger than before) */
@@ -102,14 +111,14 @@
         .playlist-item-header { display: flex; align-items: center; gap: 7px; }
         .playlist-item-header img { width: 28px; height: 28px; border-radius: 3px; }
         .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 400; }
+        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 500; }
         .playlist-item-info .item-detail { font-size: 9px; color: #999; font-weight: 400; }
         
         /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
         .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; font-weight: 400; }
         .playlist-item.expanded .playlist-item-details { display: block; }
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
-        .playlist-detail-row strong { color: #fff; font-weight: 700; }
+        .playlist-detail-row strong { color: #fff; font-weight: 600; }
 
         /* Song list - same style as main lists but smaller and scrollable - KEEP SMALL */
         .playlist-songs-list { 
@@ -140,7 +149,7 @@
             font-weight: 400;
         }
         .playlist-songs-list .song-info { flex: 1; }
-        .playlist-songs-list .song-name { color: #fff; font-weight: 400; }
+        .playlist-songs-list .song-name { color: #fff; font-weight: 500; }
         .playlist-songs-list .song-artist { color: #999; font-weight: 400; }
 
         /* White Spotify link */
@@ -152,7 +161,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid { grid-template-columns: 1fr; }
-            .now-playing-display { max-width: 150px; font-size: 8px; }
+            .now-playing-display { width: 150px; font-size: 8px; }
         }
     </style>
 </head>
@@ -240,6 +249,28 @@
         let currentlyPlayingInterval = null;
         let currentTrackId = null;
 
+        // --- AUTHENTICATION PERSISTENCE ---
+        async function checkExistingAuth() {
+            try {
+                // Try to fetch dashboard data to check if we have valid cookies
+                const response = await fetch('/api/spotify/dashboard');
+                if (response.ok) {
+                    // We have valid authentication
+                    spotifyConnected = true;
+                    updateConnectionStatus();
+                    const dashboard = await response.json();
+                    populateDashboard(dashboard);
+                    fetchPlaylists();
+                    startCurrentlyPlayingUpdates();
+                    showSuccess('✅ Welcome back! Still connected to Spotify.');
+                    return true;
+                }
+            } catch (error) {
+                console.log('No existing auth found:', error);
+            }
+            return false;
+        }
+
         // --- UI UPDATES ---
         function updateConnectionStatus() {
             const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
@@ -318,7 +349,9 @@
             
             // Check if there's a currently playing track
             const nowPlayingHtml = data.activity.currentlyPlaying ? 
-                `<div class="now-playing-display" title="${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}">♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>` : '';
+                `<div class="now-playing-display">
+                    <div class="now-playing-text">♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>
+                </div>` : '';
             
             profileContent.innerHTML = `
                 ${nowPlayingHtml}
@@ -390,17 +423,15 @@
             
             // Create or update now playing element
             const nowPlayingText = `♪ ${track.name} - ${track.artist}`;
-            const fullText = `${track.name} - ${track.artist}`;
             
             if (nowPlayingEl) {
-                nowPlayingEl.textContent = nowPlayingText;
-                nowPlayingEl.title = fullText;
+                const textEl = nowPlayingEl.querySelector('.now-playing-text');
+                textEl.textContent = nowPlayingText;
             } else {
                 // Create new element
                 nowPlayingEl = document.createElement('div');
                 nowPlayingEl.className = 'now-playing-display';
-                nowPlayingEl.textContent = nowPlayingText;
-                nowPlayingEl.title = fullText;
+                nowPlayingEl.innerHTML = `<div class="now-playing-text">${nowPlayingText}</div>`;
                 
                 // Insert at the beginning of profile content
                 profileContent.insertBefore(nowPlayingEl, profileContent.firstChild);
@@ -504,18 +535,25 @@
         }
 
         // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('spotify_connected') === 'true') {
-                spotifyConnected = true;
-                showSuccess('✅ Spotify connected successfully!');
-                fetchDashboard();
-                fetchPlaylists();
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (urlParams.get('error')) {
-                showError(`Authentication failed: ${urlParams.get('error')}`);
-                window.history.replaceState({}, document.title, window.location.pathname);
+        document.addEventListener('DOMContentLoaded', async () => {
+            // First check if user is already authenticated
+            const alreadyAuthenticated = await checkExistingAuth();
+            
+            if (!alreadyAuthenticated) {
+                // Check URL parameters for new authentication
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('spotify_connected') === 'true') {
+                    spotifyConnected = true;
+                    showSuccess('✅ Spotify connected successfully!');
+                    fetchDashboard();
+                    fetchPlaylists();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else if (urlParams.get('error')) {
+                    showError(`Authentication failed: ${urlParams.get('error')}`);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
             }
+            
             updateConnectionStatus();
         });
     </script>
