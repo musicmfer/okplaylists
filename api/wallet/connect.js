@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // NFT contract addresses with their respective blockchains
     const contracts = {
       "OK COMPUTERS": {
-        address: "0x4E1f41613c9084FdB9E34E11fAE9412427480e56", // OK COMPUTERS on Base
+        address: "0xce2830932889c7fb5e5206287c43554e673dcc88", // Correct OK COMPUTERS contract on Base
         rpcUrl: "https://mainnet.base.org", // Base mainnet RPC
         blockchain: "Base",
       },
@@ -32,48 +32,71 @@ export default async function handler(req, res) {
     }
 
     const communities = []
+    const debugInfo = []
 
     // Check each contract for NFT ownership
     for (const [communityName, contractInfo] of Object.entries(contracts)) {
       try {
-        console.log(`Checking ${communityName} on ${contractInfo.blockchain}...`)
+        console.log(`🔍 Checking ${communityName} on ${contractInfo.blockchain}...`)
+        console.log(`📍 Contract: ${contractInfo.address}`)
+        console.log(`🌐 RPC: ${contractInfo.rpcUrl}`)
+        console.log(`👤 Wallet: ${walletAddress}`)
 
         // ERC-721 balanceOf function signature
         const balanceOfSignature = "0x70a08231" // balanceOf(address)
         const paddedAddress = walletAddress.slice(2).padStart(64, "0")
         const callData = balanceOfSignature + paddedAddress
 
+        console.log(`📞 Call data: ${callData}`)
+
+        const rpcPayload = {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_call",
+          params: [
+            {
+              to: contractInfo.address,
+              data: callData,
+            },
+            "latest",
+          ],
+        }
+
+        console.log(`📤 RPC Payload:`, JSON.stringify(rpcPayload, null, 2))
+
         const response = await fetch(contractInfo.rpcUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 1,
-            method: "eth_call",
-            params: [
-              {
-                to: contractInfo.address,
-                data: callData,
-              },
-              "latest",
-            ],
-          }),
+          body: JSON.stringify(rpcPayload),
         })
+
+        console.log(`📥 Response status: ${response.status}`)
 
         if (response.ok) {
           const data = await response.json()
-          console.log(`${communityName} response:`, data)
+          console.log(`📊 ${communityName} response:`, JSON.stringify(data, null, 2))
 
-          if (
+          debugInfo.push({
+            community: communityName,
+            blockchain: contractInfo.blockchain,
+            contract: contractInfo.address,
+            response: data,
+            status: "success",
+          })
+
+          if (data.error) {
+            console.error(`❌ RPC Error for ${communityName}:`, data.error)
+            debugInfo[debugInfo.length - 1].error = data.error
+          } else if (
             data.result &&
             data.result !== "0x" &&
             data.result !== "0x0000000000000000000000000000000000000000000000000000000000000000"
           ) {
             // Convert hex result to decimal
             const nftCount = Number.parseInt(data.result, 16)
-            console.log(`${communityName} NFT count:`, nftCount)
+            console.log(`🎯 ${communityName} NFT count: ${nftCount}`)
 
             if (nftCount > 0) {
               communities.push({
@@ -81,21 +104,41 @@ export default async function handler(req, res) {
                 contract: contractInfo.address,
                 blockchain: contractInfo.blockchain,
               })
-              console.log(`✅ Found ${communityName} NFTs!`)
+              console.log(`✅ Found ${nftCount} ${communityName} NFTs!`)
+            } else {
+              console.log(`❌ No ${communityName} NFTs found (count: 0)`)
             }
           } else {
-            console.log(`❌ No ${communityName} NFTs found`)
+            console.log(`❌ No ${communityName} NFTs found (empty/zero result)`)
+            console.log(`Result was: ${data.result}`)
           }
         } else {
-          console.error(`Failed to check ${communityName}:`, response.status)
+          const errorText = await response.text()
+          console.error(`❌ Failed to check ${communityName}:`, response.status, errorText)
+          debugInfo.push({
+            community: communityName,
+            blockchain: contractInfo.blockchain,
+            contract: contractInfo.address,
+            status: "failed",
+            httpStatus: response.status,
+            error: errorText,
+          })
         }
       } catch (error) {
-        console.error(`Error checking ${communityName}:`, error)
+        console.error(`💥 Error checking ${communityName}:`, error)
+        debugInfo.push({
+          community: communityName,
+          blockchain: contractInfo.blockchain,
+          contract: contractInfo.address,
+          status: "error",
+          error: error.message,
+        })
         // Continue checking other contracts even if one fails
       }
     }
 
-    console.log("Final communities found:", communities)
+    console.log("🏁 Final communities found:", communities)
+    console.log("🐛 Debug info:", JSON.stringify(debugInfo, null, 2))
 
     // Store wallet connection in cookies (simplified approach)
     const cookieOptions = "HttpOnly; Secure; SameSite=None; Path=/; Max-Age=86400" // 24 hours
@@ -109,13 +152,14 @@ export default async function handler(req, res) {
       success: true,
       walletAddress,
       communities,
+      debugInfo, // Include debug info in response for troubleshooting
       message:
         communities.length > 0
           ? `Connected! Found ${communities.length} community membership(s)`
           : "Connected! No community memberships found",
     })
   } catch (error) {
-    console.error("Wallet connection error:", error)
+    console.error("💥 Wallet connection error:", error)
     res.status(500).json({
       error: "Failed to verify wallet",
       details: error.message,
