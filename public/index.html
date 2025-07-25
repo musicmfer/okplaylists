@@ -77,18 +77,35 @@
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; }
 
-        /* Black box for songs only - BIGGER from both sides */
-        .playlist-songs-box { 
-            background: #000; 
-            border: 1px solid #333; 
-            padding: 10px 12px; 
-            margin: 6px 0; 
-            max-height: 105px; 
+        /* Song list - same style as main lists but smaller and scrollable */
+        .playlist-songs-list { 
+            max-height: 120px; 
             overflow-y: auto; 
-            border-radius: 3px;
+            margin: 6px 0;
+            border-top: 1px solid #222;
+            padding-top: 4px;
         }
-        .playlist-songs-box ul { list-style: none; padding: 0; margin: 0; }
-        .playlist-songs-box li { font-size: 8px; padding: 2px 0; color: #ccc; }
+        .playlist-songs-list ul { list-style: none; padding: 0; margin: 0; }
+        .playlist-songs-list li { 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+            padding: 3px 0; 
+            border-bottom: 1px solid #222; 
+            font-size: 8px; 
+            color: #ccc;
+        }
+        .playlist-songs-list li:last-child { border-bottom: none; }
+        .playlist-songs-list .song-number { 
+            color: #666; 
+            font-size: 7px; 
+            width: 15px; 
+            text-align: right; 
+            flex-shrink: 0;
+        }
+        .playlist-songs-list .song-info { flex: 1; }
+        .playlist-songs-list .song-name { color: #fff; }
+        .playlist-songs-list .song-artist { color: #999; }
 
         /* White Spotify link */
         .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; }
@@ -368,13 +385,24 @@
                         : '<li>No songs found.</li>';
                     
                     details.innerHTML = `
-    <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
-    <div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
-    <div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
-    <div class="playlist-songs-box">
-        <ul>${tracksHtml}</ul>
-    </div>
-    <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
+<div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
+<div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
+<div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
+<div class="playlist-songs-list">
+    <ul>${playlistDetails.tracks && playlistDetails.tracks.length > 0
+        ? playlistDetails.tracks.map((track, index) => `
+            <li>
+                <span class="song-number">${index + 1}.</span>
+                <div class="song-info">
+                    <div class="song-name">${track.name}</div>
+                    <div class="song-artist">${track.artist}</div>
+                </div>
+            </li>
+        `).join('')
+        : '<li><div class="song-info"><div class="song-name">No songs found.</div></div></li>'
+    }</ul>
+</div>
+<a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
                     details.dataset.loaded = 'true';
                 } catch (error) {
