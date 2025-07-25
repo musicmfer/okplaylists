@@ -28,7 +28,7 @@
         .dashboard.active { display: block; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
-        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+        .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0; }
 
         /* Expandable card headers - COMPACT with no extra space */
         .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; }
@@ -93,16 +93,28 @@
         .playlist-item-info .item-name { font-size: 11px; color: #fff; }
         .playlist-item-info .item-detail { font-size: 9px; color: #999; }
         
-        /* Expanded playlist details - like the image */
-        .playlist-item-details { display: none; margin-top: 8px; padding: 10px; background: rgba(0, 0, 0, 0.4); border: 1px solid #444; font-size: 10px; color: #ccc; }
+        /* Expanded playlist details - NEW STRUCTURE */
+        .playlist-item-details { display: none; margin-top: 8px; font-size: 10px; color: #ccc; }
         .playlist-item.expanded .playlist-item-details { display: block; }
-        .playlist-detail-row { margin-bottom: 6px; }
+        .playlist-detail-row { margin-bottom: 6px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; }
-        .playlist-songs-list { margin-top: 8px; max-height: 150px; overflow-y: auto; }
-        .playlist-songs-list ul { list-style: none; padding: 0; margin: 0; }
-        .playlist-songs-list li { font-size: 9px; padding: 2px 0; color: #ccc; border: none; }
-        .playlist-item-details a { color: #fff; text-decoration: none; font-size: 9px; }
-        .playlist-item-details a:hover { text-decoration: underline; }
+
+        /* Black box for songs only */
+        .playlist-songs-box { 
+            background: #000; 
+            border: 1px solid #333; 
+            padding: 8px; 
+            margin: 8px 0; 
+            max-height: 150px; 
+            overflow-y: auto; 
+            border-radius: 3px;
+        }
+        .playlist-songs-box ul { list-style: none; padding: 0; margin: 0; }
+        .playlist-songs-box li { font-size: 9px; padding: 2px 0; color: #ccc; }
+
+        /* White Spotify link */
+        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 10px; }
+        .playlist-spotify-link:hover { text-decoration: underline; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; }
 
@@ -465,12 +477,10 @@
     <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
     <div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
     <div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
-    <div class="playlist-songs-list">
+    <div class="playlist-songs-box">
         <ul>${tracksHtml}</ul>
     </div>
-    <div class="playlist-detail-row" style="margin-top: 8px;">
-        <a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a>
-    </div>
+    <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
                     details.dataset.loaded = 'true';
                 } catch (error) {
