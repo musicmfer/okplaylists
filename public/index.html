@@ -387,424 +387,385 @@
         </div>
     </div>
 
-    <!-- Load the LATEST Privy SDK with correct initialization -->
-<script 
-    src="https://unpkg.com/@privy-io/react-auth@latest/dist/index.umd.js" 
-    defer 
-    onload="console.log('✅ Privy React Auth SDK loaded!'); initPrivy();"
-    onerror="console.error('❌ Privy React Auth SDK failed to load!'); tryAlternativePrivy();"
-></script>
+    <!-- Load the CORRECT Privy SDK as per Claude's suggestion -->
+    <script 
+        crossorigin="anonymous" 
+        data-privy-app-id="cmda3kbo2003al10mcr71ll0z" 
+        src="https://auth.privy.io/js/privy-auth.js"
+        onload="console.log('✅ Privy SDK loaded'); initPrivy();"
+        onerror="console.error('❌ Privy SDK failed to load'); updateDebugInfo();">
+    </script>
 
-<script>
-    // 🔑 CONFIGURATION - CORRECT PRIVY SDK
-    const CONFIG = {
-        PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
-    };
-
-    // Global state
-    let privy = null;
-    let walletConnected = false;
-    let spotifyConnected = false;
-    let userAddress = null;
-
-    // Try alternative Privy SDK if main one fails
-    function tryAlternativePrivy() {
-        console.log('🔄 Trying alternative Privy SDK...');
-        const script = document.createElement('script');
-        script.src = 'https://auth.privy.io/js/privy.js';
-        script.onload = () => {
-            console.log('✅ Alternative Privy SDK loaded!');
-            initPrivy();
+    <script>
+        // 🔑 CONFIGURATION
+        const CONFIG = {
+            PRIVY_APP_ID: 'cmda3kbo2003al10mcr71ll0z'
         };
-        script.onerror = () => {
-            console.error('❌ All Privy SDKs failed to load');
-            updateDebugInfo();
-        };
-        document.head.appendChild(script);
-    }
 
-    // Debug function - make it work even if Privy fails
-    function updateDebugInfo() {
-        const debugContent = document.getElementById('debugContent');
-        if (!debugContent) return;
-        
-        const privyAvailable = typeof window.Privy !== 'undefined' || typeof window.PrivyAuth !== 'undefined';
-        const privyMethods = privyAvailable ? 
-            (window.Privy ? Object.keys(window.Privy) : Object.keys(window.PrivyAuth || {})) : 
-            [];
-        
-        debugContent.innerHTML = `
-            <strong>Privy SDK:</strong> ${privyAvailable ? '✅ Loaded' : '❌ Not loaded'}<br>
-            <strong>Privy Client:</strong> ${privy ? '✅ Initialized' : '❌ Not initialized'}<br>
-            <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
-            <strong>User Address:</strong> ${userAddress || 'None'}<br>
-            <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
-            <strong>Current URL:</strong> ${window.location.href}<br>
-            <strong>Available Privy methods:</strong> ${privyMethods.length > 0 ? privyMethods.join(', ') : 'SDK not loaded yet'}<br>
-            <strong>Window.Privy:</strong> ${typeof window.Privy}<br>
-            <strong>Window.PrivyAuth:</strong> ${typeof window.PrivyAuth}<br>
-            <strong>Init Privy:</strong> <button onclick="initPrivy()" style="background: #333; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer;">Initialize Privy</button>
-        `;
-    }
+        // Global state
+        let privy = null;
+        let walletConnected = false;
+        let spotifyConnected = false;
+        let userAddress = null;
 
-    // Initialize Privy with multiple fallback approaches
-    async function initPrivy() {
-        try {
-            showSuccess('🔄 Initializing Privy SDK...');
-            
-            // Method 1: Try @privy-io/react-auth
-            if (typeof window.PrivyAuth !== 'undefined') {
-                console.log('🔄 Using PrivyAuth from react-auth package');
-                privy = window.PrivyAuth.createPrivyClient({
-                    appId: CONFIG.PRIVY_APP_ID,
-                });
-                console.log('✅ Privy initialized with PrivyAuth.createPrivyClient');
-            }
-            // Method 2: Try window.Privy direct
-            else if (typeof window.Privy !== 'undefined') {
-                console.log('🔄 Available Privy object:', window.Privy);
-                console.log('🔄 Available Privy methods:', Object.keys(window.Privy));
-
-                if (window.Privy.PrivyProvider) {
-                    // This is likely the React version, try to adapt
-                    console.log('🔄 Found PrivyProvider, attempting vanilla JS adaptation...');
-                    privy = {
-                        login: () => {
-                            console.log('🔄 Custom login implementation needed');
-                            showError('Privy React version detected. Need vanilla JS implementation.');
-                        }
-                    };
-                } else if (window.Privy.createClient) {
-                    privy = window.Privy.createClient({
-                        appId: CONFIG.PRIVY_APP_ID,
-                    });
-                    console.log('✅ Privy initialized with createClient');
-                } else if (window.Privy.init) {
-                    await window.Privy.init({
-                        appId: CONFIG.PRIVY_APP_ID,
-                    });
-                    privy = window.Privy;
-                    console.log('✅ Privy initialized with init method');
-                } else {
-                    // Try direct instantiation
-                    privy = new window.Privy({
-                        appId: CONFIG.PRIVY_APP_ID,
-                    });
-                    console.log('✅ Privy initialized with constructor');
+        // Initialize Privy
+        async function initPrivy() {
+            try {
+                if (typeof window.Privy === 'undefined') {
+                    throw new Error('Privy SDK not loaded');
                 }
-            }
-            // Method 3: Try vanilla Privy SDK
-            else {
-                throw new Error('No Privy SDK found. Available globals: ' + Object.keys(window).filter(k => k.toLowerCase().includes('priv')).join(', '));
-            }
-
-            if (privy) {
+                console.log('🔄 Initializing Privy...');
+                privy = window.Privy;
+                        
+                console.log('✅ Privy ready:', privy);
                 showSuccess('✅ Privy SDK initialized successfully!');
                 updateDebugInfo();
-
-                // Set up event listeners if available
-                if (privy.on) {
-                    privy.on('ready', () => {
-                        console.log('🔄 Privy is ready');
-                        updateDebugInfo();
-                    });
-
-                    privy.on('login', (user) => {
-                        console.log('✅ User logged in:', user);
-                        handlePrivyLogin(user);
-                    });
-
-                    privy.on('logout', () => {
-                        console.log('🔄 User logged out');
-                        handlePrivyLogout();
-                    });
+                // Check if already authenticated
+                if (privy.authenticated) {
+                    handlePrivyLogin(privy.user);
                 }
-            } else {
-                throw new Error('Failed to initialize Privy client');
+            } catch (error) {
+                console.error('❌ Privy initialization failed:', error);
+                showError('Privy initialization failed: ' + error.message);
+                updateDebugInfo();
             }
-
-        } catch (error) {
-            console.error('❌ Privy initialization failed:', error);
-            showError('Privy initialization failed: ' + error.message);
-            updateDebugInfo();
         }
-    }
 
-    // Handle successful Privy login
-    function handlePrivyLogin(user) {
-        if (user && user.wallet && user.wallet.address) {
-            userAddress = user.wallet.address;
-            walletConnected = true;
-            
-            document.getElementById('walletBtn').textContent = 'WALLET CONNECTED';
-            document.getElementById('walletBtn').disabled = true;
-            
-            showSuccess('✅ Wallet connected via Privy SDK!');
+        // Handle successful Privy login
+        function handlePrivyLogin(user) {
+            console.log('User object:', user);
+                    
+            if (user && user.wallet && user.wallet.address) {
+                userAddress = user.wallet.address;
+                walletConnected = true;
+            } else if (user && user.linkedAccounts) {
+                const walletAccount = user.linkedAccounts.find(account => account.type === 'wallet');
+                if (walletAccount) {
+                    userAddress = walletAccount.address;
+                    walletConnected = true;
+                }
+            }
+                    
+            if (walletConnected) {
+                document.getElementById('walletBtn').textContent = 'DISCONNECT WALLET';
+                document.getElementById('walletBtn').onclick = disconnectWallet;
+                showSuccess('✅ Wallet connected successfully!');
+                updateConnectionStatus();
+                updateDebugInfo();
+                console.log('✅ Wallet connected:', userAddress);
+            } else {
+                showError('Login successful but no wallet found.');
+            }
+        }
+
+        // Handle Privy logout
+        function handlePrivyLogout() {
+            userAddress = null;
+            walletConnected = false;
+                    
+            document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+            document.getElementById('walletBtn').onclick = connectWallet;
+                    
             updateConnectionStatus();
             updateDebugInfo();
-            
-            console.log('✅ Wallet connected:', userAddress);
-        } else {
-            console.warn('⚠️ User logged in but no wallet found:', user);
-            showError('Login successful but no wallet found. Please try connecting a wallet.');
+            console.log('🔄 Wallet disconnected');
         }
-    }
 
-    // Handle Privy logout
-    function handlePrivyLogout() {
-        userAddress = null;
-        walletConnected = false;
-        
-        document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
-        document.getElementById('walletBtn').disabled = false;
-        
-        updateConnectionStatus();
-        updateDebugInfo();
-        
-        console.log('🔄 Wallet disconnected');
-    }
-
-    // Wallet connection - MULTIPLE PRIVY APPROACHES
-    async function connectWallet() {
-        try {
-            if (!privy) {
-                showError('Privy not initialized. Click "Initialize Privy" button first.');
-                return;
-            }
-
-            document.getElementById('walletBtn').textContent = 'CONNECTING...';
-            console.log('🔄 Attempting wallet connection...');
-            console.log('🔄 Available privy methods:', Object.keys(privy));
-            
-            // Try multiple login methods
-            if (privy.login) {
-                console.log('🔄 Using privy.login()');
+        // Connect wallet
+        async function connectWallet() {
+            try {
+                if (!privy) {
+                    showError('Privy not initialized. Please refresh page.');
+                    return;
+                }
+                document.getElementById('walletBtn').textContent = 'CONNECTING...';
+                console.log('🔄 Attempting wallet connection...');
+                        
                 await privy.login();
-            } else if (privy.authenticate) {
-                console.log('🔄 Using privy.authenticate()');
-                await privy.authenticate();
-            } else if (privy.connectWallet) {
-                console.log('🔄 Using privy.connectWallet()');
-                await privy.connectWallet();
-            } else if (privy.requestLogin) {
-                console.log('🔄 Using privy.requestLogin()');
-                await privy.requestLogin();
-            } else {
-                throw new Error('No login method found on Privy client. Available methods: ' + Object.keys(privy).join(', '));
+                        
+                if (privy.authenticated && privy.user) {
+                    handlePrivyLogin(privy.user);
+                }
+                        
+            } catch (error) {
+                console.error('❌ Wallet connection failed:', error);
+                showError('Wallet connection failed: ' + error.message);
+                document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+                updateDebugInfo();
             }
-            
-        } catch (error) {
-            console.error('❌ Wallet connection failed:', error);
-            showError('Wallet connection failed: ' + error.message);
-            document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
-            updateDebugInfo();
         }
-    }
 
-    // Spotify connection - Remove any wallet dependency
-    function connectSpotify() {
-        try {
-            document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
-            document.getElementById('spotifyBtn').disabled = true;
-            console.log('🔄 Redirecting to Spotify auth...');
-            
-            // Direct redirect to Spotify API - this was working perfectly before
-            window.location.href = '/api/auth/spotify';
-            
-        } catch (error) {
-            console.error('❌ Spotify connection failed:', error);
-            showError('Spotify connection failed: ' + error.message);
-            document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
-            document.getElementById('spotifyBtn').disabled = false;
+        // Disconnect wallet
+        async function disconnectWallet() {
+            try {
+                if (privy && privy.authenticated) {
+                    await privy.logout();
+                    handlePrivyLogout();
+                }
+            } catch (error) {
+                console.error('❌ Logout failed:', error);
+                showError('Logout failed: ' + error.message);
+            }
         }
-    }
 
-    // Logout from Spotify
-    async function logoutSpotify() {
-        try {
-            const response = await fetch('/api/spotify/logout', {
-                method: 'POST'
-            });
+        // Update debug info
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            if (!debugContent) return;
+                    
+            debugContent.innerHTML = `
+                <strong>Privy SDK:</strong> ${typeof window.Privy !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}<br>
+                <strong>Privy Authenticated:</strong> ${privy && privy.authenticated ? '✅ Yes' : '❌ No'}<br>
+                <strong>Privy User:</strong> ${privy && privy.user ? '✅ Available' : '❌ None'}<br>
+                <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
+                <strong>User Address:</strong> ${userAddress || 'None'}<br>
+                <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
+                <strong>Available Privy methods:</strong> ${window.Privy ? Object.keys(window.Privy).filter(key => typeof window.Privy[key] === 'function').join(', ') : 'SDK not loaded'}<br>
+            `;
+        }
 
-            if (response.ok) {
-                spotifyConnected = false;
+        // Utility functions
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 8000);
+            console.error('Error:', message);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            const errorEl = document.getElementById('errorMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+            console.log('Success:', message);
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const header = content.previousElementSibling;
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                header.classList.remove('active');
+            } else {
+                content.classList.add('active');
+                header.classList.add('active');
+            }
+        }
+
+        // Spotify connection - Remove any wallet dependency
+        function connectSpotify() {
+            try {
+                document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
+                document.getElementById('spotifyBtn').disabled = true;
+                console.log('🔄 Redirecting to Spotify auth...');
                 
-                document.getElementById('spotifyBtn').style.display = 'inline-block';
-                document.getElementById('logoutBtn').style.display = 'none';
+                // Direct redirect to Spotify API - this was working perfectly before
+                window.location.href = '/api/auth/spotify';
+                
+            } catch (error) {
+                console.error('❌ Spotify connection failed:', error);
+                showError('Spotify connection failed: ' + error.message);
                 document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
                 document.getElementById('spotifyBtn').disabled = false;
-                
-                document.getElementById('playlistGrid').innerHTML = 
-                    '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
-                
-                updateConnectionStatus();
-                showSuccess('Logged out from Spotify');
             }
-        } catch (error) {
-            showError('Logout failed: ' + error.message);
         }
-    }
 
-    // Fetch and display playlists
-    async function fetchPlaylists() {
-        const playlistGrid = document.getElementById('playlistGrid');
-        playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">🔄 Loading playlists...</p>';
-        
-        try {
-            console.log('Frontend: Attempting to fetch playlists from /api/spotify/playlists...');
-            const response = await fetch('/api/spotify/playlists');
-            
-            if (!response.ok) {
-                const errorText = await response.text(); // Get raw error text
-                console.error('Frontend: Playlists API response not OK. Status:', response.status, 'Body:', errorText);
-                
-                if (response.status === 401) {
-                    showError('Spotify session expired or not authenticated. Please reconnect Spotify.');
+        // Logout from Spotify
+        async function logoutSpotify() {
+            try {
+                const response = await fetch('/api/spotify/logout', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
                     spotifyConnected = false;
-                    updateConnectionStatus();
+                    
                     document.getElementById('spotifyBtn').style.display = 'inline-block';
                     document.getElementById('logoutBtn').style.display = 'none';
                     document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
                     document.getElementById('spotifyBtn').disabled = false;
-                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
-                    return;
+                    
+                    document.getElementById('playlistGrid').innerHTML = 
+                        '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                    
+                    updateConnectionStatus();
+                    showSuccess('Logged out from Spotify');
                 }
-                throw new Error(`Failed to fetch playlists: ${response.status} - ${errorText}`);
+            } catch (error) {
+                showError('Logout failed: ' + error.message);
             }
+        }
 
-            const data = await response.json();
-            console.log('Frontend: Playlists fetched successfully:', data.playlists);
+        // Fetch and display playlists
+        async function fetchPlaylists() {
+            const playlistGrid = document.getElementById('playlistGrid');
+            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">🔄 Loading playlists...</p>';
+            
+            try {
+                console.log('Frontend: Attempting to fetch playlists from /api/spotify/playlists...');
+                const response = await fetch('/api/spotify/playlists');
+                
+                if (!response.ok) {
+                    const errorText = await response.text(); // Get raw error text
+                    console.error('Frontend: Playlists API response not OK. Status:', response.status, 'Body:', errorText);
+                    
+                    if (response.status === 401) {
+                        showError('Spotify session expired or not authenticated. Please reconnect Spotify.');
+                        spotifyConnected = false;
+                        updateConnectionStatus();
+                        document.getElementById('spotifyBtn').style.display = 'inline-block';
+                        document.getElementById('logoutBtn').style.display = 'none';
+                        document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
+                        document.getElementById('spotifyBtn').disabled = false;
+                        playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                        return;
+                    }
+                    throw new Error(`Failed to fetch playlists: ${response.status} - ${errorText}`);
+                }
 
-            if (data.playlists && data.playlists.length > 0) {
-                playlistGrid.innerHTML = ''; // Clear loading message
-                data.playlists.forEach(playlist => {
-                    const playlistCardHtml = `
-                        <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-                            <div class="playlist-collapsed-view">
-                                <img src="${playlist.cover || '/placeholder.svg?height=50&width=50&text=No+Image'}" alt="${playlist.name} cover">
-                                <div class="playlist-info">
-                                    <h5>${playlist.name}</h5>
-                                    <p>${playlist.tracks} tracks</p>
+                const data = await response.json();
+                console.log('Frontend: Playlists fetched successfully:', data.playlists);
+
+                if (data.playlists && data.playlists.length > 0) {
+                    playlistGrid.innerHTML = ''; // Clear loading message
+                    data.playlists.forEach(playlist => {
+                        const playlistCardHtml = `
+                            <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+                                <div class="playlist-collapsed-view">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=50&width=50&text=No+Image'}" alt="${playlist.name} cover">
+                                    <div class="playlist-info">
+                                        <h5>${playlist.name}</h5>
+                                        <p>${playlist.tracks} tracks</p>
+                                    </div>
+                                </div>
+                                <div class="playlist-expanded-details">
+                                    <p><strong>Description:</strong> <span class="playlist-description">${playlist.description || 'N/A'}</span></p>
+                                    <p><strong>Total Duration:</strong> <span class="playlist-duration">Loading...</span></p>
+                                    <p><strong>Songs:</strong></p>
+                                    <ul class="playlist-songs">
+                                        <li>Loading songs...</li>
+                                    </ul>
+                                    <p><a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a></p>
                                 </div>
                             </div>
-                            <div class="playlist-expanded-details">
-                                <p><strong>Description:</strong> <span class="playlist-description">${playlist.description || 'N/A'}</span></p>
-                                <p><strong>Total Duration:</strong> <span class="playlist-duration">Loading...</span></p>
-                                <p><strong>Songs:</strong></p>
-                                <ul class="playlist-songs">
-                                    <li>Loading songs...</li>
-                                </ul>
-                                <p><a href="${playlist.spotifyUrl}" target="_blank">View on Spotify</a></p>
-                            </div>
-                        </div>
-                    `;
-                    playlistGrid.innerHTML += playlistCardHtml;
-                });
-                toggleSection('playlists'); // Open the playlists section
-            } else {
-                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No public playlists found or created by you.</p>';
+                        `;
+                        playlistGrid.innerHTML += playlistCardHtml;
+                    });
+                    toggleSection('playlists'); // Open the playlists section
+                } else {
+                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No public playlists found or created by you.</p>';
+                }
+
+            } catch (error) {
+                console.error('Frontend: Error fetching playlists:', error);
+                showError('Failed to load playlists: ' + error.message);
+                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> Error loading playlists. Please try again.</p>';
             }
-
-        } catch (error) {
-            console.error('Frontend: Error fetching playlists:', error);
-            showError('Failed to load playlists: ' + error.message);
-            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> Error loading playlists. Please try again.</p>';
         }
-    }
 
-    // Toggle playlist details and fetch if not already loaded
-    async function togglePlaylistDetails(cardElement, playlistId) {
-        const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
-        
-        if (cardElement.classList.contains('expanded')) {
-            // Collapse
-            cardElement.classList.remove('expanded');
-        } else {
-            // Expand
-            cardElement.classList.add('expanded');
+        // Toggle playlist details and fetch if not already loaded
+        async function togglePlaylistDetails(cardElement, playlistId) {
+            const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
             
-            // Check if details are already loaded
-            if (expandedDetails.dataset.loaded !== 'true') {
-                try {
-                    expandedDetails.innerHTML = '<p style="text-align: center;">🔄 Loading details...</p>';
-                    console.log(`Frontend: Fetching details for playlist ID: ${playlistId}`);
-                    const response = await fetch(`/api/spotify/playlist/${playlistId}`);
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Failed to fetch playlist details: ${response.status} - ${errorText}`);
+            if (cardElement.classList.contains('expanded')) {
+                // Collapse
+                cardElement.classList.remove('expanded');
+            } else {
+                // Expand
+                cardElement.classList.add('expanded');
+                
+                // Check if details are already loaded
+                if (expandedDetails.dataset.loaded !== 'true') {
+                    try {
+                        expandedDetails.innerHTML = '<p style="text-align: center;">🔄 Loading details...</p>';
+                        console.log(`Frontend: Fetching details for playlist ID: ${playlistId}`);
+                        const response = await fetch(`/api/spotify/playlist/${playlistId}`);
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Failed to fetch playlist details: ${response.status} - ${errorText}`);
+                        }
+
+                        const details = await response.json();
+                        console.log('Frontend: Playlist details fetched:', details);
+
+                        let tracksHtml = '';
+                        if (details.tracks && details.tracks.length > 0) {
+                            tracksHtml = details.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('');
+                        } else {
+                            tracksHtml = '<li>No songs found.</li>';
+                        }
+
+                        expandedDetails.innerHTML = `
+                            <p><strong>Description:</strong> ${details.description || 'N/A'}</p>
+                            <p><strong>Total Duration:</strong> ${details.totalDuration || 'N/A'}</p>
+                            <p><strong>Songs (${details.totalTracks}):</strong></p>
+                            <ul>${tracksHtml}</ul>
+                            <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>
+                        `;
+                        expandedDetails.dataset.loaded = 'true'; // Mark as loaded
+                    } catch (error) {
+                        console.error('Frontend: Error fetching playlist details:', error);
+                        expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
                     }
-
-                    const details = await response.json();
-                    console.log('Frontend: Playlist details fetched:', details);
-
-                    let tracksHtml = '';
-                    if (details.tracks && details.tracks.length > 0) {
-                        tracksHtml = details.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('');
-                    } else {
-                        tracksHtml = '<li>No songs found.</li>';
-                    }
-
-                    expandedDetails.innerHTML = `
-                        <p><strong>Description:</strong> ${details.description || 'N/A'}</p>
-                        <p><strong>Total Duration:</strong> ${details.totalDuration || 'N/A'}</p>
-                        <p><strong>Songs (${details.totalTracks}):</strong></p>
-                        <ul>${tracksHtml}</ul>
-                        <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>
-                    `;
-                    expandedDetails.dataset.loaded = 'true'; // Mark as loaded
-                } catch (error) {
-                    console.error('Frontend: Error fetching playlist details:', error);
-                    expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
                 }
             }
         }
-    }
 
 
-    // Update connection status display
-    function updateConnectionStatus() {
-        const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
-        const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
-        const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
-        const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
-        
-        document.getElementById('connectionStatus').innerHTML = 
-            `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 OK Playlists initialized - Latest Privy SDK');
-        
-        // Initialize debug info immediately
-        updateDebugInfo();
-        updateConnectionStatus();
-        
-        // Check URL parameters for auth results
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        if (urlParams.get('spotify_connected') === 'true') {
-            spotifyConnected = true;
-            document.getElementById('spotifyBtn').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'inline-block';
+        // Update connection status display
+        function updateConnectionStatus() {
+            const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+            const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
+            const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+            const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
             
-            updateConnectionStatus();
-            showSuccess('✅ Spotify connected successfully!');
-            
-            // Fetch playlists immediately after successful Spotify connection
-            fetchPlaylists();
-
-            // Clean URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (urlParams.get('error')) {
-            const error = urlParams.get('error');
-            showError(`❌ Authentication failed: ${error}`);
-            
-            // Clean URL
-            window.history.replaceState({}, document.title, window.location.pathname);
+            document.getElementById('connectionStatus').innerHTML = 
+                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
         }
-    });
-</script>
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 OK Playlists initialized');
+            
+            // Initialize debug info immediately
+            updateDebugInfo();
+            updateConnectionStatus();
+            
+            // Check URL parameters for auth results
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.get('spotify_connected') === 'true') {
+                spotifyConnected = true;
+                document.getElementById('spotifyBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                
+                updateConnectionStatus();
+                showSuccess('✅ Spotify connected successfully!');
+                
+                // Fetch playlists immediately after successful Spotify connection
+                fetchPlaylists();
+
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (urlParams.get('error')) {
+                const error = urlParams.get('error');
+                showError(`❌ Authentication failed: ${error}`);
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
 </body>
 </html>
