@@ -26,30 +26,34 @@
         /* DASHBOARD STYLES */
         .dashboard { display: none; }
         .dashboard.active { display: block; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
         .dashboard-card h3 { color: #fff; margin-bottom: 12px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 8px; }
 
+        /* Expandable card headers */
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; }
+        .expandable-header:hover { opacity: 0.8; }
+        .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
+        .expandable-header.active::after { content: '[-]'; }
+        .expandable-content { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
+        .expandable-content.active { display: block; }
+
         /* Profile Card */
-        .profile-card { display: flex; align-items: center; gap: 15px; }
-        .profile-card img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; }
+        .profile-card { display: flex; align-items: flex-start; gap: 15px; }
+        .profile-card img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
+        .profile-info { flex: 1; }
         .profile-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .profile-info p { color: #999; font-size: 10px; }
+        .profile-info p { color: #999; font-size: 10px; margin-bottom: 8px; }
 
         /* Library Stats - Inline */
-        .library-stats { display: flex; gap: 15px; flex-wrap: wrap; }
-        .library-stat { background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border: 1px solid #444; text-align: center; flex: 1; min-width: 80px; }
-        .library-stat-number { font-size: 16px; font-weight: bold; color: #66ff66; }
+        .library-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+        .library-stat { background: rgba(0, 0, 0, 0.3); padding: 6px 10px; border: 1px solid #444; text-align: center; flex: 1; min-width: 70px; }
+        .library-stat-number { font-size: 14px; font-weight: bold; color: #66ff66; }
         .library-stat-label { font-size: 8px; color: #999; text-transform: uppercase; }
 
-        /* Lists */
-        .item-list { max-height: 180px; overflow-y: auto; }
-        .item-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222; }
-        .item-list li:last-child { border-bottom: none; }
-        .item-list img { width: 35px; height: 35px; border-radius: 3px; }
-        .item-info { flex: 1; }
-        .item-name { font-size: 11px; color: #fff; }
-        .item-detail { font-size: 9px; color: #999; }
+        /* Genres */
+        .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .genre-tag { background: #444; padding: 4px 8px; border-radius: 12px; font-size: 9px; }
 
         /* Currently Playing */
         .now-playing { background: linear-gradient(45deg, #1db954, #1ed760); padding: 15px; border-radius: 6px; color: #000; }
@@ -67,19 +71,6 @@
         .control-btn:hover { background: rgba(0,0,0,0.3); }
         .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Genres */
-        .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-        .genre-tag { background: #444; padding: 4px 8px; border-radius: 12px; font-size: 9px; }
-
-        /* EXPANDABLE SECTIONS */
-        .expandable-section { margin-bottom: 15px; border: 1px solid #333; background: rgba(255, 255, 255, 0.01); }
-        .section-header { background: #666; color: #fff; padding: 10px 15px; cursor: pointer; user-select: none; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; position: relative; transition: background 0.2s ease; }
-        .section-header:hover { background: #777; }
-        .section-header::after { content: '[+]'; position: absolute; right: 15px; }
-        .section-header.active::after { content: '[-]'; }
-        .section-content { display: none; padding: 15px; border-top: 1px solid #333; background: rgba(255, 255, 255, 0.02); }
-        .section-content.active { display: block; }
-
         /* Lyrics expandable box */
         .lyrics-section { margin-top: 8px; }
         .lyrics-header { background: rgba(0,0,0,0.3); padding: 6px 10px; cursor: pointer; font-size: 10px; border: 1px solid rgba(0,0,0,0.4); }
@@ -88,28 +79,37 @@
         .lyrics-content.active { display: block; }
         .lyrics-text { white-space: pre-line; font-size: 10px; line-height: 1.4; }
 
-        /* Playlist grid to match dashboard cards */
-        .playlist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-        .playlist-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; cursor: pointer; transition: background 0.2s ease; }
-        .playlist-card:hover { background: rgba(255, 255, 255, 0.1); }
-        .playlist-card h5 { font-size: 13px; margin-bottom: 8px; color: #fff; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 6px; }
-        .playlist-collapsed-view { display: flex; align-items: center; gap: 10px; }
-        .playlist-card img { width: 50px; height: 50px; border: 1px solid #555; border-radius: 3px; }
-        .playlist-info { flex-grow: 1; }
-        .playlist-info p { font-size: 10px; color: #999; margin-bottom: 2px; }
-        .playlist-expanded-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #444; font-size: 10px; color: #ccc; }
-        .playlist-card.expanded .playlist-expanded-details { display: block; }
-        .playlist-expanded-details ul { list-style: none; padding: 0; margin-top: 6px; max-height: 120px; overflow-y: auto; border: 1px solid #222; padding: 6px; background: rgba(0,0,0,0.2); }
-        .playlist-expanded-details ul li { font-size: 9px; padding: 2px 0; }
-        .playlist-expanded-details a { color: #fff; text-decoration: none; font-size: 10px; }
-        .playlist-expanded-details a:hover { text-decoration: underline; }
+        /* Lists */
+        .item-list { max-height: 200px; overflow-y: auto; }
+        .item-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222; }
+        .item-list li:last-child { border-bottom: none; }
+        .item-list img { width: 35px; height: 35px; border-radius: 3px; }
+        .item-info { flex: 1; }
+        .item-name { font-size: 11px; color: #fff; }
+        .item-detail { font-size: 9px; color: #999; }
+
+        /* Playlists Grid */
+        .playlists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; }
+        .playlist-item { background: rgba(0, 0, 0, 0.3); border: 1px solid #444; padding: 10px; cursor: pointer; transition: background 0.2s ease; }
+        .playlist-item:hover { background: rgba(0, 0, 0, 0.5); }
+        .playlist-item-header { display: flex; align-items: center; gap: 8px; }
+        .playlist-item img { width: 40px; height: 40px; border-radius: 3px; }
+        .playlist-item-info h5 { font-size: 11px; color: #fff; margin-bottom: 2px; }
+        .playlist-item-info p { font-size: 9px; color: #999; }
+        .playlist-item-details { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px solid #555; font-size: 9px; color: #ccc; }
+        .playlist-item.expanded .playlist-item-details { display: block; }
+        .playlist-item-details ul { list-style: none; padding: 0; margin-top: 4px; max-height: 100px; overflow-y: auto; }
+        .playlist-item-details ul li { font-size: 8px; padding: 1px 0; }
+        .playlist-item-details a { color: #fff; text-decoration: none; font-size: 9px; }
+        .playlist-item-details a:hover { text-decoration: underline; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-grid, .playlist-grid { grid-template-columns: 1fr; }
-            .library-stats { flex-direction: column; gap: 8px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .library-stats { flex-direction: column; gap: 6px; }
+            .playlists-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -138,7 +138,7 @@
         <!-- SPOTIFY DASHBOARD -->
         <div class="dashboard" id="spotifyDashboard">
             <div class="dashboard-grid">
-                <!-- Profile Card -->
+                <!-- Profile Card with Library & Genres -->
                 <div class="dashboard-card">
                     <h3>🎵 Your Profile</h3>
                     <div id="profileContent" class="profile-card">
@@ -153,68 +153,44 @@
                         <p>Loading...</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- EXPANDABLE SECTIONS -->
-            
-            <!-- Library Stats -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('library')">📊 Your Library</div>
-                <div class="section-content" id="library">
-                    <div id="libraryStatsContent" class="library-stats">
-                        <p>Loading...</p>
+                <!-- Playlists -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header" onclick="toggleExpandable('playlists')">🎵 Your Playlists</h3>
+                    <div class="expandable-content" id="playlists">
+                        <div id="playlistsContent" class="playlists-grid">
+                            <p>Loading...</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Top Genres -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('genres')">🎭 Your Genres</div>
-                <div class="section-content" id="genres">
-                    <div id="topGenresContent" class="genre-tags">
-                        <span>Loading...</span>
+                <!-- Top Artists -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
+                    <div class="expandable-content" id="artists">
+                        <ul id="topArtistsContent" class="item-list">
+                            <li>Loading...</li>
+                        </ul>
                     </div>
                 </div>
-            </div>
 
-            <!-- Top Artists -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('artists')">⭐ Top Artists</div>
-                <div class="section-content" id="artists">
-                    <ul id="topArtistsContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
+                <!-- Top Tracks -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header" onclick="toggleExpandable('tracks')">🔥 Top Tracks</h3>
+                    <div class="expandable-content" id="tracks">
+                        <ul id="topTracksContent" class="item-list">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Top Tracks -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('tracks')">🔥 Top Tracks</div>
-                <div class="section-content" id="tracks">
-                    <ul id="topTracksContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Recently Played -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('recent')">⏰ Recently Played</div>
-                <div class="section-content" id="recent">
-                    <ul id="recentlyPlayedContent" class="item-list">
-                        <li>Loading...</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Playlists -->
-            <div class="expandable-section">
-                <div class="section-header" onclick="toggleSection('playlists')">🎵 Your Playlists</div>
-                <div class="section-content" id="playlists">
-                    <div id="playlistGrid" class="playlist-grid">
-                        <p style="color: #666; text-align: center; padding: 20px;">
-                            > CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS
-                        </p>
+                <!-- Recently Played -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header" onclick="toggleExpandable('recent')">⏰ Recently Played</h3>
+                    <div class="expandable-content" id="recent">
+                        <ul id="recentlyPlayedContent" class="item-list">
+                            <li>Loading...</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -257,7 +233,7 @@
             console.log('Success:', message);
         }
 
-        function toggleSection(id) {
+        function toggleExpandable(id) {
             const content = document.getElementById(id);
             const header = content.previousElementSibling;
             content.classList.toggle('active');
@@ -290,7 +266,6 @@
                 currentlyPlayingInterval = null;
             }
             updateConnectionStatus();
-            document.getElementById('playlistGrid').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
             showSuccess('Logged out from Spotify.');
         }
 
@@ -314,50 +289,49 @@
         }
 
         function populateDashboard(data) {
-            // Profile
+            // Profile with Library & Genres
             const profileContent = document.getElementById('profileContent');
             profileContent.innerHTML = `
-                <img src="${data.profile.imageUrl || '/placeholder.svg?height=80&width=80'}" alt="Profile">
+                <img src="${data.profile.imageUrl || '/placeholder.svg?height=60&width=60'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
-                    <p>${data.profile.followers} Followers</p>
-                    <p>${data.profile.country || 'Unknown'}</p>
+                    <p>${data.profile.followers} Followers • ${data.profile.country || 'Unknown'}</p>
+                    
+                    <div class="library-stats">
+                        <div class="library-stat">
+                            <div class="library-stat-number">${data.library.totalSavedTracks}</div>
+                            <div class="library-stat-label">Songs</div>
+                        </div>
+                        <div class="library-stat">
+                            <div class="library-stat-number">${data.library.totalSavedAlbums}</div>
+                            <div class="library-stat-label">Albums</div>
+                        </div>
+                        <div class="library-stat">
+                            <div class="library-stat-number">${data.library.totalPlaylists}</div>
+                            <div class="library-stat-label">Playlists</div>
+                        </div>
+                        <div class="library-stat">
+                            <div class="library-stat-number">${data.library.estimatedListeningHours}h</div>
+                            <div class="library-stat-label">Listening</div>
+                        </div>
+                    </div>
+                    
+                    <div class="genre-tags">
+                        ${data.musicTaste.topGenres.slice(0, 6).map(genre => 
+                            `<span class="genre-tag">${genre.name}</span>`
+                        ).join('')}
+                    </div>
                 </div>
             `;
 
             // Currently Playing
             updateCurrentlyPlaying(data.activity.currentlyPlaying);
 
-            // Library Stats - Inline
-            const libraryContent = document.getElementById('libraryStatsContent');
-            libraryContent.innerHTML = `
-                <div class="library-stat">
-                    <div class="library-stat-number">${data.library.totalSavedTracks}</div>
-                    <div class="library-stat-label">Saved Songs</div>
-                </div>
-                <div class="library-stat">
-                    <div class="library-stat-number">${data.library.totalSavedAlbums}</div>
-                    <div class="library-stat-label">Saved Albums</div>
-                </div>
-                <div class="library-stat">
-                    <div class="library-stat-number">${data.library.totalPlaylists}</div>
-                    <div class="library-stat-label">Playlists</div>
-                </div>
-                <div class="library-stat">
-                    <div class="library-stat-number">${data.library.estimatedListeningHours}h</div>
-                    <div class="library-stat-label">Est. Listening</div>
-                </div>
-                <div class="library-stat">
-                    <div class="library-stat-number">${data.library.totalFollowedArtists}</div>
-                    <div class="library-stat-label">Following</div>
-                </div>
-            `;
-
             // Top Artists
             const artistsContent = document.getElementById('topArtistsContent');
             artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
                 <li>
-                    <img src="${artist.image || '/placeholder.svg?height=40&width=40'}" alt="${artist.name}">
+                    <img src="${artist.image || '/placeholder.svg?height=35&width=35'}" alt="${artist.name}">
                     <div class="item-info">
                         <div class="item-name">${artist.name}</div>
                         <div class="item-detail">Popularity: ${artist.popularity}/100</div>
@@ -369,7 +343,7 @@
             const tracksContent = document.getElementById('topTracksContent');
             tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
                 <li>
-                    <img src="${track.image || '/placeholder.svg?height=40&width=40'}" alt="${track.name}">
+                    <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
                     <div class="item-info">
                         <div class="item-name">${track.name}</div>
                         <div class="item-detail">${track.artist}</div>
@@ -383,7 +357,7 @@
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
                     <li>
-                        <img src="${track.image || '/placeholder.svg?height=40&width=40'}" alt="${track.name}">
+                        <img src="${track.image || '/placeholder.svg?height=35&width=35'}" alt="${track.name}">
                         <div class="item-info">
                             <div class="item-name">${track.name}</div>
                             <div class="item-detail">${track.artist} • ${playedAt}</div>
@@ -391,12 +365,6 @@
                     </li>
                 `;
             }).join('');
-
-            // Top Genres
-            const genresContent = document.getElementById('topGenresContent');
-            genresContent.innerHTML = data.musicTaste.topGenres.map(genre => 
-                `<span class="genre-tag">${genre.name} (${genre.count})</span>`
-            ).join('');
         }
 
         function updateCurrentlyPlaying(track) {
@@ -415,7 +383,6 @@
             const playPauseBtn = track.isPlaying ? 'PAUSE' : 'PLAY';
             const playPauseAction = track.isPlaying ? 'pause' : 'play';
             
-            // Extract track ID from Spotify URI or URL if available
             currentTrackId = track.id || 'demo-track-id';
             
             content.innerHTML = `
@@ -446,7 +413,6 @@
         }
 
         function startCurrentlyPlayingUpdates() {
-            // Update currently playing every 30 seconds
             currentlyPlayingInterval = setInterval(async () => {
                 try {
                     const response = await fetch('/api/spotify/dashboard');
@@ -461,8 +427,9 @@
         }
 
         async function fetchPlaylists() {
-            const playlistGrid = document.getElementById('playlistGrid');
-            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlists...</p>';
+            const playlistsContent = document.getElementById('playlistsContent');
+            playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlists...</p>';
+            
             try {
                 const response = await fetch('/api/spotify/playlists');
                 if (!response.ok) {
@@ -470,54 +437,59 @@
                     throw new Error(errorData.details || `Server error: ${response.status}`);
                 }
                 const data = await response.json();
+                
                 if (data.playlists && data.playlists.length > 0) {
-                    playlistGrid.innerHTML = '';
+                    playlistsContent.innerHTML = '';
                     data.playlists.forEach(playlist => {
-                        const playlistCardHtml = `
-                            <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-                                <div class="playlist-collapsed-view">
-                                    <img src="${playlist.cover || '/placeholder.svg?height=50&width=50'}" alt="${playlist.name} cover">
-                                    <div class="playlist-info">
+                        const playlistHtml = `
+                            <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+                                <div class="playlist-item-header">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=40&width=40'}" alt="${playlist.name}">
+                                    <div class="playlist-item-info">
                                         <h5>${playlist.name}</h5>
                                         <p>${playlist.tracks} tracks</p>
                                     </div>
                                 </div>
-                                <div class="playlist-expanded-details">Loading...</div>
-                            </div>`;
-                        playlistGrid.innerHTML += playlistCardHtml;
+                                <div class="playlist-item-details">Loading...</div>
+                            </div>
+                        `;
+                        playlistsContent.innerHTML += playlistHtml;
                     });
                 } else {
-                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> No public playlists found or created by you.</p>';
+                    playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No public playlists found.</p>';
                 }
             } catch (error) {
                 showError('Failed to load playlists: ' + error.message);
-                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> Error loading playlists.</p>';
+                playlistsContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Error loading playlists.</p>';
             }
         }
 
-        async function togglePlaylistDetails(cardElement, playlistId) {
-            const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
-            cardElement.classList.toggle('expanded');
-            if (cardElement.classList.contains('expanded') && expandedDetails.dataset.loaded !== 'true') {
+        async function togglePlaylistDetails(itemElement, playlistId) {
+            const details = itemElement.querySelector('.playlist-item-details');
+            itemElement.classList.toggle('expanded');
+            
+            if (itemElement.classList.contains('expanded') && details.dataset.loaded !== 'true') {
                 try {
                     const response = await fetch(`/api/spotify/playlist/${playlistId}`);
                     if (!response.ok) {
-                         const errorData = await response.json();
+                        const errorData = await response.json();
                         throw new Error(errorData.details || `Server error: ${response.status}`);
                     }
-                    const details = await response.json();
-                    let tracksHtml = details.tracks && details.tracks.length > 0
-                        ? details.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('')
+                    const playlistDetails = await response.json();
+                    
+                    let tracksHtml = playlistDetails.tracks && playlistDetails.tracks.length > 0
+                        ? playlistDetails.tracks.slice(0, 10).map(track => `<li>${track.name} - ${track.artist}</li>`).join('')
                         : '<li>No songs found.</li>';
-                    expandedDetails.innerHTML = `
-                        <p><strong>Description:</strong> ${details.description || 'N/A'}</p>
-                        <p><strong>Total Duration:</strong> ${details.totalDuration || 'N/A'}</p>
-                        <p><strong>Songs (${details.totalTracks}):</strong></p>
+                    
+                    details.innerHTML = `
+                        <p><strong>Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</p>
+                        <p><strong>Top Songs:</strong></p>
                         <ul>${tracksHtml}</ul>
-                        <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>`;
-                    expandedDetails.dataset.loaded = 'true';
+                        <p><a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a></p>
+                    `;
+                    details.dataset.loaded = 'true';
                 } catch (error) {
-                    expandedDetails.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
+                    details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
                 }
             }
         }
@@ -541,7 +513,6 @@
                     return;
                 }
                 
-                // Refresh the currently playing info after a short delay
                 setTimeout(() => {
                     if (spotifyConnected) {
                         fetchDashboard();
@@ -574,10 +545,8 @@
             if (urlParams.get('spotify_connected') === 'true') {
                 spotifyConnected = true;
                 showSuccess('✅ Spotify connected successfully!');
-                // Load the full dashboard
                 fetchDashboard();
                 fetchPlaylists();
-                // Clean the URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (urlParams.get('error')) {
                 showError(`Authentication failed: ${urlParams.get('error')}`);
