@@ -122,49 +122,64 @@
         .item-name { font-size: 11px; color: #fff; font-weight: 400; }
         .item-detail { font-size: 9px; color: #999; font-weight: 400; }
 
-        /* Playlist items - 20% smaller (10% bigger than before) */
-        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 5px 0; border-bottom: 1px solid #222; }
+        /* Playlist items */
+        .playlist-item { 
+            cursor: pointer; 
+            transition: background 0.2s ease; 
+            padding: 5px 0; 
+            border-bottom: 1px solid #222; 
+        }
         .playlist-item:last-child { border-bottom: none; }
         .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
 
-        /* Playlist title selection only */
-        .playlist-item-info .item-name {
-            font-size: 11px;
-            color: #fff;
-            font-weight: 400;
-            user-select: text;
+        .playlist-item-header { 
+            display: flex; 
+            align-items: center; 
+            gap: 7px; 
+        }
+
+        .playlist-item-header img { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 3px; 
+            user-select: none; 
+            pointer-events: none;
+        }
+
+        .playlist-item-info { flex: 1; }
+
+        /* Only playlist title is selectable */
+        .playlist-item-info .item-name { 
+            font-size: 11px; 
+            color: #fff; 
+            font-weight: 400; 
+            user-select: text; 
             cursor: text;
+            display: inline-block;
         }
 
-        .playlist-item-info .item-detail {
-            font-size: 9px;
-            color: #999;
-            font-weight: 400;
-            user-select: none;
-            cursor: pointer;
-        }
-
-        .playlist-item-header {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            user-select: none;
-        }
-
-        .playlist-item-header img {
-            width: 28px;
-            height: 28px;
-            border-radius: 3px;
-            user-select: none;
+        /* Track count is not selectable */
+        .playlist-item-info .item-detail { 
+            font-size: 9px; 
+            color: #999; 
+            font-weight: 400; 
+            user-select: none; 
+            pointer-events: none;
         }
         
-        /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
-        .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; font-weight: 400; }
+        /* Expanded playlist details */
+        .playlist-item-details { 
+            display: none; 
+            margin-top: 6px; 
+            font-size: 9px; 
+            color: #ccc; 
+            font-weight: 400; 
+        }
         .playlist-item.expanded .playlist-item-details { display: block; }
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; font-weight: 700; }
 
-        /* Song list - same style as main lists but smaller and scrollable - KEEP SMALL */
+        /* Song list */
         .playlist-songs-list { 
             max-height: 120px; 
             overflow-y: auto; 
@@ -215,11 +230,6 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .now-playing-display { width: 100px; font-size: 6px; }
         }
-
-        /* Playlists expanded by default */
-        #playlists { display: block !important; }
-        #playlists + .expandable-header { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
-        #playlists + .expandable-header::after { content: '[-]'; }
     </style>
 </head>
 <body>
@@ -449,7 +459,7 @@
                 setTimeout(() => {
                     const nowPlayingEl = profileContent.querySelector('.now-playing-display');
                     const textEl = nowPlayingEl.querySelector('.now-playing-text');
-                    const fullText = `♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}`;
+                    const fullText = `Now Playin' : ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}`;
                     
                     if (checkTextOverflow(nowPlayingEl, fullText)) {
                         textEl.classList.add('scrolling');
@@ -457,9 +467,9 @@
                 }, 100);
             }
 
-            // Top Artists - Show 20 results
+            // Top Artists - Show all available (up to 20)
             const artistsContent = document.getElementById('topArtistsContent');
-            artistsContent.innerHTML = data.musicTaste.topArtists.slice(0, 20).map(artist => `
+            artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
                 <li>
                     <img src="${artist.image || '/placeholder.svg?height=28&width=28'}" alt="${artist.name}">
                     <div class="item-info">
@@ -469,9 +479,9 @@
                 </li>
             `).join('');
 
-            // Top Tracks - Show 20 results
+            // Top Tracks - Show all available (up to 20)
             const tracksContent = document.getElementById('topTracksContent');
-            tracksContent.innerHTML = data.musicTaste.topTracks.slice(0, 20).map(track => `
+            tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
                 <li>
                     <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                     <div class="item-info">
@@ -481,9 +491,9 @@
                 </li>
             `).join('');
 
-            // Recently Played - Show 20 results
+            // Recently Played - Show all available (up to 20)
             const recentContent = document.getElementById('recentlyPlayedContent');
-            recentContent.innerHTML = data.activity.recentlyPlayed.slice(0, 20).map(track => {
+            recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
                     <li>
@@ -662,10 +672,14 @@
             updateConnectionStatus();
 
             // Make playlists expanded by default
-            const playlistsHeader = document.querySelector('[onclick="toggleExpandable(\'playlists\')"]');
-            if (playlistsHeader) {
-                playlistsHeader.classList.add('active');
-            }
+            setTimeout(() => {
+                const playlistsContent = document.getElementById('playlists');
+                const playlistsHeader = document.querySelector('[onclick="toggleExpandable(\'playlists\')"]');
+                if (playlistsContent && playlistsHeader) {
+                    playlistsContent.classList.add('active');
+                    playlistsHeader.classList.add('active');
+                }
+            }, 100);
         });
     </script>
 </body>

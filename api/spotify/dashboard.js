@@ -105,7 +105,7 @@ export default async function handler(req, res) {
 
     // PROCESS TOP ARTISTS & GENRES
     const topArtists =
-      topArtistsData.items?.slice(0, 10).map((artist) => ({
+      topArtistsData.items?.slice(0, 20).map((artist) => ({
         name: artist.name,
         image: artist.images?.[0]?.url,
         popularity: artist.popularity,
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
 
     // PROCESS TOP TRACKS
     const topTracks =
-      topTracksData.items?.slice(0, 10).map((track) => ({
+      topTracksData.items?.slice(0, 20).map((track) => ({
         name: track.name,
         artist: track.artists[0].name,
         album: track.album.name,
@@ -147,7 +147,7 @@ export default async function handler(req, res) {
 
     // PROCESS RECENTLY PLAYED
     const recentlyPlayed =
-      recentlyPlayedData.items?.slice(0, 15).map((item) => ({
+      recentlyPlayedData.items?.slice(0, 20).map((item) => ({
         name: item.track.name,
         artist: item.track.artists[0].name,
         playedAt: item.played_at,
