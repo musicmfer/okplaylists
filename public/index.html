@@ -4,22 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', 'Monaco', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
+        body { font-family: 'Orbitron', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
-        .header { text-align: center; margin-bottom: 30px; padding: 25px 15px; border: 2px solid #fff; background: rgba(255, 255, 255, 0.02); }
-        .title { font-size: 36px; font-weight: 400; margin-bottom: 8px; letter-spacing: 6px; }
-        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; }
-        .description { font-size: 11px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.4; }
-        .panel { background: rgba(255, 255, 255, 0.02); border: 1px solid #fff; padding: 15px; margin-bottom: 20px; }
-        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: inherit; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
+        
+        /* Header - styled like dashboard cards */
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 25px 15px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid #333; 
+        }
+        .title { font-size: 36px; font-weight: 900; margin-bottom: 8px; letter-spacing: 6px; }
+        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 400; }
+        .description { font-size: 11px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.4; font-weight: 400; }
+        
+        /* Panel - styled like dashboard cards */
+        .panel { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid #333; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+        }
+        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Orbitron', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 700; }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
-        .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; }
+        .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; font-weight: 400; }
         .status-connected { color: #66ff66; }
         .status-disconnected { color: #666; }
-        .error, .success { font-size: 11px; margin-top: 8px; text-align: center; }
+        .error, .success { font-size: 11px; margin-top: 8px; text-align: center; font-weight: 400; }
         .error { color: #ff6666; }
         .success { color: #66ff66; }
 
@@ -30,10 +46,10 @@
         .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 15px; }
         
         /* Profile header - ALWAYS has underline */
-        .profile-header { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        .profile-header { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; font-weight: 700; }
 
         /* Expandable card headers - underline ONLY when expanded */
-        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; }
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; font-weight: 700; }
         .expandable-header:hover { opacity: 0.8; }
         .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
         .expandable-header.active::after { content: '[-]'; }
@@ -45,32 +61,30 @@
         .profile-card { display: flex; align-items: flex-start; gap: 15px; position: relative; }
         .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
-        .profile-info h4 { font-size: 13px; margin-bottom: 3px; }
-        .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; }
+        .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 700; }
+        .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; font-weight: 400; }
 
-        /* Now Playing Scrolling Text */
-        .now-playing-scroll {
+        /* Now Playing - Fixed position, smart overflow */
+        .now-playing-display {
             position: absolute;
             top: 0;
             right: 0;
-            max-width: 180px;
+            max-width: 200px;
             font-size: 9px;
             color: #1db954;
+            font-weight: 400;
+            background: rgba(29, 185, 84, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(29, 185, 84, 0.3);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .now-playing-scroll.scrolling {
-            animation: scroll-text 10s linear infinite;
-        }
-        @keyframes scroll-text {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
 
-        /* Genres - 30% smaller */
+        /* Genres */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; }
+        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 400; }
 
         /* Lists - 20% smaller (10% bigger than before) */
         .item-list { max-height: 140px; overflow-y: auto; }
@@ -78,8 +92,8 @@
         .item-list li:last-child { border-bottom: none; }
         .item-list img { width: 28px; height: 28px; border-radius: 3px; }
         .item-info { flex: 1; }
-        .item-name { font-size: 11px; color: #fff; }
-        .item-detail { font-size: 9px; color: #999; }
+        .item-name { font-size: 11px; color: #fff; font-weight: 400; }
+        .item-detail { font-size: 9px; color: #999; font-weight: 400; }
 
         /* Playlist items - 20% smaller (10% bigger than before) */
         .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 5px 0; border-bottom: 1px solid #222; }
@@ -88,14 +102,14 @@
         .playlist-item-header { display: flex; align-items: center; gap: 7px; }
         .playlist-item-header img { width: 28px; height: 28px; border-radius: 3px; }
         .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 11px; color: #fff; }
-        .playlist-item-info .item-detail { font-size: 9px; color: #999; }
+        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 400; }
+        .playlist-item-info .item-detail { font-size: 9px; color: #999; font-weight: 400; }
         
         /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
-        .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; }
+        .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; font-weight: 400; }
         .playlist-item.expanded .playlist-item-details { display: block; }
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
-        .playlist-detail-row strong { color: #fff; }
+        .playlist-detail-row strong { color: #fff; font-weight: 700; }
 
         /* Song list - same style as main lists but smaller and scrollable - KEEP SMALL */
         .playlist-songs-list { 
@@ -114,6 +128,7 @@
             border-bottom: 1px solid #222; 
             font-size: 8px; 
             color: #ccc;
+            font-weight: 400;
         }
         .playlist-songs-list li:last-child { border-bottom: none; }
         .playlist-songs-list .song-number { 
@@ -122,20 +137,22 @@
             width: 15px; 
             text-align: right; 
             flex-shrink: 0;
+            font-weight: 400;
         }
         .playlist-songs-list .song-info { flex: 1; }
-        .playlist-songs-list .song-name { color: #fff; }
-        .playlist-songs-list .song-artist { color: #999; }
+        .playlist-songs-list .song-name { color: #fff; font-weight: 400; }
+        .playlist-songs-list .song-artist { color: #999; font-weight: 400; }
 
         /* White Spotify link */
-        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; }
+        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; font-weight: 400; }
         .playlist-spotify-link:hover { text-decoration: underline; }
 
-        .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; }
+        .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; font-weight: 400; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid { grid-template-columns: 1fr; }
+            .now-playing-display { max-width: 150px; font-size: 8px; }
         }
     </style>
 </head>
@@ -296,12 +313,12 @@
         }
 
         function populateDashboard(data) {
-            // Profile with ALL stats in one line - 30% smaller
+            // Profile with ALL stats in one line
             const profileContent = document.getElementById('profileContent');
             
             // Check if there's a currently playing track
             const nowPlayingHtml = data.activity.currentlyPlaying ? 
-                `<div class="now-playing-scroll scrolling">Now Playing: ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>` : '';
+                `<div class="now-playing-display" title="${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}">♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>` : '';
             
             profileContent.innerHTML = `
                 ${nowPlayingHtml}
@@ -361,7 +378,7 @@
         function updateNowPlaying(track) {
             // Find the now playing element
             const profileContent = document.getElementById('profileContent');
-            let nowPlayingEl = profileContent.querySelector('.now-playing-scroll');
+            let nowPlayingEl = profileContent.querySelector('.now-playing-display');
             
             if (!track) {
                 // Remove now playing if it exists
@@ -372,15 +389,18 @@
             }
             
             // Create or update now playing element
-            const nowPlayingText = `Now Playing: ${track.name} - ${track.artist}`;
+            const nowPlayingText = `♪ ${track.name} - ${track.artist}`;
+            const fullText = `${track.name} - ${track.artist}`;
             
             if (nowPlayingEl) {
                 nowPlayingEl.textContent = nowPlayingText;
+                nowPlayingEl.title = fullText;
             } else {
                 // Create new element
                 nowPlayingEl = document.createElement('div');
-                nowPlayingEl.className = 'now-playing-scroll scrolling';
+                nowPlayingEl.className = 'now-playing-display';
                 nowPlayingEl.textContent = nowPlayingText;
+                nowPlayingEl.title = fullText;
                 
                 // Insert at the beginning of profile content
                 profileContent.insertBefore(nowPlayingEl, profileContent.firstChild);
