@@ -7,21 +7,77 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Courier New', 'Monaco', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 14px; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         .header { text-align: center; margin-bottom: 40px; padding: 30px 20px; border: 2px solid #fff; background: rgba(255, 255, 255, 0.02); }
         .title { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: 8px; }
         .subtitle { font-size: 16px; margin-bottom: 20px; letter-spacing: 2px; }
         .description { font-size: 13px; text-align: left; max-width: 800px; margin: 0 auto; line-height: 1.6; }
-        .panel { background: rgba(255, 255, 255, 0.02); border: 1px solid #fff; padding: 20px; text-align: center; margin-bottom: 30px; }
+        .panel { background: rgba(255, 255, 255, 0.02); border: 1px solid #fff; padding: 20px; margin-bottom: 30px; }
         .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 15px 30px; font-family: inherit; font-size: 14px; cursor: pointer; margin: 0 10px 10px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
-        .status-line { margin-top: 15px; font-size: 12px; letter-spacing: 1px; }
-        .status-connected { color: #fff; }
+        .status-line { margin-top: 15px; font-size: 12px; letter-spacing: 1px; text-align: center; }
+        .status-connected { color: #66ff66; }
         .status-disconnected { color: #666; }
-        .error, .success { font-size: 12px; margin-top: 10px; }
+        .error, .success { font-size: 12px; margin-top: 10px; text-align: center; }
         .error { color: #ff6666; }
         .success { color: #66ff66; }
+
+        /* DASHBOARD STYLES */
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .dashboard-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 20px; }
+        .dashboard-card h3 { color: #fff; margin-bottom: 15px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        /* Profile Card */
+        .profile-card { display: flex; align-items: center; gap: 20px; }
+        .profile-card img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #fff; }
+        .profile-info h4 { font-size: 18px; margin-bottom: 5px; }
+        .profile-info p { color: #999; font-size: 12px; }
+
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .stat-item { background: rgba(0, 0, 0, 0.3); padding: 15px; text-align: center; border: 1px solid #444; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #66ff66; }
+        .stat-label { font-size: 10px; color: #999; text-transform: uppercase; }
+
+        /* Music Taste */
+        .taste-scores { display: flex; gap: 20px; margin-bottom: 15px; }
+        .score-item { text-align: center; flex: 1; }
+        .score-circle { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #66ff66; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: bold; }
+        .score-label { font-size: 10px; color: #999; }
+
+        /* Lists */
+        .item-list { max-height: 200px; overflow-y: auto; }
+        .item-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #222; }
+        .item-list li:last-child { border-bottom: none; }
+        .item-list img { width: 40px; height: 40px; border-radius: 4px; }
+        .item-info { flex: 1; }
+        .item-name { font-size: 12px; color: #fff; }
+        .item-detail { font-size: 10px; color: #999; }
+
+        /* Currently Playing */
+        .now-playing { background: linear-gradient(45deg, #1db954, #1ed760); padding: 20px; border-radius: 8px; color: #000; }
+        .now-playing.not-playing { background: #333; color: #999; }
+        .now-playing-content { display: flex; align-items: center; gap: 15px; }
+        .now-playing img { width: 60px; height: 60px; border-radius: 8px; }
+        .now-playing-info h4 { font-size: 16px; margin-bottom: 5px; }
+        .now-playing-info p { font-size: 12px; opacity: 0.8; }
+        .progress-bar { width: 100%; height: 4px; background: rgba(0,0,0,0.3); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #000; transition: width 1s linear; }
+
+        /* Genres */
+        .genre-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .genre-tag { background: #444; padding: 5px 10px; border-radius: 15px; font-size: 10px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .taste-scores { flex-direction: column; gap: 10px; }
+        }
+
         .section { margin-bottom: 20px; border: 1px solid #fff; background: rgba(255, 255, 255, 0.01); }
         .section-header { background: #666; color: #fff; padding: 12px 20px; cursor: pointer; user-select: none; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; position: relative; }
         .section-header::after { content: '[+]'; position: absolute; right: 20px; }
@@ -40,6 +96,8 @@
         .playlist-expanded-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #444; font-size: 11px; color: #ccc; }
         .playlist-card.expanded .playlist-expanded-details { display: block; }
         .playlist-expanded-details ul { list-style: none; padding: 0; margin-top: 5px; max-height: 150px; overflow-y: auto; border: 1px solid #222; padding: 5px; background: rgba(0,0,0,0.2); }
+        .playlist-expanded-details a { color: #fff; text-decoration: none; }
+        .playlist-expanded-details a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -50,7 +108,7 @@
             <div class="description">
                 > CONNECT YOUR SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
                 > EXPLORE CURATED COLLECTIONS<br>
-                > MANAGE YOUR MUSICAL IDENTITY
+                > ANALYZE YOUR MUSICAL IDENTITY
             </div>
         </div>
 
@@ -64,6 +122,75 @@
             <div class="success" id="successMessage" style="display: none;"></div>
         </div>
 
+        <!-- SPOTIFY DASHBOARD -->
+        <div class="dashboard" id="spotifyDashboard">
+            <div class="dashboard-grid">
+                <!-- Profile Card -->
+                <div class="dashboard-card">
+                    <h3>🎵 Your Profile</h3>
+                    <div id="profileContent" class="profile-card">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Currently Playing -->
+                <div class="dashboard-card">
+                    <h3>🎧 Now Playing</h3>
+                    <div id="currentlyPlayingContent">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Library Stats -->
+                <div class="dashboard-card">
+                    <h3>📊 Your Library</h3>
+                    <div id="libraryStatsContent" class="stats-grid">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Music Taste Analysis -->
+                <div class="dashboard-card">
+                    <h3>🧬 Music DNA</h3>
+                    <div id="musicTasteContent">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Top Artists -->
+                <div class="dashboard-card">
+                    <h3>⭐ Top Artists</h3>
+                    <ul id="topArtistsContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Top Tracks -->
+                <div class="dashboard-card">
+                    <h3>🔥 Top Tracks</h3>
+                    <ul id="topTracksContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Recently Played -->
+                <div class="dashboard-card">
+                    <h3>⏰ Recently Played</h3>
+                    <ul id="recentlyPlayedContent" class="item-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Top Genres -->
+                <div class="dashboard-card">
+                    <h3>🎭 Your Genres</h3>
+                    <div id="topGenresContent" class="genre-tags">
+                        <span>Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="section">
             <div class="section-header" onclick="toggleSection('playlists')">YOUR PLAYLISTS</div>
             <div class="section-content" id="playlists">
@@ -75,12 +202,13 @@
             </div>
         </div>
         
-        <div class="footer">OK PLAYLISTS © 2025</div>
+        <div class="footer">OK PLAYLISTS © 2025 | YOUR MUSIC, ANALYZED</div>
     </div>
 
     <script>
         // --- GLOBAL STATE ---
         let spotifyConnected = false;
+        let currentlyPlayingInterval = null;
 
         // --- UI UPDATES ---
         function updateConnectionStatus() {
@@ -91,6 +219,7 @@
             
             document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
             document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
+            document.getElementById('spotifyDashboard').classList.toggle('active', spotifyConnected);
         }
 
         function showError(message) {
@@ -126,9 +255,176 @@
         async function logoutSpotify() {
             await fetch('/api/spotify/logout', { method: 'POST' });
             spotifyConnected = false;
+            if (currentlyPlayingInterval) {
+                clearInterval(currentlyPlayingInterval);
+                currentlyPlayingInterval = null;
+            }
             updateConnectionStatus();
             document.getElementById('playlistGrid').innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
             showSuccess('Logged out from Spotify.');
+        }
+
+        // --- DASHBOARD ---
+        async function fetchDashboard() {
+            try {
+                const response = await fetch('/api/spotify/dashboard');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || `Server error: ${response.status}`);
+                }
+                const dashboard = await response.json();
+                populateDashboard(dashboard);
+                
+                // Start live updates for currently playing
+                startCurrentlyPlayingUpdates();
+                
+            } catch (error) {
+                showError('Failed to load dashboard: ' + error.message);
+            }
+        }
+
+        function populateDashboard(data) {
+            // Profile
+            const profileContent = document.getElementById('profileContent');
+            profileContent.innerHTML = `
+                <img src="${data.profile.imageUrl || '/placeholder.svg?height=80&width=80'}" alt="Profile">
+                <div class="profile-info">
+                    <h4>${data.profile.displayName}</h4>
+                    <p>${data.profile.followers} Followers</p>
+                    <p>${data.profile.country || 'Unknown'}</p>
+                </div>
+            `;
+
+            // Currently Playing
+            updateCurrentlyPlaying(data.activity.currentlyPlaying);
+
+            // Library Stats
+            const libraryContent = document.getElementById('libraryStatsContent');
+            libraryContent.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${data.library.totalSavedTracks}</div>
+                    <div class="stat-label">Saved Songs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${data.library.totalSavedAlbums}</div>
+                    <div class="stat-label">Saved Albums</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${data.library.totalPlaylists}</div>
+                    <div class="stat-label">Playlists</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${data.library.estimatedListeningHours}h</div>
+                    <div class="stat-label">Est. Listening</div>
+                </div>
+            `;
+
+            // Music Taste
+            const tasteContent = document.getElementById('musicTasteContent');
+            tasteContent.innerHTML = `
+                <div class="taste-scores">
+                    <div class="score-item">
+                        <div class="score-circle">${data.musicTaste.mainstreamScore}</div>
+                        <div class="score-label">Mainstream</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-circle">${data.musicTaste.adventurousnessScore}</div>
+                        <div class="score-label">Adventurous</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-circle">${data.musicTaste.genreDiversity}</div>
+                        <div class="score-label">Genres</div>
+                    </div>
+                </div>
+            `;
+
+            // Top Artists
+            const artistsContent = document.getElementById('topArtistsContent');
+            artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
+                <li>
+                    <img src="${artist.image || '/placeholder.svg?height=40&width=40'}" alt="${artist.name}">
+                    <div class="item-info">
+                        <div class="item-name">${artist.name}</div>
+                        <div class="item-detail">Popularity: ${artist.popularity}/100</div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Top Tracks
+            const tracksContent = document.getElementById('topTracksContent');
+            tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
+                <li>
+                    <img src="${track.image || '/placeholder.svg?height=40&width=40'}" alt="${track.name}">
+                    <div class="item-info">
+                        <div class="item-name">${track.name}</div>
+                        <div class="item-detail">${track.artist}</div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Recently Played
+            const recentContent = document.getElementById('recentlyPlayedContent');
+            recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
+                const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                return `
+                    <li>
+                        <img src="${track.image || '/placeholder.svg?height=40&width=40'}" alt="${track.name}">
+                        <div class="item-info">
+                            <div class="item-name">${track.name}</div>
+                            <div class="item-detail">${track.artist} • ${playedAt}</div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+
+            // Top Genres
+            const genresContent = document.getElementById('topGenresContent');
+            genresContent.innerHTML = data.musicTaste.topGenres.map(genre => 
+                `<span class="genre-tag">${genre.name} (${genre.count})</span>`
+            ).join('');
+        }
+
+        function updateCurrentlyPlaying(track) {
+            const content = document.getElementById('currentlyPlayingContent');
+            if (!track) {
+                content.innerHTML = `
+                    <div class="now-playing not-playing">
+                        <p>🎵 Nothing playing right now</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const progressPercent = (track.progress / track.duration) * 100;
+            content.innerHTML = `
+                <div class="now-playing">
+                    <div class="now-playing-content">
+                        <img src="${track.image || '/placeholder.svg?height=60&width=60'}" alt="${track.name}">
+                        <div class="now-playing-info">
+                            <h4>${track.name}</h4>
+                            <p>${track.artist} • ${track.album}</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startCurrentlyPlayingUpdates() {
+            // Update currently playing every 30 seconds
+            currentlyPlayingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/spotify/dashboard');
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateCurrentlyPlaying(data.activity.currentlyPlaying);
+                    }
+                } catch (error) {
+                    console.error('Failed to update currently playing:', error);
+                }
+            }, 30000);
         }
 
         async function fetchPlaylists() {
@@ -189,7 +485,7 @@
                         <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>`;
                     expandedDetails.dataset.loaded = 'true';
                 } catch (error) {
-                    expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
+                    expandedDetails.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
                 }
             }
         }
@@ -200,6 +496,8 @@
             if (urlParams.get('spotify_connected') === 'true') {
                 spotifyConnected = true;
                 showSuccess('✅ Spotify connected successfully!');
+                // Load the full dashboard
+                fetchDashboard();
                 fetchPlaylists();
                 // Clean the URL
                 window.history.replaceState({}, document.title, window.location.pathname);

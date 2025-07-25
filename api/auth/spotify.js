@@ -12,9 +12,19 @@ export default function handler(req, res) {
     return res.status(500).json({ error: "Missing Spotify configuration" })
   }
 
-  const scopes = ["playlist-read-private", "playlist-read-collaborative", "user-read-private", "user-read-email"].join(
-    " ",
-  )
+  // ALL THE SCOPES for maximum data access
+  const scopes = [
+    "playlist-read-private",
+    "playlist-read-collaborative",
+    "user-read-private",
+    "user-read-email",
+    "user-top-read",
+    "user-read-recently-played",
+    "user-read-currently-playing",
+    "user-read-playback-state",
+    "user-library-read",
+    "user-follow-read",
+  ].join(" ")
 
   const state = `okplaylists_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 
