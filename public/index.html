@@ -47,12 +47,43 @@
         }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
+        
+        /* Wallet connect button - different color */
+        .wallet-btn { 
+            background: #ff6600; 
+            border-color: #ff6600; 
+        }
+        .wallet-btn:hover:not(:disabled) { 
+            background: #ff8833; 
+            border-color: #ff8833; 
+        }
+        
         .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; font-weight: 400; }
         .status-connected { color: #66ff66; }
         .status-disconnected { color: #666; }
         .error, .success { font-size: 11px; margin-top: 8px; text-align: center; font-weight: 400; }
         .error { color: #ff6666; }
         .success { color: #66ff66; }
+
+        /* Communities display */
+        .communities-line { 
+            margin-top: 8px; 
+            font-size: 10px; 
+            letter-spacing: 1px; 
+            text-align: center; 
+            font-weight: 400; 
+            color: #ff6600;
+        }
+        .community-tag { 
+            display: inline-block; 
+            background: rgba(255, 102, 0, 0.2); 
+            border: 1px solid #ff6600; 
+            padding: 2px 6px; 
+            margin: 2px; 
+            border-radius: 3px; 
+            font-size: 9px; 
+            font-weight: 400;
+        }
 
         /* DASHBOARD STYLES */
         .dashboard { display: none; }
@@ -245,6 +276,7 @@
             <div class="subtitle">DECENTRALIZED MUSIC PLATFORM</div>
             <div class="description">
                 > CONNECT YOUR SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
+                > CONNECT YOUR WALLET TO ACCESS COMMUNITY FEATURES<br>
                 > EXPLORE CURATED COLLECTIONS<br>
                 > ANALYZE YOUR MUSICAL IDENTITY
             </div>
@@ -253,9 +285,20 @@
         <div class="panel" id="connectionPanel">
             <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
             <button class="connect-btn" id="spotifyLogoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
+            
+            <button class="connect-btn wallet-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+            <button class="connect-btn wallet-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
+            
             <div class="status-line" id="connectionStatus">
                 SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
             </div>
+            <div class="status-line" id="walletStatus">
+                WALLET: <span class="status-disconnected">DISCONNECTED</span>
+            </div>
+            <div class="communities-line" id="communitiesStatus" style="display: none;">
+                COMMUNITIES: <span id="communitiesList"></span>
+            </div>
+            
             <div class="error" id="errorMessage" style="display: none;"></div>
             <div class="success" id="successMessage" style="display: none;"></div>
         </div>
@@ -318,8 +361,128 @@
     <script>
         // --- GLOBAL STATE ---
         let spotifyConnected = false;
+        let walletConnected = false;
         let currentlyPlayingInterval = null;
         let currentTrackId = null;
+        let walletAddress = null;
+        let communities = [];
+
+        // --- WALLET CONNECTION ---
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                showError('No Ethereum wallet detected. Please install MetaMask, Coinbase Wallet, or another Ethereum wallet.');
+                return;
+            }
+
+            try {
+                document.getElementById('walletBtn').disabled = true;
+                document.getElementById('walletBtn').textContent = 'CONNECTING...';
+
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length === 0) {
+                    throw new Error('No accounts found');
+                }
+
+                const address = accounts[0];
+                
+                // Verify NFT ownership on server
+                const response = await fetch('/api/wallet/connect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ walletAddress: address })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to connect wallet');
+                }
+
+                const data = await response.json();
+                
+                walletConnected = true;
+                walletAddress = data.walletAddress;
+                communities = data.communities;
+                
+                updateWalletStatus();
+                showSuccess(data.message);
+
+            } catch (error) {
+                console.error('Wallet connection error:', error);
+                showError('Failed to connect wallet: ' + error.message);
+            } finally {
+                document.getElementById('walletBtn').disabled = false;
+                document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+            }
+        }
+
+        async function disconnectWallet() {
+            try {
+                await fetch('/api/wallet/disconnect', { method: 'POST' });
+                
+                walletConnected = false;
+                walletAddress = null;
+                communities = [];
+                
+                updateWalletStatus();
+                showSuccess('Wallet disconnected successfully.');
+                
+            } catch (error) {
+                console.error('Wallet disconnect error:', error);
+                showError('Failed to disconnect wallet: ' + error.message);
+            }
+        }
+
+        async function checkWalletStatus() {
+            try {
+                const response = await fetch('/api/wallet/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.connected) {
+                        walletConnected = true;
+                        walletAddress = data.walletAddress;
+                        communities = data.communities;
+                        updateWalletStatus();
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('No existing wallet connection found:', error);
+            }
+            return false;
+        }
+
+        function updateWalletStatus() {
+            const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+            const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+            
+            document.getElementById('walletStatus').innerHTML = 
+                `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+            
+            document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
+            document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
+            
+            // Update communities display - just show names without counts
+            const communitiesStatus = document.getElementById('communitiesStatus');
+            const communitiesList = document.getElementById('communitiesList');
+            
+            if (walletConnected && communities.length > 0) {
+                communitiesStatus.style.display = 'block';
+                communitiesList.innerHTML = communities.map(community => 
+                    `<span class="community-tag">${community.name}</span>`
+                ).join('');
+            } else if (walletConnected) {
+                communitiesStatus.style.display = 'block';
+                communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
+            } else {
+                communitiesStatus.style.display = 'none';
+            }
+        }
 
         // --- AUTHENTICATION PERSISTENCE ---
         async function checkExistingAuth() {
@@ -663,10 +826,13 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // First check if user is already authenticated
-            const alreadyAuthenticated = await checkExistingAuth();
+            // Check both Spotify and Wallet connections
+            const [spotifyAuth, walletAuth] = await Promise.all([
+                checkExistingAuth(),
+                checkWalletStatus()
+            ]);
             
-            if (!alreadyAuthenticated) {
+            if (!spotifyAuth) {
                 // Check URL parameters for new authentication
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('spotify_connected') === 'true') {
@@ -682,6 +848,7 @@
             }
             
             updateConnectionStatus();
+            updateWalletStatus();
 
             // Make playlists expanded by default
             setTimeout(() => {
