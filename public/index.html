@@ -260,6 +260,30 @@
         }
         .playlist-spotify-link:hover { text-decoration: underline; }
 
+        /* Coming Soon styling */
+        .coming-soon {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 11px;
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+        .coming-soon-icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #ff6600;
+        }
+        .coming-soon-text {
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .coming-soon-desc {
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; font-weight: 400; }
 
         /* Responsive */
@@ -296,7 +320,7 @@
                 WALLET: <span class="status-disconnected">DISCONNECTED</span>
             </div>
             <div class="communities-line" id="communitiesStatus" style="display: none;">
-                COMMUNITIES: <span id="communitiesList"></span>
+                <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
             </div>
             
             <div class="error" id="errorMessage" style="display: none;"></div>
@@ -319,6 +343,22 @@
                     <div class="expandable-content" id="playlists">
                         <div id="playlistsContent">
                             <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Communities -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
+                    <div class="expandable-content" id="communities">
+                        <div class="coming-soon">
+                            <div class="coming-soon-icon">🚀</div>
+                            <div class="coming-soon-text">Coming Soon!</div>
+                            <div class="coming-soon-desc">
+                                Community features are being developed.<br>
+                                Connect your wallet to access exclusive<br>
+                                playlists and content from your NFT communities.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -467,17 +507,23 @@
             document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
             document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
             
-            // Update communities display - just show names without counts
+            // Update communities display with singular/plural
             const communitiesStatus = document.getElementById('communitiesStatus');
+            const communityLabel = document.getElementById('communityLabel');
             const communitiesList = document.getElementById('communitiesList');
             
             if (walletConnected && communities.length > 0) {
                 communitiesStatus.style.display = 'block';
+                
+                // Use singular "COMMUNITY" or plural "COMMUNITIES"
+                communityLabel.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+                
                 communitiesList.innerHTML = communities.map(community => 
                     `<span class="community-tag">${community.name}</span>`
                 ).join('');
             } else if (walletConnected) {
                 communitiesStatus.style.display = 'block';
+                communityLabel.textContent = 'COMMUNITY:';
                 communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
             } else {
                 communitiesStatus.style.display = 'none';
