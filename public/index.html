@@ -42,42 +42,62 @@
         .expandable-content.active { display: block; }
 
         /* Profile Card */
-        .profile-card { display: flex; align-items: flex-start; gap: 15px; }
+        .profile-card { display: flex; align-items: flex-start; gap: 15px; position: relative; }
         .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
         .profile-info h4 { font-size: 13px; margin-bottom: 3px; }
         .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; }
 
+        /* Now Playing Scrolling Text */
+        .now-playing-scroll {
+            position: absolute;
+            top: 0;
+            right: 0;
+            max-width: 180px;
+            font-size: 9px;
+            color: #1db954;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .now-playing-scroll.scrolling {
+            animation: scroll-text 10s linear infinite;
+        }
+        @keyframes scroll-text {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         /* Genres - 30% smaller */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
         .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; }
 
-        /* Lists - 30% smaller and more compact */
+        /* Lists - 20% smaller (10% bigger than before) */
         .item-list { max-height: 140px; overflow-y: auto; }
-        .item-list li { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #222; }
+        .item-list li { display: flex; align-items: center; gap: 7px; padding: 5px 0; border-bottom: 1px solid #222; }
         .item-list li:last-child { border-bottom: none; }
-        .item-list img { width: 25px; height: 25px; border-radius: 3px; }
+        .item-list img { width: 28px; height: 28px; border-radius: 3px; }
         .item-info { flex: 1; }
-        .item-name { font-size: 10px; color: #fff; }
-        .item-detail { font-size: 8px; color: #999; }
+        .item-name { font-size: 11px; color: #fff; }
+        .item-detail { font-size: 9px; color: #999; }
 
-        /* Playlist items - 30% smaller */
-        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 4px 0; border-bottom: 1px solid #222; }
+        /* Playlist items - 20% smaller (10% bigger than before) */
+        .playlist-item { cursor: pointer; transition: background 0.2s ease; padding: 5px 0; border-bottom: 1px solid #222; }
         .playlist-item:last-child { border-bottom: none; }
         .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
-        .playlist-item-header { display: flex; align-items: center; gap: 6px; }
-        .playlist-item-header img { width: 25px; height: 25px; border-radius: 3px; }
+        .playlist-item-header { display: flex; align-items: center; gap: 7px; }
+        .playlist-item-header img { width: 28px; height: 28px; border-radius: 3px; }
         .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 10px; color: #fff; }
-        .playlist-item-info .item-detail { font-size: 8px; color: #999; }
+        .playlist-item-info .item-name { font-size: 11px; color: #fff; }
+        .playlist-item-info .item-detail { font-size: 9px; color: #999; }
         
-        /* Expanded playlist details - NO EXTRA SPACE */
+        /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
         .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; }
         .playlist-item.expanded .playlist-item-details { display: block; }
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
         .playlist-detail-row strong { color: #fff; }
 
-        /* Song list - same style as main lists but smaller and scrollable */
+        /* Song list - same style as main lists but smaller and scrollable - KEEP SMALL */
         .playlist-songs-list { 
             max-height: 120px; 
             overflow-y: auto; 
@@ -267,6 +287,9 @@
                 const dashboard = await response.json();
                 populateDashboard(dashboard);
                 
+                // Start live updates for currently playing
+                startCurrentlyPlayingUpdates();
+                
             } catch (error) {
                 showError('Failed to load dashboard: ' + error.message);
             }
@@ -275,7 +298,13 @@
         function populateDashboard(data) {
             // Profile with ALL stats in one line - 30% smaller
             const profileContent = document.getElementById('profileContent');
+            
+            // Check if there's a currently playing track
+            const nowPlayingHtml = data.activity.currentlyPlaying ? 
+                `<div class="now-playing-scroll scrolling">Now Playing: ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>` : '';
+            
             profileContent.innerHTML = `
+                ${nowPlayingHtml}
                 <img src="${data.profile.imageUrl || '/placeholder.svg?height=42&width=42'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
@@ -289,11 +318,11 @@
                 </div>
             `;
 
-            // Top Artists - 30% smaller
+            // Top Artists - 10% bigger than before
             const artistsContent = document.getElementById('topArtistsContent');
             artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
                 <li>
-                    <img src="${artist.image || '/placeholder.svg?height=25&width=25'}" alt="${artist.name}">
+                    <img src="${artist.image || '/placeholder.svg?height=28&width=28'}" alt="${artist.name}">
                     <div class="item-info">
                         <div class="item-name">${artist.name}</div>
                         <div class="item-detail">Popularity: ${artist.popularity}/100</div>
@@ -301,11 +330,11 @@
                 </li>
             `).join('');
 
-            // Top Tracks - 30% smaller
+            // Top Tracks - 10% bigger than before
             const tracksContent = document.getElementById('topTracksContent');
             tracksContent.innerHTML = data.musicTaste.topTracks.map(track => `
                 <li>
-                    <img src="${track.image || '/placeholder.svg?height=25&width=25'}" alt="${track.name}">
+                    <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                     <div class="item-info">
                         <div class="item-name">${track.name}</div>
                         <div class="item-detail">${track.artist}</div>
@@ -313,13 +342,13 @@
                 </li>
             `).join('');
 
-            // Recently Played - 30% smaller
+            // Recently Played - 10% bigger than before
             const recentContent = document.getElementById('recentlyPlayedContent');
             recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
                 const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 return `
                     <li>
-                        <img src="${track.image || '/placeholder.svg?height=25&width=25'}" alt="${track.name}">
+                        <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
                         <div class="item-info">
                             <div class="item-name">${track.name}</div>
                             <div class="item-detail">${track.artist} • ${playedAt}</div>
@@ -327,6 +356,49 @@
                     </li>
                 `;
             }).join('');
+        }
+
+        function updateNowPlaying(track) {
+            // Find the now playing element
+            const profileContent = document.getElementById('profileContent');
+            let nowPlayingEl = profileContent.querySelector('.now-playing-scroll');
+            
+            if (!track) {
+                // Remove now playing if it exists
+                if (nowPlayingEl) {
+                    nowPlayingEl.remove();
+                }
+                return;
+            }
+            
+            // Create or update now playing element
+            const nowPlayingText = `Now Playing: ${track.name} - ${track.artist}`;
+            
+            if (nowPlayingEl) {
+                nowPlayingEl.textContent = nowPlayingText;
+            } else {
+                // Create new element
+                nowPlayingEl = document.createElement('div');
+                nowPlayingEl.className = 'now-playing-scroll scrolling';
+                nowPlayingEl.textContent = nowPlayingText;
+                
+                // Insert at the beginning of profile content
+                profileContent.insertBefore(nowPlayingEl, profileContent.firstChild);
+            }
+        }
+
+        function startCurrentlyPlayingUpdates() {
+            currentlyPlayingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/spotify/dashboard');
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateNowPlaying(data.activity.currentlyPlaying);
+                    }
+                } catch (error) {
+                    console.error('Failed to update currently playing:', error);
+                }
+            }, 30000);
         }
 
         async function fetchPlaylists() {
@@ -347,7 +419,7 @@
                         const playlistHtml = `
                             <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
                                 <div class="playlist-item-header">
-                                    <img src="${playlist.cover || '/placeholder.svg?height=25&width=25'}" alt="${playlist.name}">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
                                     <div class="playlist-item-info">
                                         <div class="item-name">${playlist.name}</div>
                                         <div class="item-detail">${playlist.tracks} tracks</div>
