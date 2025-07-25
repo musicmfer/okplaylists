@@ -4,341 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
+    <!-- Load Privy SDK early -->
+    <script src="https://unpkg.com/@privy-io/react-auth@1.60.2/dist/index.umd.js" defer></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Courier New', 'Monaco', monospace;
-            background: #000;
-            color: #fff;
-            overflow-x: hidden;
-            line-height: 1.2;
-            font-size: 14px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px 20px;
-            border: 2px solid #fff;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .title {
-            font-size: 48px;
-            font-weight: 400;
-            margin-bottom: 10px;
-            letter-spacing: 8px;
-            color: #fff;
-        }
-
-        .subtitle {
-            font-size: 16px;
-            color: #fff;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .description {
-            font-size: 13px;
-            color: #fff;
-            text-align: left;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .connection-panel {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid #fff;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .connect-btn {
-            background: #666;
-            color: #fff;
-            border: 1px solid #666;
-            padding: 15px 30px;
-            font-family: 'Courier New', 'Monaco', monospace;
-            font-size: 14px;
-            font-weight: 400;
-            cursor: pointer;
-            margin: 0 10px 10px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .connect-btn:hover {
-            background: #888;
-            border-color: #888;
-        }
-
-        .connect-btn:disabled {
-            background: #333;
-            color: #666;
-            border-color: #333;
-            cursor: not-allowed;
-        }
-
-        .status-line {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .section {
-            margin-bottom: 20px;
-            border: 1px solid #fff;
-            background: rgba(255, 255, 255, 0.01);
-        }
-
-        .section-header {
-            background: #666;
-            color: #fff;
-            padding: 12px 20px;
-            font-weight: 400;
-            cursor: pointer;
-            user-select: none;
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .section-header:hover {
-            background: #888;
-        }
-
-        .section-header::after {
-            content: '[+]';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 12px;
-        }
-
-        .section-header.active::after {
-            content: '[-]';
-        }
-
-        .section-content {
-            padding: 20px;
-            display: none;
-            border-top: 1px solid #333;
-        }
-
-        .section-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .status-connected {
-            color: #fff;
-        }
-
-        .status-disconnected {
-            color: #666;
-        }
-
-        .error {
-            color: #ff6666;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .success {
-            color: #66ff66;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .debug-info {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 11px;
-            color: #999;
-        }
-
-        .debug-info h4 {
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 60px;
-            padding: 30px;
-            border-top: 1px solid #333;
-            font-size: 12px;
-            color: #666;
-            letter-spacing: 1px;
-        }
-
-        /* New/Updated Styles for List View and Expandable Details */
-        .playlist-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-            max-height: 400px; /* Make it scrollable */
-            overflow-y: auto; /* Enable vertical scrolling */
-            border: 1px solid #333; /* Add border for scrollable area */
-            background: rgba(255, 255, 255, 0.01);
-        }
-
-        .playlist-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #333;
-            padding: 10px;
-            text-align: left;
-            display: flex;
-            flex-direction: column; /* Stack collapsed and expanded parts */
-            cursor: pointer; /* Indicate clickable */
-            transition: background 0.2s ease;
-        }
-
-        .playlist-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .playlist-collapsed-view {
-            display: flex;
-            align-items: center;
-        }
-
-        .playlist-card img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            border: 1px solid #555;
-            flex-shrink: 0;
-        }
-
-        .playlist-info {
-            flex-grow: 1;
-            overflow: hidden;
-        }
-
-        .playlist-card h5 {
-            font-size: 12px;
-            margin-bottom: 2px;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .playlist-card p {
-            font-size: 10px;
-            color: #999;
-            margin-bottom: 2px;
-        }
-
-        .playlist-card a {
-            color: #66ccff;
-            text-decoration: none;
-            font-size: 10px;
-            white-space: nowrap;
-        }
-
-        .playlist-card a:hover {
-            text-decoration: underline;
-        }
-
-        .playlist-expanded-details {
-            display: none; /* Hidden by default */
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #444;
-            font-size: 11px;
-            color: #ccc;
-        }
-
-        .playlist-card.expanded .playlist-expanded-details {
-            display: block; /* Show when expanded */
-        }
-
-        .playlist-expanded-details strong {
-            color: #fff;
-        }
-
-        .playlist-expanded-details ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 5px;
-            max-height: 150px; /* Limit height for track list */
-            overflow-y: auto; /* Scroll for track list */
-            border: 1px solid #222;
-            padding: 5px;
-            background: rgba(0,0,0,0.2);
-        }
-
-        .playlist-expanded-details li {
-            padding: 2px 0;
-            border-bottom: 1px dashed #222;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .playlist-expanded-details li:last-child {
-            border-bottom: none;
-        }
-
-        .wallet-info {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #333;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 12px;
-            text-align: left;
-        }
-
-        .wallet-address {
-            font-family: monospace;
-            word-break: break-all;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 5px;
-            border-radius: 3px;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .title {
-                font-size: 32px;
-                letter-spacing: 4px;
-            }
-            
-            .connect-btn {
-                display: block;
-                margin: 10px auto;
-                width: 200px;
-            }
-            /* Playlist grid already stacks on small screens due to flex-direction: column */
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', 'Monaco', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 14px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; padding: 30px 20px; border: 2px solid #fff; background: rgba(255, 255, 255, 0.02); }
+        .title { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: 8px; }
+        .subtitle { font-size: 16px; margin-bottom: 20px; letter-spacing: 2px; }
+        .description { font-size: 13px; text-align: left; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        .panel { background: rgba(255, 255, 255, 0.02); border: 1px solid #fff; padding: 20px; text-align: center; margin-bottom: 30px; }
+        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 15px 30px; font-family: inherit; font-size: 14px; cursor: pointer; margin: 0 10px 10px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
+        .connect-btn:hover { background: #888; border-color: #888; }
+        .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
+        .status-line { margin-top: 15px; font-size: 12px; letter-spacing: 1px; }
+        .status-connected { color: #fff; }
+        .status-disconnected { color: #666; }
+        .error, .success { font-size: 12px; margin-top: 10px; }
+        .error { color: #ff6666; }
+        .success { color: #66ff66; }
+        .section { margin-bottom: 20px; border: 1px solid #fff; background: rgba(255, 255, 255, 0.01); }
+        .section-header { background: #666; color: #fff; padding: 12px 20px; cursor: pointer; user-select: none; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; position: relative; }
+        .section-header::after { content: '[+]'; position: absolute; right: 20px; }
+        .section-header.active::after { content: '[-]'; }
+        .section-content { padding: 20px; display: none; border-top: 1px solid #333; }
+        .section-content.active { display: block; }
+        .footer { text-align: center; margin-top: 60px; padding: 30px; border-top: 1px solid #333; font-size: 12px; color: #666; }
+        
+        /* Profile Section Styles */
+        .profile-info { text-align: left; font-size: 12px; line-height: 1.8; }
+        .profile-info strong { color: #fff; min-width: 120px; display: inline-block; }
+        .profile-info span { color: #ccc; }
+        .profile-info .address { font-family: monospace; word-break: break-all; }
+        .community-list { list-style: none; padding-left: 20px; margin-top: 5px; }
+        .community-list li { color: #66ff66; }
+        .community-list li::before { content: '✅'; margin-right: 10px; }
+        .community-list .none { color: #999; }
+        .community-list .none::before { content: '❌'; }
+        .disconnect-btn { padding: 8px 15px; font-size: 12px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -350,56 +54,46 @@
                 > CONNECT YOUR WALLET AND SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
                 > EXPLORE NFT MUSIC COMMUNITIES AND CURATED COLLECTIONS<br>
                 > MANAGE YOUR MUSICAL IDENTITY IN THE DECENTRALIZED WEB<br>
-                > DISCOVER PLAYLISTS FROM VERIFIED CRYPTO COMMUNITIES
             </div>
         </div>
 
-        <!-- Debug Panel -->
-        <div class="debug-info" id="debugInfo">
-            <h4>🔧 DEBUG STATUS:</h4>
-            <div id="debugContent">Loading...</div>
-        </div>
-
-        <div class="connection-panel">
-            <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+        <div class="panel" id="connectionPanel">
+            <button class="connect-btn" id="walletBtn" onclick="login()">CONNECT WALLET</button>
             <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
-            <button class="connect-btn" id="logoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
-            
             <div class="status-line" id="connectionStatus">
                 WALLET: <span class="status-disconnected">DISCONNECTED</span> | 
                 SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
             </div>
-            
             <div class="error" id="errorMessage" style="display: none;"></div>
             <div class="success" id="successMessage" style="display: none;"></div>
-            
-            <!-- Wallet info section (hidden by default) -->
-            <div class="wallet-info" id="walletInfo" style="display: none;">
-                <div><strong>Connected Wallet:</strong></div>
-                <div class="wallet-address" id="walletAddress">0x0000000000000000000000000000000000000000</div>
-                <div style="margin-top: 10px;">
-                    <button class="connect-btn" id="disconnectBtn" onclick="disconnectWallet()" style="padding: 8px 15px; font-size: 12px;">DISCONNECT</button>
+        </div>
+
+        <!-- User Profile Section (hidden by default) -->
+        <div class="panel" id="userProfileSection" style="display: none;">
+            <div class="profile-info">
+                <div><strong>WALLET:</strong> <span id="profileAddress" class="address"></span></div>
+                <div><strong>ENS:</strong> <span id="profileEns">Loading...</span></div>
+                <div><strong>COMMUNITIES:</strong>
+                    <ul id="profileCommunities" class="community-list">
+                        <li>Loading...</li>
+                    </ul>
                 </div>
             </div>
+            <button class="connect-btn disconnect-btn" onclick="logout()">DISCONNECT WALLET</button>
         </div>
 
         <div class="section">
-            <div class="section-header" onclick="toggleSection('playlists')">
-                YOUR PLAYLISTS
-            </div>
+            <div class="section-header" onclick="toggleSection('playlists')">YOUR PLAYLISTS</div>
             <div class="section-content" id="playlists">
                 <div id="playlistGrid" class="playlist-grid">
-                    <p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">
+                    <p style="color: #666; text-align: center; padding: 20px;">
                         > CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS
                     </p>
                 </div>
             </div>
         </div>
-
         <div class="section">
-            <div class="section-header" onclick="toggleSection('communities')">
-                COMMUNITIES
-            </div>
+            <div class="section-header" onclick="toggleSection('communities')">COMMUNITIES</div>
             <div class="section-content" id="communities">
                 <div style="padding: 20px; color: #666; text-align: center;">
                     > COMMUNITY PLAYLISTS COMING SOON<br>
@@ -408,149 +102,172 @@
             </div>
         </div>
 
-        <div class="footer">
-            OK PLAYLISTS © 2025 | DECENTRALIZED MUSIC COMMUNITIES | VERSION 2.0
-        </div>
+        <div class="footer">OK PLAYLISTS © 2025</div>
     </div>
 
     <script>
-        // Global state
+        // --- CONFIGURATION ---
+        const PRIVY_APP_ID = 'cmda3kbo2003al10mcr71ll0z';
+        const NFT_COMMUNITIES = [
+            { name: 'Bored Ape Yacht Club', contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D' },
+            { name: 'Pudgy Penguins', contractAddress: '0xBd3531dA5CF5857e7CfAA92426877b022e612cf8' },
+            { name: 'Cool Cats', contractAddress: '0x1A92f7381B9F03921564a437210bB9396471050C' },
+        ];
+
+        // --- GLOBAL STATE ---
+        let privy;
         let walletConnected = false;
         let spotifyConnected = false;
-        let userAddress = null;
-        let chainId = null;
 
-        // Update debug info
-        function updateDebugInfo() {
-            const debugContent = document.getElementById('debugContent');
-            if (!debugContent) return;
-            
-            const hasEthereum = typeof window.ethereum !== 'undefined';
-            const hasWeb3 = typeof window.web3 !== 'undefined';
-            
-            debugContent.innerHTML = `
-                <strong>Wallet Provider:</strong> ${hasEthereum ? '✅ Available (window.ethereum)' : '❌ Not available'}<br>
-                <strong>Legacy Web3:</strong> ${hasWeb3 ? '✅ Available (window.web3)' : '❌ Not available'}<br>
-                <strong>Wallet Connected:</strong> ${walletConnected ? '✅ Yes' : '❌ No'}<br>
-                <strong>User Address:</strong> ${userAddress || 'None'}<br>
-                <strong>Chain ID:</strong> ${chainId || 'Unknown'}<br>
-                <strong>Spotify Connected:</strong> ${spotifyConnected ? '✅ Yes' : '❌ No'}<br>
-                <strong>Browser:</strong> ${navigator.userAgent}<br>
-            `;
-        }
-
-        // Connect wallet using window.ethereum (MetaMask or other compatible wallets)
-        async function connectWallet() {
+        // --- PRIVY INITIALIZATION & AUTH ---
+        async function initPrivy() {
             try {
-                // Check if ethereum provider exists
-                if (typeof window.ethereum === 'undefined') {
-                    throw new Error('No Ethereum wallet found. Please install MetaMask or another compatible wallet.');
+                if (!window.Privy) {
+                    showError('Privy SDK failed to load. Please refresh.');
+                    return;
                 }
-                
-                document.getElementById('walletBtn').textContent = 'CONNECTING...';
-                console.log('🔄 Attempting wallet connection...');
-                
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                
-                if (accounts && accounts.length > 0) {
-                    userAddress = accounts[0];
-                    walletConnected = true;
-                    
-                    // Get chain ID
-                    chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                    
-                    // Update UI
-                    document.getElementById('walletBtn').style.display = 'none';
-                    document.getElementById('walletInfo').style.display = 'block';
-                    document.getElementById('walletAddress').textContent = userAddress;
-                    
-                    showSuccess('✅ Wallet connected successfully!');
-                    updateConnectionStatus();
-                    updateDebugInfo();
-                    console.log('✅ Wallet connected:', userAddress);
-                    
-                    // Set up event listeners for account and chain changes
-                    setupWalletEventListeners();
-                } else {
-                    throw new Error('No accounts found. Please make sure your wallet is unlocked.');
-                }
-                
+                privy = new window.Privy.PrivyProvider({
+                    appId: PRIVY_APP_ID,
+                    config: {
+                        loginMethods: ['wallet', 'email', 'twitter', 'google'],
+                        appearance: { theme: 'dark', accentColor: '#FFFFFF', logo: 'https://your-logo-url.com/logo.png' },
+                        embeddedWallets: { createOnLogin: 'users-without-wallets' }
+                    },
+                });
+
+                privy.on('login', handleLogin);
+                privy.on('logout', handleLogout);
+
             } catch (error) {
-                console.error('❌ Wallet connection failed:', error);
-                showError('Wallet connection failed: ' + error.message);
-                document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
-                updateDebugInfo();
+                console.error('Privy initialization failed:', error);
+                showError('Could not initialize wallet provider.');
             }
         }
 
-        // Set up event listeners for wallet changes
-        function setupWalletEventListeners() {
-            if (typeof window.ethereum !== 'undefined') {
-                // Listen for account changes
-                window.ethereum.on('accountsChanged', handleAccountsChanged);
-                
-                // Listen for chain changes
-                window.ethereum.on('chainChanged', handleChainChanged);
-                
-                // Listen for disconnect
-                window.ethereum.on('disconnect', handleDisconnect);
-            }
+        function login() {
+            if (privy) privy.login();
         }
 
-        // Handle account changes
-        function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                // User disconnected their wallet
-                handleDisconnect();
-            } else if (accounts[0] !== userAddress) {
-                // User switched accounts
-                userAddress = accounts[0];
-                document.getElementById('walletAddress').textContent = userAddress;
-                showSuccess('Wallet account changed');
-                updateDebugInfo();
-            }
+        function logout() {
+            if (privy) privy.logout();
         }
 
-        // Handle chain changes
-        function handleChainChanged(newChainId) {
-            chainId = newChainId;
-            showSuccess('Network changed');
-            updateDebugInfo();
-            
-            // Optionally reload the page as recommended by MetaMask
-            // window.location.reload();
-        }
-
-        // Handle disconnect
-        function handleDisconnect() {
-            disconnectWallet();
-            showError('Wallet disconnected');
-        }
-
-        // Disconnect wallet
-        function disconnectWallet() {
-            userAddress = null;
-            walletConnected = false;
-            
-            // Remove event listeners if possible
-            if (typeof window.ethereum !== 'undefined') {
-                window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-                window.ethereum.removeListener('chainChanged', handleChainChanged);
-                window.ethereum.removeListener('disconnect', handleDisconnect);
-            }
-            
-            // Update UI
-            document.getElementById('walletBtn').style.display = 'inline-block';
-            document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
-            document.getElementById('walletInfo').style.display = 'none';
-            
+        function handleLogin(user) {
+            walletConnected = true;
             updateConnectionStatus();
-            updateDebugInfo();
-            console.log('🔄 Wallet disconnected');
+            updateUiForLogin(user);
+            fetchWalletInfo(user.wallet.address);
         }
 
-        // Utility functions
+        function handleLogout() {
+            walletConnected = false;
+            updateConnectionStatus();
+            updateUiForLogout();
+        }
+
+        // --- DATA FETCHING (ENS, NFTs) ---
+        async function fetchWalletInfo(address) {
+            // Reset UI
+            document.getElementById('profileEns').textContent = 'Loading...';
+            document.getElementById('profileCommunities').innerHTML = '<li>Loading...</li>';
+            
+            // Fetch in parallel
+            await Promise.all([
+                fetchEnsName(address),
+                fetchNftCommunities(address)
+            ]);
+        }
+
+        async function fetchEnsName(address) {
+            try {
+                const response = await fetch('/api/rpc-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'eth_call',
+                        params: [{
+                            to: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e', // ENS Universal Resolver
+                            data: '0x55968996' + address.substring(2).padStart(64, '0')
+                        }, 'latest'],
+                        id: 1
+                    })
+                });
+                const data = await response.json();
+                if (data.result && data.result !== '0x') {
+                    const ensName = new TextDecoder().decode(Buffer.from(data.result.substring(2), 'hex')).replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+                    document.getElementById('profileEns').textContent = ensName || 'No ENS Name';
+                } else {
+                    document.getElementById('profileEns').textContent = 'No ENS Name';
+                }
+            } catch (error) {
+                console.error('Error fetching ENS name:', error);
+                document.getElementById('profileEns').textContent = 'Error';
+            }
+        }
+
+        async function fetchNftCommunities(address) {
+            const communitiesList = document.getElementById('profileCommunities');
+            communitiesList.innerHTML = '';
+            let ownedCommunities = [];
+
+            for (const community of NFT_COMMUNITIES) {
+                try {
+                    const response = await fetch('/api/rpc-proxy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'eth_call',
+                            params: [{
+                                to: community.contractAddress,
+                                data: '0x70a08231' + '000000000000000000000000' + address.substring(2)
+                            }, 'latest'],
+                            id: 1
+                        })
+                    });
+                    const data = await response.json();
+                    const balance = parseInt(data.result, 16);
+                    if (balance > 0) {
+                        ownedCommunities.push(community.name);
+                    }
+                } catch (error) {
+                    console.error(`Error checking balance for ${community.name}:`, error);
+                }
+            }
+
+            if (ownedCommunities.length > 0) {
+                ownedCommunities.forEach(name => {
+                    const li = document.createElement('li');
+                    li.textContent = name;
+                    communitiesList.appendChild(li);
+                });
+            } else {
+                communitiesList.innerHTML = '<li class="none">No communities found.</li>';
+            }
+        }
+
+        // --- UI UPDATES ---
+        function updateUiForLogin(user) {
+            document.getElementById('connectionPanel').style.display = 'none';
+            document.getElementById('userProfileSection').style.display = 'block';
+            document.getElementById('profileAddress').textContent = user.wallet.address;
+        }
+
+        function updateUiForLogout() {
+            document.getElementById('connectionPanel').style.display = 'block';
+            document.getElementById('userProfileSection').style.display = 'none';
+        }
+
+        function updateConnectionStatus() {
+            const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+            const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
+            const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+            const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+            document.getElementById('connectionStatus').innerHTML = 
+                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+        }
+
         function showError(message) {
             const errorEl = document.getElementById('errorMessage');
             const successEl = document.getElementById('successMessage');
@@ -575,8 +292,8 @@
             console.log('Success:', message);
         }
 
-        function toggleSection(sectionId) {
-            const content = document.getElementById(sectionId);
+        function toggleSection(id) {
+            const content = document.getElementById(id);
             const header = content.previousElementSibling;
             
             if (content.classList.contains('active')) {
@@ -588,14 +305,12 @@
             }
         }
 
-        // Spotify connection
         function connectSpotify() {
             try {
                 document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
                 document.getElementById('spotifyBtn').disabled = true;
                 console.log('🔄 Redirecting to Spotify auth...');
                 
-                // Direct redirect to Spotify API
                 window.location.href = '/api/auth/spotify';
                 
             } catch (error) {
@@ -606,7 +321,6 @@
             }
         }
 
-        // Logout from Spotify
         async function logoutSpotify() {
             try {
                 const response = await fetch('/api/spotify/logout', {
@@ -622,7 +336,7 @@
                     document.getElementById('spotifyBtn').disabled = false;
                     
                     document.getElementById('playlistGrid').innerHTML = 
-                        '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                        '<p style="color: #666; text-align: center; padding: 20px;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
                     
                     updateConnectionStatus();
                     showSuccess('Logged out from Spotify');
@@ -632,17 +346,16 @@
             }
         }
 
-        // Fetch and display playlists
         async function fetchPlaylists() {
             const playlistGrid = document.getElementById('playlistGrid');
-            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">🔄 Loading playlists...</p>';
+            playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlists...</p>';
             
             try {
                 console.log('Frontend: Attempting to fetch playlists from /api/spotify/playlists...');
                 const response = await fetch('/api/spotify/playlists');
                 
                 if (!response.ok) {
-                    const errorText = await response.text(); // Get raw error text
+                    const errorText = await response.text();
                     console.error('Frontend: Playlists API response not OK. Status:', response.status, 'Body:', errorText);
                     
                     if (response.status === 401) {
@@ -653,7 +366,7 @@
                         document.getElementById('logoutBtn').style.display = 'none';
                         document.getElementById('spotifyBtn').textContent = 'CONNECT SPOTIFY';
                         document.getElementById('spotifyBtn').disabled = false;
-                        playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
+                        playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> CONNECT YOUR SPOTIFY ACCOUNT TO VIEW PLAYLISTS</p>';
                         return;
                     }
                     throw new Error(`Failed to fetch playlists: ${response.status} - ${errorText}`);
@@ -663,7 +376,7 @@
                 console.log('Frontend: Playlists fetched successfully:', data.playlists);
 
                 if (data.playlists && data.playlists.length > 0) {
-                    playlistGrid.innerHTML = ''; // Clear loading message
+                    playlistGrid.innerHTML = '';
                     data.playlists.forEach(playlist => {
                         const playlistCardHtml = `
                             <div class="playlist-card" data-playlist-id="${playlist.id}" onclick="togglePlaylistDetails(this, '${playlist.id}')">
@@ -687,30 +400,26 @@
                         `;
                         playlistGrid.innerHTML += playlistCardHtml;
                     });
-                    toggleSection('playlists'); // Open the playlists section
+                    toggleSection('playlists');
                 } else {
-                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> No public playlists found or created by you.</p>';
+                    playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> No public playlists found or created by you.</p>';
                 }
 
             } catch (error) {
                 console.error('Frontend: Error fetching playlists:', error);
                 showError('Failed to load playlists: ' + error.message);
-                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1 / -1;">> Error loading playlists. Please try again.</p>';
+                playlistGrid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">> Error loading playlists. Please try again.</p>';
             }
         }
 
-        // Toggle playlist details and fetch if not already loaded
         async function togglePlaylistDetails(cardElement, playlistId) {
             const expandedDetails = cardElement.querySelector('.playlist-expanded-details');
             
             if (cardElement.classList.contains('expanded')) {
-                // Collapse
                 cardElement.classList.remove('expanded');
             } else {
-                // Expand
                 cardElement.classList.add('expanded');
                 
-                // Check if details are already loaded
                 if (expandedDetails.dataset.loaded !== 'true') {
                     try {
                         expandedDetails.innerHTML = '<p style="text-align: center;">🔄 Loading details...</p>';
@@ -739,7 +448,7 @@
                             <ul>${tracksHtml}</ul>
                             <p><a href="${details.spotifyUrl}" target="_blank">View on Spotify</a></p>
                         `;
-                        expandedDetails.dataset.loaded = 'true'; // Mark as loaded
+                        expandedDetails.dataset.loaded = 'true';
                     } catch (error) {
                         console.error('Frontend: Error fetching playlist details:', error);
                         expandedDetails.innerHTML = `<p style="color: #ff6666;">❌ Failed to load details: ${error.message}</p>`;
@@ -748,83 +457,11 @@
             }
         }
 
-        // Update connection status display
-        function updateConnectionStatus() {
-            const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
-            const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
-            const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
-            const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
-            
-            document.getElementById('connectionStatus').innerHTML = 
-                `WALLET: <span class="${walletClass}">${walletStatus}</span> | SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
-        }
-
-        // Check if wallet is already connected
-        async function checkWalletConnection() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    // Get accounts without prompting user
-                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    
-                    if (accounts && accounts.length > 0) {
-                        userAddress = accounts[0];
-                        walletConnected = true;
-                        
-                        // Get chain ID
-                        chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                        
-                        // Update UI
-                        document.getElementById('walletBtn').style.display = 'none';
-                        document.getElementById('walletInfo').style.display = 'block';
-                        document.getElementById('walletAddress').textContent = userAddress;
-                        
-                        updateConnectionStatus();
-                        updateDebugInfo();
-                        console.log('✅ Wallet already connected:', userAddress);
-                        
-                        // Set up event listeners
-                        setupWalletEventListeners();
-                    }
-                } catch (error) {
-                    console.error('Error checking wallet connection:', error);
-                }
-            }
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 OK Playlists initialized');
-            
-            // Initialize debug info immediately
-            updateDebugInfo();
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initPrivy();
             updateConnectionStatus();
-            
-            // Check if wallet is already connected
-            checkWalletConnection();
-            
-            // Check URL parameters for auth results
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            if (urlParams.get('spotify_connected') === 'true') {
-                spotifyConnected = true;
-                document.getElementById('spotifyBtn').style.display = 'none';
-                document.getElementById('logoutBtn').style.display = 'inline-block';
-                
-                updateConnectionStatus();
-                showSuccess('✅ Spotify connected successfully!');
-                
-                // Fetch playlists immediately after successful Spotify connection
-                fetchPlaylists();
-
-                // Clean URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (urlParams.get('error')) {
-                const error = urlParams.get('error');
-                showError(`❌ Authentication failed: ${error}`);
-                
-                // Clean URL
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
+            // Handle Spotify redirect logic here if needed
         });
     </script>
 </body>
