@@ -31,13 +31,13 @@
         .dashboard-card h3 { color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
 
         /* Expandable card headers - COMPACT with no extra space */
-        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0; }
+        .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; }
         .expandable-header:hover { opacity: 0.8; }
         .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
         .expandable-header.active::after { content: '[-]'; }
         .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
-        .expandable-content { display: none; padding-top: 12px; }
-        .expandable-content.active { display: block; }
+        .expandable-content { display: none; }
+        .expandable-content.active { display: block; padding-top: 12px; }
 
         /* Profile Card */
         .profile-card { display: flex; align-items: flex-start; gap: 15px; }
@@ -462,16 +462,16 @@
                         : '<li>No songs found.</li>';
                     
                     details.innerHTML = `
-                        <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
-                        <div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
-                        <div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
-                        <div class="playlist-songs-list">
-                            <ul>${tracksHtml}</ul>
-                        </div>
-                        <div class="playlist-detail-row" style="margin-top: 8px;">
-                            <a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a>
-                        </div>
-                    `;
+    <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
+    <div class="playlist-detail-row"><strong>Total Duration:</strong> ${playlistDetails.totalDuration || 'N/A'}</div>
+    <div class="playlist-detail-row"><strong>Songs (${playlistDetails.totalTracks}):</strong></div>
+    <div class="playlist-songs-list">
+        <ul>${tracksHtml}</ul>
+    </div>
+    <div class="playlist-detail-row" style="margin-top: 8px;">
+        <a href="${playlistDetails.spotifyUrl}" target="_blank">View on Spotify</a>
+    </div>
+`;
                     details.dataset.loaded = 'true';
                 } catch (error) {
                     details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
