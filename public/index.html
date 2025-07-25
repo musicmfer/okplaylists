@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Oxanium', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
+        body { font-family: 'Orbitron', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
         
         /* Header - styled like dashboard cards */
@@ -18,8 +18,8 @@
             background: rgba(255, 255, 255, 0.05); 
             border: 1px solid #333; 
         }
-        .title { font-size: 36px; font-weight: 800; margin-bottom: 8px; letter-spacing: 6px; }
-        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 500; }
+        .title { font-size: 36px; font-weight: 900; margin-bottom: 8px; letter-spacing: 6px; }
+        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 400; }
         .description { font-size: 11px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.4; font-weight: 400; }
         
         /* Panel - styled like dashboard cards */
@@ -29,7 +29,7 @@
             padding: 15px; 
             margin-bottom: 20px; 
         }
-        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Oxanium', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 600; }
+        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Orbitron', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 700; }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
         .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; font-weight: 400; }
@@ -61,30 +61,32 @@
         .profile-card { display: flex; align-items: flex-start; gap: 15px; position: relative; }
         .profile-card img { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .profile-info { flex: 1; }
-        .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 600; }
+        .profile-info h4 { font-size: 13px; margin-bottom: 3px; font-weight: 700; }
         .profile-info p { color: #999; font-size: 9px; margin-bottom: 6px; font-weight: 400; }
 
-        /* Now Playing - Scrollable fixed box */
+        /* Now Playing - Smaller box with conditional scrolling */
         .now-playing-display {
             position: absolute;
             top: 0;
             right: 0;
-            width: 200px;
-            height: 20px;
-            font-size: 9px;
+            width: 150px;
+            height: 16px;
+            font-size: 8px;
             color: #1db954;
-            font-weight: 500;
+            font-weight: 400;
             background: rgba(29, 185, 84, 0.1);
             border: 1px solid rgba(29, 185, 84, 0.3);
             border-radius: 3px;
             overflow: hidden;
             display: flex;
             align-items: center;
-            padding: 0 6px;
+            padding: 0 4px;
         }
         .now-playing-text {
             white-space: nowrap;
-            animation: scroll-horizontal 15s linear infinite;
+        }
+        .now-playing-text.scrolling {
+            animation: scroll-horizontal 12s linear infinite;
         }
         @keyframes scroll-horizontal {
             0% { transform: translateX(100%); }
@@ -93,7 +95,7 @@
 
         /* Genres */
         .genre-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 500; }
+        .genre-tag { background: #444; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 400; }
 
         /* Lists - 20% smaller (10% bigger than before) */
         .item-list { max-height: 140px; overflow-y: auto; }
@@ -101,7 +103,7 @@
         .item-list li:last-child { border-bottom: none; }
         .item-list img { width: 28px; height: 28px; border-radius: 3px; }
         .item-info { flex: 1; }
-        .item-name { font-size: 11px; color: #fff; font-weight: 500; }
+        .item-name { font-size: 11px; color: #fff; font-weight: 400; }
         .item-detail { font-size: 9px; color: #999; font-weight: 400; }
 
         /* Playlist items - 20% smaller (10% bigger than before) */
@@ -111,14 +113,14 @@
         .playlist-item-header { display: flex; align-items: center; gap: 7px; }
         .playlist-item-header img { width: 28px; height: 28px; border-radius: 3px; }
         .playlist-item-info { flex: 1; }
-        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 500; }
+        .playlist-item-info .item-name { font-size: 11px; color: #fff; font-weight: 400; }
         .playlist-item-info .item-detail { font-size: 9px; color: #999; font-weight: 400; }
         
         /* Expanded playlist details - NO EXTRA SPACE - KEEP SMALL */
         .playlist-item-details { display: none; margin-top: 6px; font-size: 9px; color: #ccc; font-weight: 400; }
         .playlist-item.expanded .playlist-item-details { display: block; }
         .playlist-detail-row { margin-bottom: 4px; color: #ccc; }
-        .playlist-detail-row strong { color: #fff; font-weight: 600; }
+        .playlist-detail-row strong { color: #fff; font-weight: 700; }
 
         /* Song list - same style as main lists but smaller and scrollable - KEEP SMALL */
         .playlist-songs-list { 
@@ -149,11 +151,19 @@
             font-weight: 400;
         }
         .playlist-songs-list .song-info { flex: 1; }
-        .playlist-songs-list .song-name { color: #fff; font-weight: 500; }
+        .playlist-songs-list .song-name { color: #fff; font-weight: 400; }
         .playlist-songs-list .song-artist { color: #999; font-weight: 400; }
 
-        /* White Spotify link */
-        .playlist-spotify-link { color: #fff !important; text-decoration: none; font-size: 9px; font-weight: 400; }
+        /* Spotify link - Bold and right-aligned */
+        .playlist-spotify-link { 
+            color: #fff !important; 
+            text-decoration: none; 
+            font-size: 9px; 
+            font-weight: 700; 
+            display: block; 
+            text-align: right; 
+            margin-top: 6px;
+        }
         .playlist-spotify-link:hover { text-decoration: underline; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #333; font-size: 10px; color: #666; font-weight: 400; }
@@ -161,7 +171,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid { grid-template-columns: 1fr; }
-            .now-playing-display { width: 150px; font-size: 8px; }
+            .now-playing-display { width: 120px; font-size: 7px; }
         }
     </style>
 </head>
@@ -306,6 +316,25 @@
             header.classList.toggle('active');
         }
 
+        // Check if text needs scrolling
+        function checkTextOverflow(element, text) {
+            // Create a temporary element to measure text width
+            const temp = document.createElement('span');
+            temp.style.visibility = 'hidden';
+            temp.style.position = 'absolute';
+            temp.style.fontSize = '8px';
+            temp.style.fontFamily = 'Orbitron, monospace';
+            temp.style.whiteSpace = 'nowrap';
+            temp.textContent = text;
+            document.body.appendChild(temp);
+            
+            const textWidth = temp.offsetWidth;
+            document.body.removeChild(temp);
+            
+            // Check if text width exceeds container width (minus padding)
+            return textWidth > (element.offsetWidth - 8);
+        }
+
         // --- SPOTIFY ---
         function connectSpotify() {
             document.getElementById('spotifyBtn').disabled = true;
@@ -368,6 +397,19 @@
                 </div>
             `;
 
+            // Check if now playing text needs scrolling
+            if (data.activity.currentlyPlaying) {
+                setTimeout(() => {
+                    const nowPlayingEl = profileContent.querySelector('.now-playing-display');
+                    const textEl = nowPlayingEl.querySelector('.now-playing-text');
+                    const fullText = `♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}`;
+                    
+                    if (checkTextOverflow(nowPlayingEl, fullText)) {
+                        textEl.classList.add('scrolling');
+                    }
+                }, 100);
+            }
+
             // Top Artists - 10% bigger than before
             const artistsContent = document.getElementById('topArtistsContent');
             artistsContent.innerHTML = data.musicTaste.topArtists.map(artist => `
@@ -427,6 +469,14 @@
             if (nowPlayingEl) {
                 const textEl = nowPlayingEl.querySelector('.now-playing-text');
                 textEl.textContent = nowPlayingText;
+                textEl.classList.remove('scrolling');
+                
+                // Check if scrolling is needed
+                setTimeout(() => {
+                    if (checkTextOverflow(nowPlayingEl, nowPlayingText)) {
+                        textEl.classList.add('scrolling');
+                    }
+                }, 100);
             } else {
                 // Create new element
                 nowPlayingEl = document.createElement('div');
@@ -435,6 +485,14 @@
                 
                 // Insert at the beginning of profile content
                 profileContent.insertBefore(nowPlayingEl, profileContent.firstChild);
+                
+                // Check if scrolling is needed
+                setTimeout(() => {
+                    const textEl = nowPlayingEl.querySelector('.now-playing-text');
+                    if (checkTextOverflow(nowPlayingEl, nowPlayingText)) {
+                        textEl.classList.add('scrolling');
+                    }
+                }, 100);
             }
         }
 
