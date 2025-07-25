@@ -347,22 +347,6 @@
                     </div>
                 </div>
 
-                <!-- Communities -->
-                <div class="dashboard-card">
-                    <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
-                    <div class="expandable-content" id="communities">
-                        <div class="coming-soon">
-                            <div class="coming-soon-icon">🚀</div>
-                            <div class="coming-soon-text">Coming Soon!</div>
-                            <div class="coming-soon-desc">
-                                Community features are being developed.<br>
-                                Connect your wallet to access exclusive<br>
-                                playlists and content from your NFT communities.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Top Artists -->
                 <div class="dashboard-card">
                     <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
@@ -383,13 +367,19 @@
                     </div>
                 </div>
 
-                <!-- Recently Played -->
+                <!-- Communities - Now at the end -->
                 <div class="dashboard-card">
-                    <h3 class="expandable-header" onclick="toggleExpandable('recent')">⏰ Recently Played</h3>
-                    <div class="expandable-content" id="recent">
-                        <ul id="recentlyPlayedContent" class="item-list">
-                            <li>Loading...</li>
-                        </ul>
+                    <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
+                    <div class="expandable-content" id="communities">
+                        <div class="coming-soon">
+                            <div class="coming-soon-icon">🚀</div>
+                            <div class="coming-soon-text">Coming Soon!</div>
+                            <div class="coming-soon-desc">
+                                Community features are being developed.<br>
+                                Connect your wallet to access exclusive<br>
+                                playlists and content from your NFT communities.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -711,21 +701,6 @@
                     </div>
                 </li>
             `).join('');
-
-            // Recently Played - Show all available (up to 20) with Spotify links
-            const recentContent = document.getElementById('recentlyPlayedContent');
-            recentContent.innerHTML = data.activity.recentlyPlayed.map(track => {
-                const playedAt = new Date(track.playedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                return `
-                    <li class="clickable-item" onclick="openSpotify('${track.spotifyUrl}')">
-                        <img src="${track.image || '/placeholder.svg?height=28&width=28'}" alt="${track.name}">
-                        <div class="item-info">
-                            <div class="item-name">${track.name}</div>
-                            <div class="item-detail">${track.artist} • ${playedAt}</div>
-                        </div>
-                    </li>
-                `;
-            }).join('');
         }
 
         function updateNowPlaying(track) {
