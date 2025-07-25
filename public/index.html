@@ -28,8 +28,23 @@
             border: 1px solid #333; 
             padding: 15px; 
             margin-bottom: 20px; 
+            text-align: center;
         }
-        .connect-btn { background: #666; color: #fff; border: 1px solid #666; padding: 12px 25px; font-family: 'Orbitron', monospace; font-size: 12px; cursor: pointer; margin: 0 8px 8px 0; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; font-weight: 700; }
+        .connect-btn { 
+            background: #666; 
+            color: #fff; 
+            border: 1px solid #666; 
+            padding: 12px 25px; 
+            font-family: 'Orbitron', monospace; 
+            font-size: 12px; 
+            cursor: pointer; 
+            margin: 0 auto 8px auto; 
+            display: block;
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            transition: all 0.3s ease; 
+            font-weight: 700; 
+        }
         .connect-btn:hover:not(:disabled) { background: #888; border-color: #888; }
         .connect-btn:disabled { background: #333; color: #666; border-color: #333; cursor: not-allowed; }
         .status-line { margin-top: 12px; font-size: 11px; letter-spacing: 1px; text-align: center; font-weight: 400; }
@@ -173,6 +188,11 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .now-playing-display { width: 120px; font-size: 7px; }
         }
+
+        /* Playlists expanded by default */
+        #playlists { display: block !important; }
+        #playlists + .expandable-header { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        #playlists + .expandable-header::after { content: '[-]'; }
     </style>
 </head>
 <body>
@@ -379,7 +399,7 @@
             // Check if there's a currently playing track
             const nowPlayingHtml = data.activity.currentlyPlaying ? 
                 `<div class="now-playing-display">
-                    <div class="now-playing-text">♪ ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>
+                    <div class="now-playing-text">Now Playin' : ${data.activity.currentlyPlaying.name} - ${data.activity.currentlyPlaying.artist}</div>
                 </div>` : '';
             
             profileContent.innerHTML = `
@@ -464,7 +484,7 @@
             }
             
             // Create or update now playing element
-            const nowPlayingText = `♪ ${track.name} - ${track.artist}`;
+            const nowPlayingText = `Now Playin' : ${track.name} - ${track.artist}`;
             
             if (nowPlayingEl) {
                 const textEl = nowPlayingEl.querySelector('.now-playing-text');
@@ -613,6 +633,12 @@
             }
             
             updateConnectionStatus();
+
+            // Make playlists expanded by default
+            const playlistsHeader = document.querySelector('[onclick="toggleExpandable(\'playlists\')"]');
+            if (playlistsHeader) {
+                playlistsHeader.classList.add('active');
+            }
         });
     </script>
 </body>
