@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OK PLAYLISTS</title>
-    <!-- Load Privy SDK early -->
-    <script src="https://unpkg.com/@privy-io/react-auth@1.60.2/dist/index.umd.js" defer></script>
+    <!-- Load Privy SDK with guaranteed onload and onerror callbacks -->
+    <script 
+        src="https://cdn.jsdelivr.net/npm/@privy-io/react-auth@1.60.2/dist/index.umd.js"
+        onload="onPrivyLoad()"
+        onerror="onPrivyError()">
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Courier New', 'Monaco', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 14px; }
@@ -120,10 +124,23 @@
         let spotifyConnected = false;
 
         // --- PRIVY INITIALIZATION & AUTH ---
+        // This function is called directly by the Privy script's `onload` attribute
+        function onPrivyLoad() {
+            console.log('✅ Privy SDK successfully loaded.');
+            initPrivy();
+        }
+
+        // This function is called by the Privy script's `onerror` attribute
+        function onPrivyError() {
+            console.error('❌ Privy SDK failed to load from CDN.');
+            showError('Critical Error: Could not load wallet provider. Please check your network and refresh.');
+        }
+
         async function initPrivy() {
             try {
                 if (!window.Privy) {
-                    showError('Privy SDK failed to load. Please refresh.');
+                    // This check is now redundant but kept as a safeguard
+                    showError('Privy SDK failed to initialize. Please refresh.');
                     return;
                 }
                 privy = new window.Privy.PrivyProvider({
@@ -135,8 +152,10 @@
                     },
                 });
 
+                // Listen for login and logout events
                 privy.on('login', handleLogin);
                 privy.on('logout', handleLogout);
+                console.log('✅ Privy Provider initialized and event listeners attached.');
 
             } catch (error) {
                 console.error('Privy initialization failed:', error);
@@ -145,7 +164,11 @@
         }
 
         function login() {
-            if (privy) privy.login();
+            if (privy) {
+                privy.login();
+            } else {
+                showError('Wallet provider is not ready. Please wait a moment and try again.');
+            }
         }
 
         function logout() {
@@ -459,9 +482,26 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            initPrivy();
+            // The DOM is ready. Privy will initialize itself via the `onload` callback.
+            // We only need to handle things that are not dependent on Privy here.
             updateConnectionStatus();
-            // Handle Spotify redirect logic here if needed
+            
+            // Handle Spotify redirect logic
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('spotify_connected') === 'true') {
+                spotifyConnected = true;
+                // You might want to update UI elements related to spotify here
+                document.getElementById('spotifyBtn').style.display = 'none';
+                // Assuming you add a logout button for spotify
+                // document.getElementById('spotifyLogoutBtn').style.display = 'block';
+                updateConnectionStatus();
+                showSuccess('✅ Spotify connected successfully!');
+                fetchPlaylists();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (urlParams.get('error')) {
+                showError(`Authentication failed: ${urlParams.get('error')}`);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
 </body>
