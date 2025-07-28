@@ -293,13 +293,18 @@
             .now-playing-display { width: 100px; font-size: 6px; }
         }
 
-        /* Playlist action buttons */
+        /* Playlist action buttons - only visible when expanded */
         .playlist-actions {
             position: absolute;
             top: 5px;
             right: 5px;
-            display: flex;
+            display: none; /* Hidden by default */
             gap: 3px;
+        }
+
+        /* Show buttons only when playlist is expanded */
+        .playlist-item.expanded .playlist-actions {
+            display: flex;
         }
 
         .playlist-action-btn {
@@ -374,9 +379,16 @@
         <!-- SPOTIFY DASHBOARD -->
         <div class="dashboard" id="spotifyDashboard">
             <div class="dashboard-grid">
+                <!-- Profile Card with Library & Genres -->
+                <div class="dashboard-card">
+                    <div id="profileContent" class="profile-card">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+
                 <!-- Explore Any Playlist Card - NEW -->
                 <div class="dashboard-card">
-                    <h3 class="expandable-header active" onclick="toggleExpandable('explore')">🔍 Explore Any Playlist</h3>
+                    <h3 class="expandable-header active" onclick="toggleExpandable('explore')">🎵 Own Your Playlist</h3>
                     <div class="expandable-content active" id="explore">
                         <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                             <input 
@@ -397,12 +409,6 @@
                                 <span id="exploreInstructions">Enter a Spotify playlist URL above to explore any public playlist</span>
                             </p>
                         </div>
-                    </div>
-                </div>
-                <!-- Profile Card with Library & Genres -->
-                <div class="dashboard-card">
-                    <div id="profileContent" class="profile-card">
-                        <p>Loading...</p>
                     </div>
                 </div>
 
@@ -884,7 +890,7 @@
                                         <div class="item-detail">${playlist.tracks} tracks</div>
                                     </div>
                                     <div class="playlist-actions">
-                                        <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}')">Share to FC</span>
+                                        <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
                                         <span class="playlist-action-btn mint-btn">Mint</span>
                                     </div>
                                 </div>
@@ -944,7 +950,7 @@
 }
 
         // --- FARCASTER SHARING ---
-        function shareToFarcaster(playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '') {
+        function shareToFarcaster(playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
             try {
                 // Generate communities text
                 let communitiesText = '';
@@ -963,19 +969,27 @@
 👤 Created by ${owner}
 ${communitiesText}${descriptionText}Listen on Spotify ↓`;
 
-                // Create Farcaster share URL with embed (this will show the playlist cover image)
-                const farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(spotifyUrl)}`;
-                
-                // Open in new window
-                window.open(farcasterUrl, '_blank', 'width=600,height=700');
-                
-                showSuccess('🎵 Opening Farcaster share window...');
-                
-            } catch (error) {
-                console.error('Farcaster share error:', error);
-                showError('Failed to share to Farcaster: ' + error.message);
-            }
+        // Create Farcaster share URL with multiple embeds
+        let farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}`;
+        
+        // Add Spotify URL as first embed
+        farcasterUrl += `&embeds[]=${encodeURIComponent(spotifyUrl)}`;
+        
+        // Add playlist cover image as second embed if available
+        if (coverImage && coverImage !== '/placeholder.svg?height=28&width=28') {
+            farcasterUrl += `&embeds[]=${encodeURIComponent(coverImage)}`;
         }
+        
+        // Open in new window
+        window.open(farcasterUrl, '_blank', 'width=600,height=700');
+        
+        showSuccess('🎵 Opening Farcaster share window with image...');
+        
+    } catch (error) {
+        console.error('Farcaster share error:', error);
+        showError('Failed to share to Farcaster: ' + error.message);
+    }
+}
 
         // --- PUBLIC PLAYLIST EXPLORATION ---
         function extractPlaylistId(url) {
@@ -1055,7 +1069,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                             <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
                         </div>
                         <div class="playlist-actions">
-                            <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}')">Share to FC</span>
+                            <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
                             <span class="playlist-action-btn mint-btn">Mint</span>
                         </div>
                     </div>
