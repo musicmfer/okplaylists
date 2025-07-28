@@ -977,7 +977,7 @@
                         <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
                         <div class="playlist-item-info">
                             <div class="item-name">${playlist.name}</div>
-                            <div class="item-detail">${playlist.tracks} tracks • by ${playlist.owner}</div>
+                            <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
                         </div>
                         <div class="playlist-actions">
                             <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true)">Share to FC</span>
