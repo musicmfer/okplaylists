@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OK PLAYLISTS - Communities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Orbitron', monospace; background: #000; color: #fff; line-height: 1.2; font-size: 12px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
+        
+        /* Header - styled like dashboard cards */
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 25px 15px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid #333; 
+        }
+        .title { font-size: 36px; font-weight: 900; margin-bottom: 8px; letter-spacing: 6px; }
+        .subtitle { font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; font-weight: 400; }
+        .description { font-size: 11px; text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.4; font-weight: 400; }
+        
+        /* EXACT Dashboard Card Styling from Main App */
+        .dashboard-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid #333; 
+            padding: 15px; 
+            margin-bottom: 20px;
+        }
+        
+        /* EXACT Expandable Header from Main App */
+        .expandable-header { 
+            cursor: pointer; 
+            user-select: none; 
+            position: relative; 
+            transition: opacity 0.2s ease; 
+            color: #fff; 
+            font-size: 13px; 
+            letter-spacing: 1.5px; 
+            text-transform: uppercase; 
+            margin: 0; 
+            font-weight: 700; 
+        }
+        .expandable-header:hover { opacity: 0.8; }
+        .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
+        .expandable-header.active::after { content: '[-]'; }
+        .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+        
+        /* EXACT Expandable Content from Main App */
+        .expandable-content { display: none; }
+        .expandable-content.active { display: block; }
+        
+        /* Community Summary (when collapsed) */
+        .communities-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        .community-summary-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 400;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .community-summary-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .community-icon {
+            font-size: 14px;
+        }
+        
+        .community-name {
+            color: #fff;
+            font-weight: 700;
+        }
+        
+        .community-count {
+            color: #999;
+            margin-left: 4px;
+        }
+        
+        /* Community Sections (when expanded) */
+        .community-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 15px;
+        }
+        
+        .community-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .community-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ff6600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* EXACT Item List Styling from Main App */
+        .item-list { max-height: 200px; overflow-y: auto; }
+        .item-list li { 
+            display: flex; 
+            align-items: center; 
+            gap: 7px; 
+            padding: 5px 0; 
+            border-bottom: 1px solid #222; 
+        }
+        .item-list li:last-child { border-bottom: none; }
+        .item-list img { width: 28px; height: 28px; border-radius: 3px; }
+        .item-info { flex: 1; }
+        .item-name { font-size: 11px; color: #fff; font-weight: 400; }
+        .item-detail { font-size: 9px; color: #999; font-weight: 400; }
+        
+        /* Playlist Cover Placeholder */
+        .playlist-cover-placeholder {
+            width: 28px;
+            height: 28px;
+            background: #333;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Action Buttons */
+        .playlist-actions {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+        }
+        
+        .playlist-action-btn {
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 7px;
+            font-weight: 400;
+            cursor: pointer;
+            color: #fff;
+            border: 1px solid #444;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .playlist-action-btn:hover {
+            background: #555;
+            border-color: #555;
+        }
+        
+        .spotify-btn {
+            background: #1db954;
+            border-color: #1db954;
+        }
+        
+        .spotify-btn:hover {
+            background: #1ed760;
+            border-color: #1ed760;
+        }
+        
+        .fc-btn {
+            background: #8a63d2;
+            border-color: #8a63d2;
+        }
+        
+        .fc-btn:hover {
+            background: #9d76e5;
+            border-color: #9d76e5;
+        }
+        
+        /* Loading/Error States */
+        .loading-state, .error-state, .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 10px;
+            font-weight: 400;
+        }
+        
+        .loading-state {
+            color: #999;
+        }
+        
+        .error-state {
+            color: #ff6666;
+        }
+        
+        .state-icon {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .retry-btn {
+            background: #ff6600;
+            border: none;
+            padding: 6px 12px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 9px;
+            margin-top: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .retry-btn:hover {
+            background: #ff8833;
+        }
+
+        .footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            padding: 20px; 
+            border-top: 1px solid #333; 
+            font-size: 10px; 
+            color: #666; 
+            font-weight: 400; 
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .communities-summary {
+                flex-direction: column;
+            }
+            .community-summary-item {
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">OK PLAYLISTS</div>
+            <div class="subtitle">COMMUNITY COLLECTIVE</div>
+            <div class="description">
+                > PLAYLIST INDEX FROM FC /PLAYLIST<br>
+                > CURATED BY NFT COMMUNITIES<br>
+                > POWERED BY OK COMPUTERS AND MFERS 🆗<br><br>
+                > VISIT OKPLAYLISTS.XYZ TO JOIN
+            </div>
+        </div>
+
+        <!-- EXACT Communities Card from Main App -->
+        <div class="dashboard-card">
+            <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
+            <div class="expandable-content" id="communities">
+                <div id="communitiesContent">
+                    <div class="loading-state">
+                        <span class="state-icon">🔄</span>
+                        Loading community playlists from Farcaster...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">OK PLAYLISTS © 2025 | OWN YOUR PLAYLISTS</div>
+    </div>
+
+    <script>
+        // Configuration
+        const FARCASTER_CHANNEL = 'okplaylists'; // Change this to your channel
+        const NEYNAR_API_KEY = 'DEMO_API_KEY'; // You'll need to get a real API key
+        const MAX_CASTS = 50;
+        
+        // Global state
+        let allPlaylists = [];
+        let communitiesData = {};
+        let isExpanded = false;
+        
+        // EXACT toggleExpandable function from main app
+        function toggleExpandable(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+            content.classList.toggle('active');
+            header.classList.toggle('active');
+            isExpanded = content.classList.contains('active');
+            
+            // Update display based on expanded state
+            if (isExpanded && Object.keys(communitiesData).length > 0) {
+                displayExpandedCommunities();
+            } else if (!isExpanded && Object.keys(communitiesData).length > 0) {
+                displayCollapsedCommunities();
+            }
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCommunityPlaylists();
+        });
+        
+        async function loadCommunityPlaylists() {
+            try {
+                console.log('🔄 Loading community playlists...');
+                
+                // Fetch casts from the channel
+                const casts = await fetchChannelCasts();
+                console.log(`📡 Found ${casts.length} casts`);
+                
+                // Parse playlists from casts
+                const playlists = parsePlaylistsFromCasts(casts);
+                console.log(`🎵 Parsed ${playlists.length} playlists`);
+                
+                // Group by communities
+                communitiesData = groupPlaylistsByCommunities(playlists);
+                allPlaylists = playlists;
+                console.log(`🏛️ Found ${Object.keys(communitiesData).length} communities`);
+                
+                // Display based on current state
+                if (isExpanded) {
+                    displayExpandedCommunities();
+                } else {
+                    displayCollapsedCommunities();
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading playlists:', error);
+                displayError(error.message);
+            }
+        }
+        
+        function displayCollapsedCommunities() {
+            const container = document.getElementById('communitiesContent');
+            
+            if (Object.keys(communitiesData).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="state-icon">🎵</span>
+                        No community playlists found yet.<br>
+                        <span style="font-size: 8px; color: #666; margin-top: 4px; display: block;">
+                            Share playlists to Farcaster to populate this gallery
+                        </span>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show community summary when collapsed
+            const sortedCommunities = getSortedCommunities();
+            
+            const summaryHTML = `
+                <div class="communities-summary">
+                    ${sortedCommunities.map(community => {
+                        const playlists = communitiesData[community];
+                        const icon = getCommunityIcon(community);
+                        return `
+                            <div class="community-summary-item" onclick="expandAndScrollTo('${community}')">
+                                <span class="community-icon">${icon}</span>
+                                <span class="community-name">${community}</span>
+                                <span class="community-count">(${playlists.length})</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = summaryHTML;
+        }
+        
+        function displayExpandedCommunities() {
+            const container = document.getElementById('communitiesContent');
+            
+            if (Object.keys(communitiesData).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="state-icon">🎵</span>
+                        No community playlists found yet.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show full community sections when expanded
+            const sortedCommunities = getSortedCommunities();
+            
+            let html = '';
+            sortedCommunities.forEach(community => {
+                const playlists = communitiesData[community];
+                const icon = getCommunityIcon(community);
+                
+                html += `
+                    <div class="community-section" id="community-${community}">
+                        <div class="community-section-header">
+                            <span class="community-icon">${icon}</span>
+                            <span>${community}</span>
+                            <span style="margin-left: auto; font-size: 9px; opacity: 0.7;">${playlists.length} playlist${playlists.length !== 1 ? 's' : ''}</span>
+                        </div>
+                        <ul class="item-list">
+                            ${playlists.map(playlist => createPlaylistItemHTML(playlist)).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function createPlaylistItemHTML(playlist) {
+            const timeAgo = getTimeAgo(playlist.timestamp);
+            
+            return `
+                <li>
+                    <div class="playlist-cover-placeholder">🎵</div>
+                    <div class="item-info">
+                        <div class="item-name">${playlist.name}</div>
+                        <div class="item-detail">${playlist.tracks} tracks • by ${playlist.author} • ${timeAgo}</div>
+                    </div>
+                    <div class="playlist-actions">
+                        ${playlist.spotifyUrl ? `<a href="${playlist.spotifyUrl}" target="_blank" class="playlist-action-btn spotify-btn">Spotify</a>` : ''}
+                        <a href="${playlist.farcasterUrl}" target="_blank" class="playlist-action-btn fc-btn">FC</a>
+                    </div>
+                </li>
+            `;
+        }
+        
+        function expandAndScrollTo(community) {
+            // Expand if not already expanded
+            if (!isExpanded) {
+                toggleExpandable('communities');
+            }
+            
+            // Scroll to community section after a brief delay
+            setTimeout(() => {
+                const element = document.getElementById(`community-${community}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+        
+        function getSortedCommunities() {
+            const communityOrder = ['OK COMPUTERS', 'MFERS', 'General'];
+            return Object.keys(communitiesData).sort((a, b) => {
+                const aIndex = communityOrder.indexOf(a);
+                const bIndex = communityOrder.indexOf(b);
+                if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                if (aIndex !== -1) return -1;
+                if (bIndex !== -1) return 1;
+                return a.localeCompare(b);
+            });
+        }
+        
+        function getCommunityIcon(community) {
+            const icons = {
+                'OK COMPUTERS': '💻',
+                'MFERS': '🐸',
+                'General': '🎵',
+                'PUNKS': '💀',
+                'BAYC': '🐵'
+            };
+            return icons[community] || '🏛️';
+        }
+        
+        function displayError(message) {
+            const container = document.getElementById('communitiesContent');
+            container.innerHTML = `
+                <div class="error-state">
+                    <span class="state-icon">❌</span>
+                    Failed to load community playlists<br>
+                    <span style="font-size: 8px; color: #ff6666; margin-top: 4px; display: block;">
+                        ${message}
+                    </span>
+                    <button onclick="loadCommunityPlaylists()" class="retry-btn">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+        
+        // [Keep all the existing parsing functions from before]
+        async function fetchChannelCasts() {
+            const url = `https://api.neynar.com/v2/farcaster/feed/channels?channel_ids=${FARCASTER_CHANNEL}&limit=${MAX_CASTS}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'api_key': NEYNAR_API_KEY'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.casts || [];
+                
+            } catch (error) {
+                console.error('Failed to fetch from Neynar, using mock data for demo');
+                return getMockCasts();
+            }
+        }
+        
+        function parsePlaylistsFromCasts(casts) {
+            const playlists = [];
+            
+            casts.forEach(cast => {
+                if (cast.text && cast.text.includes('🎵 Check out my') && cast.text.includes('playlist!')) {
+                    const playlist = parsePlaylistFromCast(cast);
+                    if (playlist) {
+                        playlists.push(playlist);
+                    }
+                }
+            });
+            
+            return playlists;
+        }
+        
+        function parsePlaylistFromCast(cast) {
+            try {
+                const text = cast.text;
+                const nameMatch = text.match(/🎵 Check out my "([^"]+)" playlist!/);
+                if (!nameMatch) return null;
+                
+                const playlist = {
+                    name: nameMatch[1],
+                    author: cast.author?.display_name || cast.author?.username || 'Unknown',
+                    timestamp: cast.timestamp,
+                    communities: [],
+                    tracks: 0,
+                    spotifyUrl: '',
+                    farcasterUrl: `https://warpcast.com/${cast.author?.username}/${cast.hash?.substring(0, 10)}`
+                };
+                
+                const statsMatch = text.match(/📊 (\d+) tracks/);
+                if (statsMatch) {
+                    playlist.tracks = parseInt(statsMatch[1]);
+                }
+                
+                const communitiesMatch = text.match(/🏛️ ([^\n]+)/);
+                if (communitiesMatch) {
+                    playlist.communities = communitiesMatch[1]
+                        .split('•')
+                        .map(c => c.trim())
+                        .filter(c => c.length > 0);
+                }
+                
+                if (cast.embeds && cast.embeds.length > 0) {
+                    const spotifyEmbed = cast.embeds.find(embed => 
+                        embed.url && embed.url.includes('spotify.com/playlist')
+                    );
+                    if (spotifyEmbed) {
+                        playlist.spotifyUrl = spotifyEmbed.url;
+                    }
+                }
+                
+                return playlist;
+                
+            } catch (error) {
+                console.error('Error parsing playlist from cast:', error);
+                return null;
+            }
+        }
+        
+        function groupPlaylistsByCommunities(playlists) {
+            const grouped = {};
+            
+            playlists.forEach(playlist => {
+                if (playlist.communities.length === 0) {
+                    if (!grouped['General']) grouped['General'] = [];
+                    grouped['General'].push(playlist);
+                } else {
+                    playlist.communities.forEach(community => {
+                        if (!grouped[community]) grouped[community] = [];
+                        grouped[community].push(playlist);
+                    });
+                }
+            });
+            
+            return grouped;
+        }
+        
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return 'Unknown';
+            
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diffMs = now - time;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return time.toLocaleDateString();
+        }
+        
+        function getMockCasts() {
+            return [
+                {
+                    text: `🎵 Check out my "Chill Coding Vibes" playlist!
+
+📊 42 tracks • 2h 34m
+👤 Created by alice.eth
+🏛️ OK COMPUTERS • MFERS
+
+"Perfect mix for late night coding sessions"
+
+Listen on Spotify ↓`,
+                    author: {
+                        display_name: 'Alice',
+                        username: 'alice',
+                        pfp_url: ''
+                    },
+                    timestamp: new Date(Date.now() - 3600000).toISOString(),
+                    hash: 'abc123def456',
+                    embeds: [
+                        { url: 'https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd' }
+                    ]
+                },
+                {
+                    text: `🎵 Check out my "Synthwave Dreams" playlist!
+
+📊 28 tracks • 1h 47m
+👤 Created by bob.eth
+🏛️ OK COMPUTERS
+
+"Retro futuristic beats for the digital age"
+
+Listen on Spotify ↓`,
+                    author: {
+                        display_name: 'Bob',
+                        username: 'bob',
+                        pfp_url: ''
+                    },
+                    timestamp: new Date(Date.now() - 7200000).toISOString(),
+                    hash: 'def456ghi789',
+                    embeds: [
+                        { url: 'https://open.spotify.com/playlist/37i9dQZF1DX4dyzvuaRJ0n' }
+                    ]
+                },
+                {
+                    text: `🎵 Check out my "Lo-Fi Study Beats" playlist!
+
+📊 35 tracks • 2h 12m
+👤 Created by charlie.eth
+🏛️ MFERS
+
+"Chill beats for focused work sessions"
+
+Listen on Spotify ↓`,
+                    author: {
+                        display_name: 'Charlie',
+                        username: 'charlie',
+                        pfp_url: ''
+                    },
+                    timestamp: new Date(Date.now() - 10800000).toISOString(),
+                    hash: 'ghi789jkl012',
+                    embeds: [
+                        { url: 'https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn' }
+                    ]
+                }
+            ];
+        }
+        
+        console.log('🏛️ OK PLAYLISTS Communities Card loaded');
+    </script>
+</body>
+</html>
