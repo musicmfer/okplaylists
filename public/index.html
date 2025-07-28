@@ -291,6 +291,49 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .now-playing-display { width: 100px; font-size: 6px; }
         }
+
+        /* Playlist action buttons */
+        .playlist-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 3px;
+        }
+
+        .playlist-action-btn {
+            background: #444;
+            padding: 2px 5px;
+            border-radius: 6px;
+            font-size: 7px;
+            font-weight: 400;
+            cursor: pointer;
+            color: #fff;
+            border: 1px solid #444;
+            transition: all 0.2s ease;
+        }
+
+        .playlist-action-btn:hover {
+            background: #555;
+            border-color: #555;
+        }
+
+        .fc-share {
+            background: #8a63d2;
+            border-color: #8a63d2;
+        }
+
+        .fc-share:hover {
+            background: #9d76e5;
+            border-color: #9d76e5;
+        }
+
+        .mint-btn {
+            background: #ff6600;
+            border-color: #ff6600;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -330,6 +373,29 @@
         <!-- SPOTIFY DASHBOARD -->
         <div class="dashboard" id="spotifyDashboard">
             <div class="dashboard-grid">
+                <!-- Explore Any Playlist Card - NEW -->
+                <div class="dashboard-card">
+                    <h3 class="expandable-header active" onclick="toggleExpandable('explore')">🔍 Explore Any Playlist</h3>
+                    <div class="expandable-content active" id="explore">
+                        <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
+                            <input 
+                                type="text" 
+                                id="playlistUrlInput"
+                                placeholder="Paste Spotify playlist URL here..." 
+                                style="width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid #333; color: #fff; font-family: 'Orbitron', monospace; font-size: 11px; margin-bottom: 8px;"
+                            />
+                            <button 
+                                type="submit" 
+                                style="background: #1db954; color: #fff; border: none; padding: 8px 15px; font-family: 'Orbitron', monospace; font-size: 11px; cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;"
+                            >
+                                Get Playlist Info
+                            </button>
+                        </form>
+                        <div id="publicPlaylistResult">
+                            <p style="color: #666; text-align: center; font-size: 10px;">Enter a Spotify playlist URL above to explore any public playlist</p>
+                        </div>
+                    </div>
+                </div>
                 <!-- Profile Card with Library & Genres -->
                 <div class="dashboard-card">
                     <div id="profileContent" class="profile-card">
@@ -655,7 +721,7 @@
                 <img src="${data.profile.imageUrl || '/placeholder.svg?height=42&width=42'}" alt="Profile">
                 <div class="profile-info">
                     <h4>${data.profile.displayName}</h4>
-                    <p>${data.profile.followers} Followers • ${data.library.totalFollowedArtists} Following • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
+                    <p>${data.profile.followers} Followers • ${data.profile.followers} Followers • ${data.library.totalFollowedArtists} Following • ${data.library.totalSavedTracks} Songs • ${data.library.totalSavedAlbums} Albums • ${data.library.totalPlaylists} Playlists • ${data.library.estimatedListeningHours}h Listening</p>
                     
                     <div class="genre-tags">
                         ${data.musicTaste.topGenres.slice(0, 6).map(genre => 
@@ -801,22 +867,19 @@
             }
         }
 
-        async function togglePlaylistDetails(itemElement, playlistId) {
+        async function togglePlaylistDetails(itemElement, playlistId, isPublic = false) {
             const details = itemElement.querySelector('.playlist-item-details');
             itemElement.classList.toggle('expanded');
             
             if (itemElement.classList.contains('expanded') && details.dataset.loaded !== 'true') {
                 try {
-                    const response = await fetch(`/api/spotify/playlist/${playlistId}`);
+                    const endpoint = isPublic ? `/api/spotify/public-playlist/${playlistId}` : `/api/spotify/playlist/${playlistId}`;
+                    const response = await fetch(endpoint);
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.details || `Server error: ${response.status}`);
                     }
                     const playlistDetails = await response.json();
-                    
-                    let tracksHtml = playlistDetails.tracks && playlistDetails.tracks.length > 0
-                        ? playlistDetails.tracks.map(track => `<li>${track.name} - ${track.artist}</li>`).join('')
-                        : '<li>No songs found.</li>';
                     
                     details.innerHTML = `
 <div class="playlist-detail-row"><strong>Description:</strong> ${playlistDetails.description || 'No description available'}</div>
@@ -838,11 +901,94 @@
 </div>
 <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
-                    details.dataset.loaded = 'true';
-                } catch (error) {
-                    details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
+            details.dataset.loaded = 'true';
+        } catch (error) {
+            details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
+        }
+    }
+}
+
+        // Placeholder function for Farcaster sharing
+        function shareToFarcaster(playlistId, isPublic = false) {
+            showSuccess('Farcaster sharing coming soon! 📡');
+            console.log('Share to Farcaster:', playlistId, 'isPublic:', isPublic);
+        }
+
+        // --- PUBLIC PLAYLIST EXPLORATION ---
+        function extractPlaylistId(url) {
+            // Handle various Spotify URL formats
+            const patterns = [
+                /playlist\/([a-zA-Z0-9]+)/,
+                /spotify:playlist:([a-zA-Z0-9]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return match[1];
                 }
             }
+            return null;
+        }
+
+        async function fetchPublicPlaylist(event) {
+            event.preventDefault();
+            
+            const urlInput = document.getElementById('playlistUrlInput');
+            const resultDiv = document.getElementById('publicPlaylistResult');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a Spotify playlist URL');
+                return;
+            }
+            
+            const playlistId = extractPlaylistId(url);
+            if (!playlistId) {
+                showError('Invalid Spotify playlist URL. Please check the URL and try again.');
+                return;
+            }
+            
+            // Show loading state
+            resultDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">🔄 Loading playlist...</p>';
+            
+            try {
+                const response = await fetch(`/api/spotify/public-playlist/${playlistId}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || `Server error: ${response.status}`);
+                }
+                
+                const playlistDetails = await response.json();
+                displayPublicPlaylist(playlistDetails);
+                
+            } catch (error) {
+                showError('Failed to load playlist: ' + error.message);
+                resultDiv.innerHTML = '<p style="color: #ff6666; text-align: center; padding: 20px;">❌ Failed to load playlist</p>';
+            }
+        }
+
+        function displayPublicPlaylist(playlist) {
+            const resultDiv = document.getElementById('publicPlaylistResult');
+            
+            const playlistHtml = `
+                <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
+                    <div class="playlist-item-header">
+                        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
+                        <div class="playlist-item-info">
+                            <div class="item-name">${playlist.name}</div>
+                            <div class="item-detail">${playlist.tracks} tracks • by ${playlist.owner}</div>
+                        </div>
+                        <div class="playlist-actions">
+                            <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true)">Share to FC</span>
+                            <span class="playlist-action-btn mint-btn">Mint</span>
+                        </div>
+                    </div>
+                    <div class="playlist-item-details">Loading...</div>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = playlistHtml;
         }
 
         // --- INITIALIZATION ---
