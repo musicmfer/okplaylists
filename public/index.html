@@ -161,20 +161,20 @@
 
         /* Playlist items */
         .playlist-item { 
-            cursor: pointer; 
-            transition: background 0.2s ease; 
             padding: 5px 0; 
             border-bottom: 1px solid #222; 
             position: relative;
         }
         .playlist-item:last-child { border-bottom: none; }
-        .playlist-item:hover { background: rgba(255, 255, 255, 0.05); }
-
+        
         .playlist-item-header { 
             display: flex; 
             align-items: center; 
             gap: 7px; 
+            cursor: pointer; 
+            transition: background 0.2s ease; 
         }
+        .playlist-item-header:hover { background: rgba(255, 255, 255, 0.05); }
 
         .playlist-item-header img { 
             width: 28px; 
@@ -209,6 +209,8 @@
         .playlist-item-details { 
             display: none; 
             margin-top: 6px; 
+            padding-top: 6px;
+            border-top: 1px solid #222;
             font-size: 9px; 
             color: #ccc; 
             font-weight: 400; 
@@ -293,18 +295,11 @@
             .now-playing-display { width: 100px; font-size: 6px; }
         }
 
-        /* Playlist action buttons - moved to bottom left */
+        /* Playlist action buttons - now part of the details flow */
         .playlist-actions {
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            display: none; /* Hidden by default */
-            gap: 3px;
-        }
-
-        /* Show buttons only when playlist is expanded */
-        .playlist-item.expanded .playlist-actions {
             display: flex;
+            gap: 5px;
+            margin-top: 8px;
         }
 
         .playlist-action-btn {
@@ -883,17 +878,13 @@
                     playlistsContent.innerHTML = '';
                     data.playlists.forEach(playlist => {
                         const playlistHtml = `
-<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-    <div class="playlist-item-header">
+<div class="playlist-item">
+    <div class="playlist-item-header" onclick="togglePlaylistDetails(this, '${playlist.id}')">
         <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
         <div class="playlist-item-info">
             <div class="item-name">${playlist.name}</div>
             <div class="item-detail">${playlist.tracks} tracks</div>
         </div>
-    </div>
-    <div class="playlist-actions">
-        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-        <span class="playlist-action-btn mint-btn">Mint</span>
     </div>
     <div class="playlist-item-details">Loading...</div>
 </div>
@@ -909,11 +900,12 @@
             }
         }
 
-        async function togglePlaylistDetails(itemElement, playlistId, isPublic = false) {
-            const details = itemElement.querySelector('.playlist-item-details');
-            itemElement.classList.toggle('expanded');
+        async function togglePlaylistDetails(headerElement, playlistId, isPublic = false) {
+            const playlistItem = headerElement.parentElement;
+            const details = playlistItem.querySelector('.playlist-item-details');
+            playlistItem.classList.toggle('expanded');
             
-            if (itemElement.classList.contains('expanded') && details.dataset.loaded !== 'true') {
+            if (playlistItem.classList.contains('expanded') && details.dataset.loaded !== 'true') {
                 try {
                     const endpoint = isPublic ? `/api/spotify/public-playlist/${playlistId}` : `/api/spotify/playlist/${playlistId}`;
                     const response = await fetch(endpoint);
@@ -941,9 +933,13 @@
         : '<li><div class="song-info"><div class="song-name">No songs found.</div></div></li>'
     }</ul>
 </div>
+<div class="playlist-actions">
+    <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlistDetails.id}', ${isPublic}, '${playlistDetails.name}', '${playlistDetails.spotifyUrl}', ${playlistDetails.totalTracks}, '${playlistDetails.description || ''}', '${playlistDetails.owner}', '${playlistDetails.totalDuration}', '${playlistDetails.cover || ''}')">Share to FC</span>
+    <span class="playlist-action-btn mint-btn">Mint</span>
+</div>
 <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
-            details.dataset = 'true';
+            details.dataset.loaded = 'true';
         } catch (error) {
             details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
         }
@@ -952,7 +948,7 @@
 
         // --- FARCASTER SHARING ---
         function shareToFarcaster(event, playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
-            // Stop the event from bubbling up to the playlist toggle
+            // Stop the event from bubbling up to any parent click handlers
             event.stopPropagation();
             
             try {
@@ -1055,7 +1051,8 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                 
                 displayPublicPlaylist(playlistDetails);
                 
-            } catch (error) {
+            } catch (error)
+{
                 showError('Failed to load playlist: ' + error.message);
                 resultDiv.innerHTML = '<p style="color: #ff6666; text-align: center; padding: 20px;">❌ Failed to load playlist</p>';
             }
@@ -1065,17 +1062,13 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
             const resultDiv = document.getElementById('publicPlaylistResult');
             
             const playlistHtml = `
-<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
-    <div class="playlist-item-header">
+<div class="playlist-item">
+    <div class="playlist-item-header" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
         <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
         <div class="playlist-item-info">
             <div class="item-name">${playlist.name}</div>
             <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
         </div>
-    </div>
-    <div class="playlist-actions">
-        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-        <span class="playlist-action-btn mint-btn">Mint</span>
     </div>
     <div class="playlist-item-details">Loading...</div>
 </div>
