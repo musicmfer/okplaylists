@@ -7,6 +7,13 @@ export default function handler(req, res) {
   const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID
   const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI
 
+  // ADD DEBUGGING LOGS
+  console.log("🔍 Spotify OAuth Debug Info:")
+  console.log("CLIENT_ID:", CLIENT_ID ? "✅ Set" : "❌ Missing")
+  console.log("REDIRECT_URI:", REDIRECT_URI)
+  console.log("Request Host:", req.headers.host)
+  console.log("Request Protocol:", req.headers["x-forwarded-proto"] || "http")
+
   if (!CLIENT_ID || !REDIRECT_URI) {
     console.error("Missing Spotify configuration:", { CLIENT_ID: !!CLIENT_ID, REDIRECT_URI: !!REDIRECT_URI })
     return res.status(500).json({ error: "Missing Spotify configuration" })
@@ -42,7 +49,7 @@ export default function handler(req, res) {
   res.setHeader("Set-Cookie", `spotify_state=${state}; ${cookieOptions}`)
 
   console.log("Generated state:", state)
-  console.log("Redirecting to Spotify auth:", authUrl.toString())
+  console.log("🚀 Redirecting to Spotify auth:", authUrl.toString())
 
   res.redirect(authUrl.toString())
 }
