@@ -159,7 +159,7 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* Playlist items - Reverted Structure */
+        /* Playlist items */
         .playlist-item { 
             cursor: pointer; 
             transition: background 0.2s ease; 
@@ -186,16 +186,23 @@
 
         .playlist-item-info { flex: 1; }
 
+        /* Only playlist title is selectable */
         .playlist-item-info .item-name { 
             font-size: 11px; 
             color: #fff; 
             font-weight: 400; 
+            user-select: text; 
+            cursor: text;
+            display: inline-block;
         }
 
+        /* Track count is not selectable */
         .playlist-item-info .item-detail { 
             font-size: 9px; 
             color: #999; 
             font-weight: 400; 
+            user-select: none; 
+            pointer-events: none;
         }
         
         /* Expanded playlist details */
@@ -286,7 +293,7 @@
             .now-playing-display { width: 100px; font-size: 6px; }
         }
 
-        /* Playlist action buttons - Reverted to absolute positioning */
+        /* Playlist action buttons - only visible when expanded */
         .playlist-actions {
             position: absolute;
             top: 5px;
@@ -338,14 +345,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">OK-' PLAYLISTS</div>
-            <div class="subtitle">FOR COMMUNITIES</div>
+            <div class="title">OK PLAYLISTS</div>
+            <div class="subtitle">DECENTRALIZED MUSIC PLATFORM</div>
             <div class="description">
-                > CONNECT YOUR SPOTIFY TO ACCESS YOUR PERSONAL PLAYLISTS<br>
-                > CONNECT YOUR WALLET TO JOIN AS AN NFT HOLDER<br>
-                > OWN YOUR PLAYLISTS ONCHAIN WITHIN YOUR COMMUNITY<br>
-                > SHARE TO FC /PLAYLIST (COLLECTIBLES) OR MINT AS NFT (COMING SOON)<br><br>
-                🆗 CURRENTLY IN BETA, ONLY FOR "OK COMPUTERS" & "MFERS" ⚫️-'
+                > CONNECT YOUR SPOTIFY TO ACCESS PERSONAL PLAYLISTS<br>
+                > CONNECT YOUR WALLET TO ACCESS COMMUNITY FEATURES<br>
+                > EXPLORE CURATED COLLECTIONS<br>
+                > ANALYZE YOUR MUSICAL IDENTITY
             </div>
         </div>
 
@@ -454,7 +460,7 @@
             </div>
         </div>
         
-        <div class="footer">OK PLAYLISTS © 2025 | OWN YOUR PLAYLISTS</div>
+        <div class="footer">OK PLAYLISTS © 2025 | YOUR MUSIC, ANALYZED</div>
     </div>
 
     <script>
@@ -876,21 +882,21 @@
                     playlistsContent.innerHTML = '';
                     data.playlists.forEach(playlist => {
                         const playlistHtml = `
-<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-    <div class="playlist-item-header">
-        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
-        <div class="playlist-item-info">
-            <div class="item-name">${playlist.name}</div>
-            <div class="item-detail">${playlist.tracks} tracks</div>
-        </div>
-    </div>
-    <div class="playlist-actions">
-        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-        <span class="playlist-action-btn mint-btn">Mint</span>
-    </div>
-    <div class="playlist-item-details">Loading...</div>
-</div>
-`;
+                            <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+                                <div class="playlist-item-header">
+                                    <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
+                                    <div class="playlist-item-info">
+                                        <div class="item-name">${playlist.name}</div>
+                                        <div class="item-detail">${playlist.tracks} tracks</div>
+                                    </div>
+                                    <div class="playlist-actions">
+                                        <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
+                                        <span class="playlist-action-btn mint-btn">Mint</span>
+                                    </div>
+                                </div>
+                                <div class="playlist-item-details">Loading...</div>
+                            </div>
+                        `;
                         playlistsContent.innerHTML += playlistHtml;
                     });
                 } else {
@@ -936,18 +942,15 @@
 </div>
 <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
-                    details.dataset.loaded = 'true';
-                } catch (error) {
-                    details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
-                }
-            }
+            details.dataset.loaded = 'true';
+        } catch (error) {
+            details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
         }
+    }
+}
 
         // --- FARCASTER SHARING ---
-        function shareToFarcaster(event, playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
-            // This is the crucial part: stop the click from propagating to the parent
-            event.stopPropagation();
-            
+        function shareToFarcaster(playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
             try {
                 // Generate communities text
                 let communitiesText = '';
@@ -966,27 +969,27 @@
 👤 Created by ${owner}
 ${communitiesText}${descriptionText}Listen on Spotify ↓`;
 
-                // Create Farcaster share URL with multiple embeds
-                let farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}`;
-                
-                // Add Spotify URL as first embed
-                farcasterUrl += `&embeds[]=${encodeURIComponent(spotifyUrl)}`;
-                
-                // Add playlist cover image as second embed if available
-                if (coverImage && coverImage !== '/placeholder.svg?height=28&width=28') {
-                    farcasterUrl += `&embeds[]=${encodeURIComponent(coverImage)}`;
-                }
-                
-                // Open in new window
-                window.open(farcasterUrl, '_blank', 'width=600,height=700');
-                
-                showSuccess('🎵 Opening Farcaster share window with image...');
-                
-            } catch (error) {
-                console.error('Farcaster share error:', error);
-                showError('Failed to share to Farcaster: ' + error.message);
-            }
+        // Create Farcaster share URL with multiple embeds
+        let farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}`;
+        
+        // Add Spotify URL as first embed
+        farcasterUrl += `&embeds[]=${encodeURIComponent(spotifyUrl)}`;
+        
+        // Add playlist cover image as second embed if available
+        if (coverImage && coverImage !== '/placeholder.svg?height=28&width=28') {
+            farcasterUrl += `&embeds[]=${encodeURIComponent(coverImage)}`;
         }
+        
+        // Open in new window
+        window.open(farcasterUrl, '_blank', 'width=600,height=700');
+        
+        showSuccess('🎵 Opening Farcaster share window with image...');
+        
+    } catch (error) {
+        console.error('Farcaster share error:', error);
+        showError('Failed to share to Farcaster: ' + error.message);
+    }
+}
 
         // --- PUBLIC PLAYLIST EXPLORATION ---
         function extractPlaylistId(url) {
@@ -1058,21 +1061,21 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
             const resultDiv = document.getElementById('publicPlaylistResult');
             
             const playlistHtml = `
-<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
-    <div class="playlist-item-header">
-        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
-        <div class="playlist-item-info">
-            <div class="item-name">${playlist.name}</div>
-            <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
-        </div>
-    </div>
-    <div class="playlist-actions">
-        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-        <span class="playlist-action-btn mint-btn">Mint</span>
-    </div>
-    <div class="playlist-item-details">Loading...</div>
-</div>
-`;
+                <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
+                    <div class="playlist-item-header">
+                        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
+                        <div class="playlist-item-info">
+                            <div class="item-name">${playlist.name}</div>
+                            <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
+                        </div>
+                        <div class="playlist-actions">
+                            <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
+                            <span class="playlist-action-btn mint-btn">Mint</span>
+                        </div>
+                    </div>
+                    <div class="playlist-item-details">Loading...</div>
+                </div>
+            `;
             
             resultDiv.innerHTML = playlistHtml;
         }
