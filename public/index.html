@@ -293,11 +293,11 @@
             .now-playing-display { width: 100px; font-size: 6px; }
         }
 
-        /* Playlist action buttons - only visible when expanded */
+        /* Playlist action buttons - moved to bottom left */
         .playlist-actions {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            bottom: 5px;
+            left: 5px;
             display: none; /* Hidden by default */
             gap: 3px;
         }
@@ -883,20 +883,20 @@
                     playlistsContent.innerHTML = '';
                     data.playlists.forEach(playlist => {
                         const playlistHtml = `
-    <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
-        <div class="playlist-item-header">
-            <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
-            <div class="playlist-item-info">
-                <div class="item-name">${playlist.name}</div>
-                <div class="item-detail">${playlist.tracks} tracks</div>
-            </div>
-            <div class="playlist-actions">
-                <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                <span class="playlist-action-btn mint-btn">Mint</span>
-            </div>
+<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}')">
+    <div class="playlist-item-header">
+        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
+        <div class="playlist-item-info">
+            <div class="item-name">${playlist.name}</div>
+            <div class="item-detail">${playlist.tracks} tracks</div>
         </div>
-        <div class="playlist-item-details">Loading...</div>
     </div>
+    <div class="playlist-actions">
+        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
+        <span class="playlist-action-btn mint-btn">Mint</span>
+    </div>
+    <div class="playlist-item-details">Loading...</div>
+</div>
 `;
                         playlistsContent.innerHTML += playlistHtml;
                     });
@@ -1065,20 +1065,20 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
             const resultDiv = document.getElementById('publicPlaylistResult');
             
             const playlistHtml = `
-    <div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
-        <div class="playlist-item-header">
-            <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
-            <div class="playlist-item-info">
-                <div class="item-name">${playlist.name}</div>
-                <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
-            </div>
-            <div class="playlist-actions">
-                <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-                <span class="playlist-action-btn mint-btn">Mint</span>
-            </div>
+<div class="playlist-item" onclick="togglePlaylistDetails(this, '${playlist.id}', true)">
+    <div class="playlist-item-header">
+        <img src="${playlist.cover || '/placeholder.svg?height=28&width=28'}" alt="${playlist.name}">
+        <div class="playlist-item-info">
+            <div class="item-name">${playlist.name}</div>
+            <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
         </div>
-        <div class="playlist-item-details">Loading...</div>
     </div>
+    <div class="playlist-actions">
+        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
+        <span class="playlist-action-btn mint-btn">Mint</span>
+    </div>
+    <div class="playlist-item-details">Loading...</div>
+</div>
 `;
             
             resultDiv.innerHTML = playlistHtml;
