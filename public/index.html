@@ -890,7 +890,7 @@
                                         <div class="item-detail">${playlist.tracks} tracks</div>
                                     </div>
                                     <div class="playlist-actions">
-                                        <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
+                                        <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
                                         <span class="playlist-action-btn mint-btn">Mint</span>
                                     </div>
                                 </div>
@@ -950,7 +950,10 @@
 }
 
         // --- FARCASTER SHARING ---
-        function shareToFarcaster(playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
+        function shareToFarcaster(event, playlistId, isPublic, playlistName, spotifyUrl, trackCount, description, owner, duration = '', coverImage = '') {
+            // This is the crucial part: stop the click from propagating to the parent
+            event.stopPropagation();
+            
             try {
                 // Generate communities text
                 let communitiesText = '';
@@ -1069,7 +1072,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                             <div class="item-detail">${playlist.totalTracks} tracks • by ${playlist.owner}</div>
                         </div>
                         <div class="playlist-actions">
-                            <span class="playlist-action-btn fc-share" onclick="event.stopPropagation(); shareToFarcaster('${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
+                            <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
                             <span class="playlist-action-btn mint-btn">Mint</span>
                         </div>
                     </div>
