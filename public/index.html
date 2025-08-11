@@ -545,6 +545,16 @@
                                   <label for="mintTitle">Title</label>
                                   <input type="text" id="mintTitle" placeholder="NFT Title" required>
                               </div>
+                              <!-- Added duration field -->
+                              <div class="mint-form-group">
+                                  <label for="mintDuration">Duration</label>
+                                  <input type="text" id="mintDuration" placeholder="e.g., 13 tracks • 76m 13s" readonly>
+                              </div>
+                              <!-- Added creator field -->
+                              <div class="mint-form-group">
+                                  <label for="mintCreator">Creator</label>
+                                  <input type="text" id="mintCreator" placeholder="Creator name or NFT identity" readonly>
+                              </div>
                               <div class="mint-form-group">
                                   <label for="mintDescription">Description</label>
                                   <textarea id="mintDescription" placeholder="NFT Description"></textarea>
@@ -1237,12 +1247,33 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
           const mintTitle = document.getElementById('mintTitle');
           const mintDescription = document.getElementById('mintDescription');
           const mintImageUpload = document.getElementById('mintImageUpload');
+          const mintDuration = document.getElementById('mintDuration');
+          const mintCreator = document.getElementById('mintCreator');
 
           // Autofill form fields
           mintImagePreview.src = playlistData.cover || '/placeholder.svg?height=100&width=100';
           mintImagePreview.dataset.originalSrc = playlistData.cover || '/placeholder.svg?height=100&width=100'; // Store original for reset
           mintTitle.value = playlistData.name;
-          mintDescription.value = playlistData.description;
+          
+          const trackCount = playlistData.tracks ? playlistData.tracks.length : 0;
+          const totalMs = playlistData.tracks ? playlistData.tracks.reduce((sum, track) => sum + (track.duration_ms || 0), 0) : 0;
+          const minutes = Math.floor(totalMs / 60000);
+          const seconds = Math.floor((totalMs % 60000) / 1000);
+          mintDuration.value = `${trackCount} tracks • ${minutes}m ${seconds}s`;
+          
+          const connectedWallet = localStorage.getItem('connectedWallet');
+          const userNFTIdentity = localStorage.getItem('userNFTIdentity'); // This would be set when wallet connects and we detect NFTs
+          
+          if (connectedWallet && userNFTIdentity) {
+              mintCreator.value = `Created by ${userNFTIdentity}`;
+          } else {
+              mintCreator.value = `Created by ${playlistData.owner || 'Unknown'}`;
+          }
+          
+          const baseDescription = playlistData.description || '';
+          const spotifyLink = playlistData.external_urls?.spotify || '';
+          mintDescription.value = spotifyLink ? `${baseDescription}\n\nSpotify: ${spotifyLink}` : baseDescription;
+          
           mintImageUpload.value = ''; // Clear file input
 
           mintFormCard.classList.add('active'); // Show the minting card
