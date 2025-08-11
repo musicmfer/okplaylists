@@ -1258,12 +1258,14 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
           // Get Spotify link
           const spotifyLink = playlistData.spotifyUrl || '';
           
-          // Combine everything into description with line breaks
           let combinedDescription = baseDescription;
-          if (combinedDescription) combinedDescription += '\n';
-          combinedDescription += formattedDuration;
-          combinedDescription += ` created by ${creatorText}`;
-          if (spotifyLink) combinedDescription += '\n' + spotifyLink;
+          if (formattedDuration) {
+              combinedDescription += '\n' + formattedDuration;
+          }
+          combinedDescription += '\n' + `created by ${creatorText}`;
+          if (spotifyLink) {
+              combinedDescription += '\n' + spotifyLink;
+          }
           
           mintDescription.value = combinedDescription;
           
