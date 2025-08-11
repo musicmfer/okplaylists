@@ -337,8 +337,130 @@
       .mint-btn {
           background: #ff6600;
           border-color: #ff6600;
-          opacity: 0.6;
-          cursor: not-allowed;
+          opacity: 0.6; /* Make it slightly transparent to indicate it's not fully active yet */
+          cursor: pointer; /* Change to pointer as it will now trigger a form */
+      }
+      .mint-btn:hover {
+          background: #ff8833;
+          border-color: #ff8833;
+          opacity: 1;
+      }
+
+      /* New styles for Minting Card */
+      .mint-card {
+          display: none; /* Hidden by default */
+          margin-top: 20px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid #333;
+          padding: 15px;
+      }
+      .mint-card.active {
+          display: block;
+      }
+      .mint-card h3 {
+          font-size: 13px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-bottom: 15px;
+          font-weight: 700;
+          border-bottom: 1px solid #333;
+          padding-bottom: 8px;
+      }
+      .mint-form-group {
+          margin-bottom: 10px;
+      }
+      .mint-form-group label {
+          display: block;
+          font-size: 10px;
+          color: #ccc;
+          margin-bottom: 5px;
+          font-weight: 400;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+      }
+      .mint-form-group input[type="text"],
+      .mint-form-group textarea {
+          width: 100%;
+          padding: 8px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid #333;
+          color: #fff;
+          font-family: 'Orbitron', monospace;
+          font-size: 11px;
+          resize: vertical;
+      }
+      .mint-form-group textarea {
+          min-height: 60px;
+      }
+      .image-upload-area {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 15px;
+      }
+      .image-preview {
+          width: 100px;
+          height: 100px;
+          object-fit: cover;
+          border: 1px solid #555;
+          border-radius: 5px;
+      }
+      .image-upload-buttons {
+          display: flex;
+          gap: 10px;
+      }
+      .image-upload-buttons input[type="file"] {
+          display: none; /* Hide default file input */
+      }
+      .image-upload-buttons label,
+      .image-upload-buttons button {
+          background: #444;
+          color: #fff;
+          border: 1px solid #444;
+          padding: 6px 12px;
+          font-family: 'Orbitron', monospace;
+          font-size: 10px;
+          cursor: pointer;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          transition: all 0.2s ease;
+      }
+      .image-upload-buttons label:hover,
+      .image-upload-buttons button:hover {
+          background: #555;
+          border-color: #555;
+      }
+      .mint-form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          margin-top: 20px;
+      }
+      .mint-form-actions button {
+          padding: 10px 20px;
+          font-family: 'Orbitron', monospace;
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s ease;
+      }
+      .mint-form-actions .mint-confirm-btn {
+          background: #ff6600;
+          color: #fff;
+      }
+      .mint-form-actions .mint-confirm-btn:hover {
+          background: #ff8833;
+      }
+      .mint-form-actions .mint-cancel-btn {
+          background: #666;
+          color: #fff;
+      }
+      .mint-form-actions .mint-cancel-btn:hover {
+          background: #888;
       }
   </style>
 </head>
@@ -377,17 +499,17 @@
           <div class="success" id="successMessage" style="display: none;"></div>
       </div>
 
-      <!-- SPOTIFY DASHBOARD -->
+       SPOTIFY DASHBOARD 
       <div class="dashboard" id="spotifyDashboard">
           <div class="dashboard-grid">
-              <!-- Profile Card with Library & Genres -->
+               Profile Card with Library & Genres 
               <div class="dashboard-card">
                   <div id="profileContent" class="profile-card">
                       <p>Loading...</p>
                   </div>
               </div>
 
-              <!-- Explore Any Playlist Card - NEW -->
+               Explore Any Playlist Card - NEW 
               <div class="dashboard-card">
                   <h3 class="expandable-header active" onclick="toggleExpandable('explore')">🎵 Own Your Playlist</h3>
                   <div class="expandable-content active" id="explore">
@@ -410,10 +532,37 @@
                               <span id="exploreInstructions">Enter a Spotify playlist URL above to explore any public playlist</span>
                           </p>
                       </div>
+
+                       NFT Minting Form Card - Hidden by default 
+                      <div class="mint-card" id="mintFormCard">
+                          <h3>Mint Your Playlist NFT</h3>
+                          <form id="mintForm">
+                              <div class="image-upload-area">
+                                  <img id="mintImagePreview" src="/placeholder.svg?height=100&width=100" alt="NFT Image Preview" class="image-preview">
+                                  <div class="image-upload-buttons">
+                                      <input type="file" id="mintImageUpload" accept="image/*" onchange="handleImageUpload(event)">
+                                      <label for="mintImageUpload">Upload Image</label>
+                                      <button type="button" onclick="resetMintImage()">Reset Image</button>
+                                  </div>
+                              </div>
+                              <div class="mint-form-group">
+                                  <label for="mintTitle">Title</label>
+                                  <input type="text" id="mintTitle" placeholder="NFT Title" required>
+                              </div>
+                              <div class="mint-form-group">
+                                  <label for="mintDescription">Description</label>
+                                  <textarea id="mintDescription" placeholder="NFT Description"></textarea>
+                              </div>
+                              <div class="mint-form-actions">
+                                  <button type="button" class="mint-cancel-btn" onclick="hideMintForm()">Cancel</button>
+                                  <button type="submit" class="mint-confirm-btn" disabled>Mint NFT (Coming Soon)</button>
+                              </div>
+                          </form>
+                      </div>
                   </div>
               </div>
 
-              <!-- Playlists -->
+               Playlists 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('playlists')">🎵 Your Playlists</h3>
                   <div class="expandable-content" id="playlists">
@@ -423,7 +572,7 @@
                   </div>
               </div>
 
-              <!-- Top Artists -->
+               Top Artists 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
                   <div class="expandable-content" id="artists">
@@ -433,7 +582,7 @@
                   </div>
               </div>
 
-              <!-- Top Tracks -->
+               Top Tracks 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('tracks')">🔥 Top Tracks</h3>
                   <div class="expandable-content" id="tracks">
@@ -443,7 +592,7 @@
                   </div>
               </div>
 
-              <!-- Communities - Now at the end -->
+               Communities - Now at the end 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
                   <div class="expandable-content" id="communities">
@@ -473,6 +622,7 @@
       let walletAddress = null;
       let communities = [];
       let currentSpotifyUser = null; // Store current user's Spotify info
+      let currentPlaylistDataForMint = null; // Store playlist data for minting form
 
       // --- WALLET CONNECTION ---
       async function connectWallet() {
@@ -610,7 +760,7 @@
                   
                   // Store current user info for ownership checks
                   currentSpotifyUser = {
-                      id: dashboard.profile.displayName, // We'll need to get the actual Spotify ID
+                      id: dashboard.profile.displayName, // We'll need to get the actual ID from the API
                       displayName: dashboard.profile.displayName
                   };
                   
@@ -892,7 +1042,7 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                                      <span class="playlist-action-btn mint-btn">Mint</span>
+                                      <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1074,7 +1224,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-                          <span class="playlist-action-btn mint-btn">Mint</span>
+                          <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
@@ -1082,6 +1232,52 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
           `;
           
           resultDiv.innerHTML = playlistHtml;
+      }
+
+      // --- MINTING FORM UI LOGIC ---
+      function showMintForm(event, playlistData) {
+          event.stopPropagation(); // Prevent playlist details from toggling
+          
+          currentPlaylistDataForMint = playlistData; // Store data for potential future use
+          
+          const mintFormCard = document.getElementById('mintFormCard');
+          const mintImagePreview = document.getElementById('mintImagePreview');
+          const mintTitle = document.getElementById('mintTitle');
+          const mintDescription = document.getElementById('mintDescription');
+          const mintImageUpload = document.getElementById('mintImageUpload');
+
+          // Autofill form fields
+          mintImagePreview.src = playlistData.cover || '/placeholder.svg?height=100&width=100';
+          mintImagePreview.dataset.originalSrc = playlistData.cover || '/placeholder.svg?height=100&width=100'; // Store original for reset
+          mintTitle.value = playlistData.name;
+          mintDescription.value = playlistData.description;
+          mintImageUpload.value = ''; // Clear file input
+
+          mintFormCard.classList.add('active'); // Show the minting card
+      }
+
+      function hideMintForm() {
+          const mintFormCard = document.getElementById('mintFormCard');
+          mintFormCard.classList.remove('active'); // Hide the minting card
+          // Optionally clear form fields here if needed, though they'll be autofilled next time
+      }
+
+      function handleImageUpload(event) {
+          const file = event.target.files[0];
+          if (file) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                  document.getElementById('mintImagePreview').src = e.target.result;
+              };
+              reader.readAsDataURL(file);
+          }
+      }
+
+      function resetMintImage() {
+          const mintImagePreview = document.getElementById('mintImagePreview');
+          const mintImageUpload = document.getElementById('mintImageUpload');
+          mintImagePreview.src = mintImagePreview.dataset.originalSrc; // Revert to original playlist cover
+          mintImageUpload.value = ''; // Clear the file input
       }
 
       // --- INITIALIZATION ---
