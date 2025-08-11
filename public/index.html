@@ -1034,7 +1034,7 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                                      <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', totalDuration: '${playlist.duration || '0m 0s'}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
+                                      <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1216,7 +1216,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-                          <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', totalDuration: '${playlist.totalDuration || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
+                          <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
@@ -1225,6 +1225,47 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
           
           resultDiv.innerHTML = playlistHtml;
       }
+
+async function showMintFormWithDuration(event, playlistId, playlistData) {
+    event.stopPropagation();
+    
+    // Check if playlist details are already loaded
+    const playlistItem = event.target.closest('.playlist-item');
+    const details = playlistItem.querySelector('.playlist-item-details');
+    
+    let totalDuration = '0m 0s';
+    
+    if (details && details.dataset.loaded === 'true') {
+        // Extract duration from already loaded details
+        const durationElement = details.querySelector('.playlist-detail-row:nth-child(2)');
+        if (durationElement) {
+            const durationText = durationElement.textContent;
+            const match = durationText.match(/Total Duration:\s*(.+)/);
+            if (match && match[1] !== 'N/A') {
+                totalDuration = match[1];
+            }
+        }
+    } else {
+        // Fetch duration from API
+        try {
+            const response = await fetch(`/api/spotify/playlist/${playlistId}`);
+            if (response.ok) {
+                const playlistDetails = await response.json();
+                totalDuration = playlistDetails.totalDuration || '0m 0s';
+            }
+        } catch (error) {
+            console.error('Failed to fetch playlist duration:', error);
+        }
+    }
+    
+    // Add duration to playlist data and call showMintForm
+    const updatedPlaylistData = {
+        ...playlistData,
+        totalDuration: totalDuration
+    };
+    
+    showMintForm(event, updatedPlaylistData);
+}
 
       // --- MINTING FORM UI LOGIC ---
       function showMintForm(event, playlistData) {
