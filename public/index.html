@@ -507,7 +507,6 @@
                   </div>
               </div>
 
-               Explore Any Playlist Card - NEW 
               <div class="dashboard-card">
                   <h3 class="expandable-header active" onclick="toggleExpandable('explore')">🎵 Own Your Playlist</h3>
                   <div class="expandable-content active" id="explore">
@@ -531,7 +530,6 @@
                           </p>
                       </div>
 
-                       NFT Minting Form Card - Hidden by default 
                       <div class="mint-card" id="mintFormCard">
                           <h3>Mint Your Playlist NFT</h3>
                           <form id="mintForm">
@@ -560,7 +558,6 @@
                   </div>
               </div>
 
-               Playlists 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('playlists')">🎵 Your Playlists</h3>
                   <div class="expandable-content" id="playlists">
@@ -570,7 +567,6 @@
                   </div>
               </div>
 
-               Top Artists 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
                   <div class="expandable-content" id="artists">
@@ -580,7 +576,6 @@
                   </div>
               </div>
 
-               Top Tracks 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('tracks')">🔥 Top Tracks</h3>
                   <div class="expandable-content" id="tracks">
@@ -590,7 +585,6 @@
                   </div>
               </div>
 
-               Communities - Now at the end 
               <div class="dashboard-card">
                   <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
                   <div class="expandable-content" id="communities">
@@ -767,7 +761,7 @@
                   startCurrentlyPlayingUpdates();
                   updateExploreInstructions();
                   showSuccess('✅ Welcome back! Still connected to Spotify.');
-                  return true;
+                  return true
               }
           } catch (error) {
               console.log('No existing auth found:', error);
