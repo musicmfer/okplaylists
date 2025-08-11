@@ -1034,7 +1034,7 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                                      <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', totalDuration: '${playlist.totalDuration || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
+                                      <span class="playlist-action-btn mint-btn" onclick="showMintForm(event, {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', totalDuration: '${playlist.duration || '0m 0s'}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1085,7 +1085,7 @@
 </div>
 <a href="${playlistDetails.spotifyUrl}" target="_blank" class="playlist-spotify-link">View on Spotify</a>
 `;
-          details.dataset.loaded = 'true';
+          details.dataset = 'true';
       } catch (error) {
           details.innerHTML = `<p class="error">❌ Failed to load details: ${error.message}</p>`;
       }
