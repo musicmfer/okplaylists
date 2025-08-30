@@ -675,6 +675,15 @@
       .status-item button:hover {
           background: #555;
       }
+
+      .communities-display {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 10px;
+          font-size: 10px;
+          color: #ff6600;
+      }
   </style>
 </head>
 <body>
@@ -702,13 +711,18 @@
                   <div class="connection-status">
                       <div class="status-item">
                           <span class="status-label">Spotify:</span>
-                          <span id="spotifyStatusHome" class="status-disconnected">Disconnected</span>
-                          <button id="spotifyButtonHome" onclick="connectSpotify()">Connect</button>
+                          <span id="spotifyStatusHome" class="status-disconnected">DISCONNECTED</span>
+                          <button id="spotifyButtonHome" onclick="connectSpotify()">CONNECT</button>
+                          <button id="spotifyDisconnectHome" onclick="disconnectSpotify()" style="display: none;">DISCONNECT</button>
                       </div>
                       <div class="status-item">
                           <span class="status-label">Wallet:</span>
-                          <span id="walletStatusHome" class="status-disconnected">Disconnected</span>
-                          <button id="walletButtonHome" onclick="connectWallet()">Connect</button>
+                          <span id="walletStatusHome" class="status-disconnected">DISCONNECTED</span>
+                          <button id="walletButtonHome" onclick="connectWallet()">CONNECT</button>
+                          <button id="walletDisconnectHome" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>
+                      </div>
+                      <div class="communities-display" id="communitiesDisplayHome" style="display: none;">
+                          <span id="communityLabelHome">COMMUNITY:</span> <span id="communitiesListHome"></span>
                       </div>
                   </div>
               </div>
@@ -1149,90 +1163,113 @@ function toggleWalletConnection() {
           return false;
       }
 
-      function updateWalletStatus() {
-          const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
-          const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
-          
+function updateWalletStatus() {
+    const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+    const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+    
+    // Update main panel
     document.getElementById('walletStatus').innerHTML = 
-        `WALLET: <span class="${walletClass}" style="cursor: pointer;" onclick="toggleWalletConnection()">${walletStatus}</span>`;
+        `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
 
-    document.getElementById('walletStatusHome').innerHTML =
-        ` <span class="${walletClass}" style="cursor: pointer;" onclick="toggleWalletConnection()">${walletStatus}</span>`;
-          
-          document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
-          document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
+    // Update home panel
+    document.getElementById('walletStatusHome').textContent = walletStatus;
+    document.getElementById('walletStatusHome').className = walletClass;
+    
+    // Show/hide buttons
+    document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
+    document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
+    
+    document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
+    document.getElementById('walletDisconnectHome').style.display = walletConnected ? 'inline-block' : 'none';
+    
+    // Update communities display in both locations
+    const communitiesStatus = document.getElementById('communitiesStatus');
+    const communityLabel = document.getElementById('communityLabel');
+    const communitiesList = document.getElementById('communitiesList');
+    
+    const communitiesDisplayHome = document.getElementById('communitiesDisplayHome');
+    const communityLabelHome = document.getElementById('communityLabelHome');
+    const communitiesListHome = document.getElementById('communitiesListHome');
+    
+    if (walletConnected && communities.length > 0) {
+        // Main panel
+        communitiesStatus.style.display = 'block';
+        communityLabel.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+        communitiesList.innerHTML = communities.map(community => 
+            `<span class="community-tag">${community.name}</span>`
+        ).join('');
+        
+        // Home panel
+        communitiesDisplayHome.style.display = 'block';
+        communityLabelHome.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+        communitiesListHome.innerHTML = communities.map(community => 
+            `<span class="community-tag">${community.name}</span>`
+        ).join('');
+    } else if (walletConnected) {
+        // Main panel
+        communitiesStatus.style.display = 'block';
+        communityLabel.textContent = 'COMMUNITY:';
+        communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
+        
+        // Home panel
+        communitiesDisplayHome.style.display = 'block';
+        communityLabelHome.textContent = 'COMMUNITY:';
+        communitiesListHome.innerHTML = '<span style="color: #666;">None found</span>';
+    } else {
+        communitiesStatus.style.display = 'none';
+        communitiesDisplayHome.style.display = 'none';
+    }
+}
 
-          document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
-          
-          // Update communities display with singular/plural
-          const communitiesStatus = document.getElementById('communitiesStatus');
-          const communityLabel = document.getElementById('communityLabel');
-          const communitiesList = document.getElementById('communitiesList');
-          
-          if (walletConnected && communities.length > 0) {
-              communitiesStatus.style.display = 'block';
-              
-              // Use singular "COMMUNITY" or plural "COMMUNITIES"
-              communityLabel.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-              
-              communitiesList.innerHTML = communities.map(community => 
-                  `<span class="community-tag">${community.name}</span>`
-              ).join('');
-          } else if (walletConnected) {
-              communitiesStatus.style.display = 'block';
-              communityLabel.textContent = 'COMMUNITY:';
-              communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
-          } else {
-              communitiesStatus.style.display = 'none';
-          }
-      }
-
-      // --- AUTHENTICATION PERSISTENCE ---
-      async function checkExistingAuth() {
-          try {
-              // Try to fetch dashboard data to check if we have valid cookies
-              const response = await fetch('/api/spotify/dashboard');
-              if (response.ok) {
-                  // We have valid authentication
-                  spotifyConnected = true;
-                  updateConnectionStatus();
-                  const dashboard = await response.json();
-                  
-                  // Store current user info for ownership checks
-                  currentSpotifyUser = {
-                      id: dashboard.profile.displayName, // We'll need to get the actual ID from the API
-                      displayName: dashboard.profile.displayName
-                  };
-                  
-                  populateDashboard(dashboard);
-                  fetchPlaylists();
-                  startCurrentlyPlayingUpdates();
-                  updateExploreInstructions();
-                  showSuccess('✅ Welcome back! Still connected to Spotify.');
-                  return true
-              }
-          } catch (error) {
-              console.log('No existing auth found:', error);
-          }
-          return false;
-      }
-
-      // --- UI UPDATES ---
-      function updateConnectionStatus() {
-          const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
-          const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+function updateConnectionStatus() {
+    const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
+    const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+    
+    // Update main panel
     document.getElementById('connectionStatus').innerHTML = 
-        `SPOTIFY: <span class="${spotifyClass}" style="cursor: pointer;" onclick="toggleSpotifyConnection()">${spotifyStatus}</span>`;
+        `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
 
-    document.getElementById('spotifyStatusHome').innerHTML =
-        ` <span class="${spotifyClass}" style="cursor: pointer;" onclick="toggleSpotifyConnection()">${spotifyStatus}</span>`;
-          
-          document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
-          document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
+    // Update home panel
+    document.getElementById('spotifyStatusHome').textContent = spotifyStatus;
+    document.getElementById('spotifyStatusHome').className = spotifyClass;
+    
+    // Show/hide buttons
+    document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
+    document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
 
-          document.getElementById('spotifyButtonHome').style.display = spotifyConnected ? 'none' : 'inline-block';
-          document.getElementById('spotifyDashboard').classList.toggle('active', spotifyConnected);
-      }
+    document.getElementById('spotifyButtonHome').style.display = spotifyConnected ? 'none' : 'inline-block';
+    document.getElementById('spotifyDisconnectHome').style.display = spotifyConnected ? 'inline-block' : 'none';
+    
+    document.getElementById('spotifyDashboard').classList.toggle('active', spotifyConnected);
+}
+
+async function disconnectSpotify() {
+    if (confirm('Are you sure you want to disconnect Spotify?')) {
+        await fetch('/api/spotify/logout', { method: 'POST' });
+        spotifyConnected = false;
+        currentSpotifyUser = null;
+        updateConnectionStatus();
+        location.reload();
+    }
+}
+
+async function disconnectWallet() {
+    if (confirm('Are you sure you want to disconnect your wallet?')) {
+        try {
+            const response = await fetch('/api/wallet/disconnect', { method: 'POST' });
+            if (response.ok) {
+                walletConnected = false;
+                walletAddress = null;
+                communities = [];
+                updateWalletStatus();
+                showSuccess('Wallet disconnected successfully');
+            }
+        } catch (error) {
+            console.error('Error disconnecting wallet:', error);
+            showError('Failed to disconnect wallet');
+        }
+    }
+}
 
       function updateExploreInstructions() {
           const instructionsEl = document.getElementById('exploreInstructions');
