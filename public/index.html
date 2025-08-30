@@ -866,58 +866,58 @@
       let currentPlaylistDataForMint = null; // Store playlist data for minting form
 
       // --- WALLET CONNECTION ---
-      async function connectWallet() {
-          if (typeof window.ethereum === 'undefined') {
-              showError('No Ethereum wallet detected. Please install MetaMask, Coinbase Wallet, or another Ethereum wallet.');
-              return;
-          }
+async function connectWallet() {
+    if (typeof window.ethereum === 'undefined') {
+        showError('No Ethereum wallet detected. Please install MetaMask, Coinbase Wallet, or another Ethereum wallet.');
+        return;
+    }
 
-          try {
-              document.getElementById('walletBtn').disabled = true;
-              document.getElementById('walletBtn').textContent = 'CONNECTING...';
+    try {
+        document.getElementById('walletButtonHome').disabled = true;
+        document.getElementById('walletButtonHome').textContent = 'CONNECTING...';
 
-              // Request account access
-              const accounts = await window.ethereum.request({ 
-                  method: 'eth_requestAccounts' 
-              });
+        // Request account access
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
 
-              if (accounts.length === 0) {
-                  throw new Error('No accounts found');
-              }
+        if (accounts.length === 0) {
+            throw new Error('No accounts found');
+        }
 
-              const address = accounts[0];
-              
-              // Verify NFT ownership on server
-              const response = await fetch('/api/wallet/connect', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ walletAddress: address })
-              });
+        const address = accounts[0];
+        
+        // Verify NFT ownership on server
+        const response = await fetch('/api/wallet/connect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ walletAddress: address })
+        });
 
-              if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(errorData.error || 'Failed to connect wallet');
-              }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to connect wallet');
+        }
 
-              const data = await response.json();
-              
-              walletConnected = true;
-              walletAddress = data.walletAddress;
-              communities = data.communities;
-              
-              updateWalletStatus();
-              showSuccess(data.message);
+        const data = await response.json();
+        
+        walletConnected = true;
+        walletAddress = data.walletAddress;
+        communities = data.communities;
+        
+        updateWalletStatus();
+        showSuccess(data.message);
 
-          } catch (error) {
-              console.error('Wallet connection error:', error);
-              showError('Failed to connect wallet: ' + error.message);
-          } finally {
-              document.getElementById('walletBtn').disabled = false;
-              document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
-          }
-      }
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        showError('Failed to connect wallet: ' + error.message);
+    } finally {
+        document.getElementById('walletButtonHome').disabled = false;
+        document.getElementById('walletButtonHome').textContent = 'CONNECT WALLET';
+    }
+}
 
       async function disconnectWallet() {
           try {
@@ -1008,10 +1008,11 @@ async function checkNFTCommunities() {
         const communitiesList = document.getElementById('communitiesList');
         const communityLabel = document.getElementById('communityLabel');
         
-        if (data.communities && data.communities.length > 0) {
-            const communityText = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+        if (data.communities && Object.keys(data.communities).length > 0) {
+            const communityNames = Object.keys(data.communities);
+            const communityText = communityNames.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
             communityLabel.textContent = communityText;
-            communitiesList.textContent = data.communities.join(', ');
+            communitiesList.textContent = communityNames.join(', ');
             communitiesStatus.style.display = 'block';
         } else {
             communitiesStatus.style.display = 'none';
@@ -1166,11 +1167,11 @@ function toggleSpotifyDisconnect() {
       }
 
       // --- SPOTIFY ---
-      function connectSpotify() {
-          document.getElementById('spotifyBtn').disabled = true;
-          document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
-          window.location.href = '/api/auth/spotify';
-      }
+function connectSpotify() {
+    document.getElementById('spotifyButtonHome').disabled = true;
+    document.getElementById('spotifyButtonHome').textContent = 'CONNECTING...';
+    window.location.href = '/api/auth/spotify';
+}
 
       async function logoutSpotify() {
           await fetch('/api/spotify/logout', { method: 'POST' });
