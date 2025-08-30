@@ -247,7 +247,7 @@
           width: 15px; 
           text-align: right; 
           flex-shrink: 0;
-          font-weight: 400;
+          font-weight: 400
       }
       .playlist-songs-list .song-info { flex: 1; }
       .playlist-songs-list .song-name { color: #fff; font-weight: 400; }
@@ -1104,17 +1104,29 @@ function updateWalletStatus() {
     const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
     const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
     
+    // Update main wallet status
+    const walletStatusElement = document.getElementById('walletStatus');
     if (walletConnected) {
-        document.getElementById('walletStatus').innerHTML = 
+        walletStatusElement.innerHTML = 
             `<div onclick="toggleWalletDisconnect()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 WALLET: <span class="${walletClass}">${walletStatus}</span>
              </div>
-             <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
+             <button id="walletDisconnectBtnMain" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
+        
+        // Check for NFT communities after wallet connection
+        checkNFTCommunities();
     } else {
-        document.getElementById('walletStatus').innerHTML = 
+        walletStatusElement.innerHTML = 
             `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+        
+        // Hide communities when disconnected
+        const communitiesStatus = document.getElementById('communitiesStatus');
+        if (communitiesStatus) {
+            communitiesStatus.style.display = 'none';
+        }
     }
 
+    // Update home tab wallet status
     const homeWalletStatus = document.getElementById('walletStatusHome');
     if (homeWalletStatus) {
         homeWalletStatus.className = walletClass;
@@ -1128,21 +1140,34 @@ function updateWalletStatus() {
     
     document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
     document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
-    
-    const communitiesStatus = document.getElementById('communitiesStatus');
-    if (walletConnected && communities && communities.length > 0) {
-        const communityLabel = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-        document.getElementById('communityLabel').textContent = communityLabel;
-        document.getElementById('communitiesList').innerHTML = communities.map(community => 
-            `<span class="community-tag">${community.name}</span>`
-        ).join('');
-        communitiesStatus.style.display = 'block';
-    } else if (walletConnected) {
-        communitiesStatus.style.display = 'block';
-        document.getElementById('communityLabel').textContent = 'COMMUNITY:';
-        document.getElementById('communitiesList').innerHTML = '<span style="color: #666;">None found</span>';
-    } else {
-        communitiesStatus.style.display = 'none';
+}
+
+async function checkNFTCommunities() {
+    try {
+        const response = await fetch('/api/wallet/status');
+        const data = await response.json();
+        
+        if (data.connected && data.communities && data.communities.length > 0) {
+            const communitiesStatus = document.getElementById('communitiesStatus');
+            const communityLabel = document.getElementById('communityLabel');
+            const communitiesList = document.getElementById('communitiesList');
+            
+            if (communitiesStatus && communityLabel && communitiesList) {
+                const label = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+                communityLabel.textContent = label;
+                communitiesList.textContent = data.communities.join(', ');
+                communitiesStatus.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking NFT communities:', error);
+    }
+}
+
+function toggleWalletDisconnect() {
+    const disconnectBtn = document.getElementById('walletDisconnectBtnMain');
+    if (disconnectBtn) {
+        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
     }
 }
 
