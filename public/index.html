@@ -713,7 +713,9 @@
               </div>
 
               <div class="dashboard-card">
-                  <div class="expandable-content active" id="explore">
+                  <div class="card" id="explore">
+                      <h3>OWN YOUR PLAYLIST</h3>
+                      <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
                               type="text" 
@@ -1629,6 +1631,9 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
 async function showMintFormWithDuration(event, playlistId, playlistData) {
     event.stopPropagation();
     
+    // Switch to Home tab first
+    switchToHomeTab();
+    
     // Check if playlist details are already loaded
     const playlistItem = event.target.closest('.playlist-item');
     const details = playlistItem.querySelector('.playlist-item-details');
@@ -1665,6 +1670,24 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
     };
     
     showMintForm(event, updatedPlaylistData);
+}
+
+function switchToHomeTab() {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    
+    // Show Home tab content
+    document.getElementById('homeTab').classList.add('active');
+    
+    // Add active class to Home button
+    document.querySelector('.tab-button[onclick="switchTab(\'home\')"]').classList.add('active');
 }
 
       // --- MINTING FORM UI LOGIC ---
