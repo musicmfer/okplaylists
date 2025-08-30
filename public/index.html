@@ -717,7 +717,6 @@
               </div>
 
               <div class="dashboard-card">
-                   Added no-indicator class to remove [-] 
                   <h3 class="expandable-header active no-indicator">OWN YOUR PLAYLIST</h3>
                   <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
@@ -1101,58 +1100,58 @@
           return false;
       }
 
-      function updateWalletStatus() {
-          const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
-          const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
-          
-          /* Fixed disconnect button to be hidden by default */
-          document.getElementById('walletStatus').innerHTML = 
-              `WALLET: <span class="${walletClass}" onclick="toggleWalletDisconnect()">${walletStatus}</span>
-               <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
+function updateWalletStatus() {
+    const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+    const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+    
+    if (walletConnected) {
+        document.getElementById('walletStatus').innerHTML = 
+            `WALLET: <span class="${walletClass}" onclick="toggleWalletDisconnect()" style="cursor: pointer;">${walletStatus}</span>
+             <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
+    } else {
+        document.getElementById('walletStatus').innerHTML = 
+            `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+    }
 
-          document.getElementById('walletStatusHome').innerHTML =
-              ` <span class="${walletClass}">${walletStatus}</span>`;
-          
-          document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
-          document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
-          document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
-          
-          const communitiesStatus = document.getElementById('communitiesStatus');
-          if (walletConnected && communities && communities.length > 0) {
-              const communityLabel = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-              document.getElementById('communityLabel').textContent = communityLabel;
-              document.getElementById('communitiesList').innerHTML = communities.map(community => 
-                  `<span class="community-tag">${community.name}</span>`
-              ).join('');
-              communitiesStatus.style.display = 'block';
-          } else if (walletConnected) {
-              communitiesStatus.style.display = 'block';
-              document.getElementById('communityLabel').textContent = 'COMMUNITY:';
-              document.getElementById('communitiesList').innerHTML = '<span style="color: #666;">None found</span>';
-          } else {
-              communitiesStatus.style.display = 'none';
-          }
-      }
+    document.getElementById('walletStatusHome').innerHTML =
+        ` <span class="${walletClass}">${walletStatus}</span>`;
+    
+    document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
+    document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
+    document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
+    
+    const communitiesStatus = document.getElementById('communitiesStatus');
+    if (walletConnected && communities && communities.length > 0) {
+        const communityLabel = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+        document.getElementById('communityLabel').textContent = communityLabel;
+        document.getElementById('communitiesList').innerHTML = communities.map(community => 
+            `<span class="community-tag">${community.name}</span>`
+        ).join('');
+        communitiesStatus.style.display = 'block';
+    } else if (walletConnected) {
+        communitiesStatus.style.display = 'block';
+        document.getElementById('communityLabel').textContent = 'COMMUNITY:';
+        document.getElementById('communitiesList').innerHTML = '<span style="color: #666;">None found</span>';
+    } else {
+        communitiesStatus.style.display = 'none';
+    }
+}
 
-      /* Fixed toggleWalletDisconnect function to show/hide disconnect button */
-      function toggleWalletDisconnect() {
-          const disconnectBtn = document.getElementById('walletDisconnectBtn');
-          const statusSpan = document.querySelector('#walletStatus .status-connected');
-          
-          if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
-              disconnectBtn.style.display = 'inline-block';
-              statusSpan.style.display = 'none';
-          } else {
-              disconnectBtn.style.display = 'none';
-              statusSpan.style.display = 'inline';
-          }
-      }
+function toggleWalletDisconnect() {
+    const disconnectBtn = document.getElementById('walletDisconnectBtn');
+    const statusSpan = document.querySelector('#walletStatus .status-connected');
+    
+    if (disconnectBtn && statusSpan) {
+        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
+            disconnectBtn.style.display = 'inline-block';
+            statusSpan.style.display = 'none';
+        } else {
+            disconnectBtn.style.display = 'none';
+            statusSpan.style.display = 'inline';
+        }
+    }
+}
 
-      function toggleSpotifyDisconnect() {
-          // Function removed - disconnect button now shows directly
-      }
-
-      // --- AUTHENTICATION PERSISTENCE ---
       async function checkExistingAuth() {
           try {
               // Try to fetch dashboard data to check if we have valid cookies
@@ -1183,24 +1182,26 @@
       }
 
       // --- UI UPDATES ---
-      function updateConnectionStatus() {
-          const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
-          const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
-          
-          /* Fixed disconnect button to be hidden by default */
-          document.getElementById('connectionStatus').innerHTML = 
-              `SPOTIFY: <span class="${spotifyClass}" onclick="toggleSpotifyDisconnect()">${spotifyStatus}</span>
-               <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>`;
+function updateConnectionStatus() {
+    const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
+    const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+    
+    if (spotifyConnected) {
+        document.getElementById('connectionStatus').innerHTML = 
+            `SPOTIFY: <span class="${spotifyClass}" onclick="toggleSpotifyDisconnect()" style="cursor: pointer;">${spotifyStatus}</span>
+             <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>`;
+    } else {
+        document.getElementById('connectionStatus').innerHTML = 
+            `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+    }
 
-          document.getElementById('spotifyStatusHome').innerHTML =
-              ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
-          
-          document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
-          document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
-
-          document.getElementById('spotifyButtonHome').style.display = spotifyConnected ? 'none' : 'inline-block';
-          document.getElementById('spotifyDashboard').classList.toggle('active', spotifyConnected);
-      }
+    document.getElementById('spotifyStatusHome').innerHTML =
+        ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
+    
+    document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
+    document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
+    document.getElementById('spotifyButtonHome').style.display = spotifyConnected ? 'none' : 'inline-block';
+}
 
       function updateExploreInstructions() {
           const instructionsEl = document.getElementById('exploreInstructions');
@@ -1280,19 +1281,20 @@
           showSuccess('Logged out from Spotify.');
       }
 
-      /* Fixed toggleSpotifyDisconnect function to show/hide disconnect button */
-      function toggleSpotifyDisconnect() {
-          const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
-          const statusSpan = document.querySelector('#connectionStatus .status-connected');
-          
-          if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
-              disconnectBtn.style.display = 'inline-block';
-              statusSpan.style.display = 'none';
-          } else {
-              disconnectBtn.style.display = 'none';
-              statusSpan.style.display = 'inline';
-          }
-      }
+function toggleSpotifyDisconnect() {
+    const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
+    const statusSpan = document.querySelector('#connectionStatus .status-connected');
+    
+    if (disconnectBtn && statusSpan) {
+        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
+            disconnectBtn.style.display = 'inline-block';
+            statusSpan.style.display = 'none';
+        } else {
+            disconnectBtn.style.display = 'none';
+            statusSpan.style.display = 'inline';
+        }
+    }
+}
 
       // --- DASHBOARD ---
       async function fetchDashboard() {
