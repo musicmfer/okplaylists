@@ -95,7 +95,8 @@
       .expandable-header { cursor: pointer; user-select: none; position: relative; transition: opacity 0.2s ease; color: #fff; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0; font-weight: 700; }
       .expandable-header:hover { opacity: 0.8; }
       .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
-      .expandable-header.active::after { content: '[-]'; }
+      /* Remove [-] indicator for OWN YOUR PLAYLIST card */
+      .expandable-header.active::after { content: ''; }
       .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
       .expandable-content { display: none; }
       .expandable-content.active { display: block; }
@@ -714,8 +715,19 @@
 
               <div class="dashboard-card">
                   
-                  <h3 class="expandable-header active">🎧 OWN YOUR PLAYLIST</h3>
-                  <div class="expandable-content active" id="explore">
+                  
+    <h3 class="expandable-header active">
+        <svg width="16" height="16" viewBox="0 0 100 100" style="margin-right: 8px; vertical-align: middle;">
+            <circle cx="50" cy="50" r="45" fill="white" stroke="black" stroke-width="2"/>
+            <path d="M25 35 Q25 25 35 25 Q45 25 45 35 L45 55 Q45 65 35 65 Q25 65 25 55 Z" fill="black"/>
+            <path d="M55 35 Q55 25 65 25 Q75 25 75 35 L75 55 Q75 65 65 65 Q55 65 55 55 Z" fill="black"/>
+            <circle cx="42" cy="42" r="2" fill="black"/>
+            <circle cx="58" cy="42" r="2" fill="black"/>
+            <path d="M40 55 Q50 65 60 55" stroke="black" stroke-width="2" fill="none"/>
+        </svg>
+        OWN YOUR PLAYLIST
+    </h3>
+    <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
                               type="text" 
