@@ -1064,6 +1064,55 @@
           }
       }
 
+function disconnectSpotify() {
+    fetch('/api/spotify/logout', { method: 'POST' })
+        .then(() => {
+            spotifyConnected = false;
+            updateConnectionStatus();
+            document.getElementById('dashboard').classList.remove('active');
+            showSuccess('Spotify disconnected successfully');
+        })
+        .catch(error => {
+            console.error('Spotify disconnect error:', error);
+            showError('Failed to disconnect Spotify');
+        });
+}
+
+function disconnectWallet() {
+    fetch('/api/wallet/disconnect', { method: 'POST' })
+        .then(() => {
+            walletConnected = false;
+            walletAddress = '';
+            communities = [];
+            updateWalletStatus();
+            showSuccess('Wallet disconnected successfully');
+        })
+        .catch(error => {
+            console.error('Wallet disconnect error:', error);
+            showError('Failed to disconnect wallet');
+        });
+}
+
+function toggleSpotifyConnection() {
+    if (spotifyConnected) {
+        if (confirm('Are you sure you want to disconnect Spotify?')) {
+            disconnectSpotify();
+        }
+    } else {
+        connectSpotify();
+    }
+}
+
+function toggleWalletConnection() {
+    if (walletConnected) {
+        if (confirm('Are you sure you want to disconnect your wallet?')) {
+            disconnectWallet();
+        }
+    } else {
+        connectWallet();
+    }
+}
+
       async function disconnectWallet() {
           try {
               await fetch('/api/wallet/disconnect', { method: 'POST' });
@@ -1104,11 +1153,11 @@
           const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
           const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
           
-          document.getElementById('walletStatus').innerHTML = 
-              `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+    document.getElementById('walletStatus').innerHTML = 
+        `WALLET: <span class="${walletClass}" style="cursor: pointer;" onclick="toggleWalletConnection()">${walletStatus}</span>`;
 
-          document.getElementById('walletStatusHome').innerHTML =
-              ` <span class="${walletClass}">${walletStatus}</span>`;
+    document.getElementById('walletStatusHome').innerHTML =
+        ` <span class="${walletClass}" style="cursor: pointer;" onclick="toggleWalletConnection()">${walletStatus}</span>`;
           
           document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
           document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
@@ -1172,11 +1221,11 @@
       function updateConnectionStatus() {
           const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
           const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
-          document.getElementById('connectionStatus').innerHTML = 
-              `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+    document.getElementById('connectionStatus').innerHTML = 
+        `SPOTIFY: <span class="${spotifyClass}" style="cursor: pointer;" onclick="toggleSpotifyConnection()">${spotifyStatus}</span>`;
 
-          document.getElementById('spotifyStatusHome').innerHTML =
-              ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
+    document.getElementById('spotifyStatusHome').innerHTML =
+        ` <span class="${spotifyClass}" style="cursor: pointer;" onclick="toggleSpotifyConnection()">${spotifyStatus}</span>`;
           
           document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
           document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
