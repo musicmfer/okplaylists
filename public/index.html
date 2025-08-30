@@ -713,7 +713,7 @@
               </div>
 
               <div class="dashboard-card">
-                  <h3 class="expandable-header active">🎧 OWN YOUR PLAYLIST</h3>
+                  <h3 class="expandable-header active">OWN YOUR PLAYLIST</h3>
                   <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
@@ -821,11 +821,13 @@
           <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
           <button class="connect-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
           
-          <div class="status-line" id="connectionStatus" onclick="toggleSpotifyDisconnect()">
+          <div class="status-line" id="connectionStatus">
               SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
+              <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>
           </div>
-          <div class="status-line" id="walletStatus" onclick="toggleWalletDisconnect()">
+          <div class="status-line" id="walletStatus">
               WALLET: <span class="status-disconnected">DISCONNECTED</span>
+              <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>
           </div>
           <div class="communities-line" id="communitiesStatus" style="display: none;">
               <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
@@ -1099,18 +1101,18 @@
           const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
           
           document.getElementById('walletStatus').innerHTML = 
-              `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+              `WALLET: <span class="${walletClass}" onclick="toggleWalletDisconnect()">${walletStatus}</span>
+               <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: ${walletConnected ? 'inline-block' : 'none'};">DISCONNECT</button>`;
 
           document.getElementById('walletStatusHome').innerHTML =
               ` <span class="${walletClass}">${walletStatus}</span>`;
           
           document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
           document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
-
           document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
           
           const communitiesStatus = document.getElementById('communitiesStatus');
-          if (walletConnected && communities.length > 0) {
+          if (walletConnected && communities && communities.length > 0) {
               const communityLabel = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
               document.getElementById('communityLabel').textContent = communityLabel;
               document.getElementById('communitiesList').innerHTML = communities.map(community => 
@@ -1127,19 +1129,11 @@
       }
 
       function toggleSpotifyDisconnect() {
-          if (spotifyConnected) {
-              if (confirm('Disconnect from Spotify?')) {
-                  logoutSpotify();
-              }
-          }
+          // Function removed - disconnect button now shows directly
       }
 
       function toggleWalletDisconnect() {
-          if (walletConnected) {
-              if (confirm('Disconnect wallet?')) {
-                  disconnectWallet();
-              }
-          }
+          // Function removed - disconnect button now shows directly  
       }
 
       // --- AUTHENTICATION PERSISTENCE ---
@@ -1176,8 +1170,10 @@
       function updateConnectionStatus() {
           const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
           const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+          
           document.getElementById('connectionStatus').innerHTML = 
-              `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+              `SPOTIFY: <span class="${spotifyClass}" onclick="toggleSpotifyDisconnect()">${spotifyStatus}</span>
+               <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: ${spotifyConnected ? 'inline-block' : 'none'};">DISCONNECT</button>`;
 
           document.getElementById('spotifyStatusHome').innerHTML =
               ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
