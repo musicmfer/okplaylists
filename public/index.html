@@ -991,8 +991,20 @@
             // Show selected tab content
             document.getElementById(tabName + 'Tab').classList.add('active');
             
-            // Add active class to clicked button
-            event.target.classList.add('active');
+            // Add active class to the correct button
+            const activeButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            
+            if (tabName === 'profile' && spotifyConnected) {
+                // Check if profile content is still showing "Loading..."
+                const profileContent = document.getElementById('profileContent');
+                if (profileContent && profileContent.innerHTML.includes('Loading...')) {
+                    fetchDashboard();
+                    fetchPlaylists();
+                }
+            }
         }
 
       // --- GLOBAL STATE ---
