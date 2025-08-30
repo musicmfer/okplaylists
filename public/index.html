@@ -1153,8 +1153,8 @@ async function checkNFTCommunities() {
             const communitiesList = document.getElementById('communitiesList');
             
             if (communitiesStatus && communityLabel && communitiesList) {
-                const label = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-                communityLabel.textContent = label;
+                const communityText = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+                communityLabel.textContent = communityText;
                 communitiesList.textContent = data.communities.join(', ');
                 communitiesStatus.style.display = 'block';
             }
