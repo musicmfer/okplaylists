@@ -713,9 +713,9 @@
               </div>
 
               <div class="dashboard-card">
-                  <div class="card" id="explore">
-                      <h3 style="border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px;">OWN YOUR PLAYLIST</h3>
-                      <div class="expandable-content active" id="explore">
+                  
+                  <h3 class="expandable-header active">🎧 OWN YOUR PLAYLIST</h3>
+                  <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
                               type="text" 
@@ -731,6 +731,7 @@
                           </button>
                       </form>
                       <div id="publicPlaylistResult">
+                          
                       </div>
 
                       <div class="mint-card" id="mintFormCard">
@@ -991,16 +992,8 @@
             // Show selected tab content
             document.getElementById(tabName + 'Tab').classList.add('active');
             
-            // Add active class to the correct button
-            const activeButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
-            
-            if (tabName === 'profile' && spotifyConnected) {
-                fetchDashboard();
-                fetchPlaylists();
-            }
+            // Add active class to clicked button
+            event.target.classList.add('active');
         }
 
       // --- GLOBAL STATE ---
@@ -1441,6 +1434,7 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
+                                      <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1622,6 +1616,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
+                          <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
@@ -1633,9 +1628,6 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
 
 async function showMintFormWithDuration(event, playlistId, playlistData) {
     event.stopPropagation();
-    
-    // Switch to Home tab first
-    switchToHomeTab();
     
     // Check if playlist details are already loaded
     const playlistItem = event.target.closest('.playlist-item');
@@ -1673,24 +1665,6 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
     };
     
     showMintForm(event, updatedPlaylistData);
-}
-
-function switchToHomeTab() {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    // Remove active class from all tab buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active');
-    });
-    
-    // Show Home tab content
-    document.getElementById('homeTab').classList.add('active');
-    
-    // Add active class to Home button
-    document.querySelector('.tab-button[onclick="switchTab(\'home\')"]').classList.add('active');
 }
 
       // --- MINTING FORM UI LOGIC ---
