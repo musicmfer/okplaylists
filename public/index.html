@@ -97,6 +97,10 @@
       .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
       .expandable-header.active::after { content: '[-]'; }
       .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
+      
+      /* Remove [-] indicator from OWN YOUR PLAYLIST title */
+      .expandable-header.no-indicator::after { content: ''; }
+      
       .expandable-content { display: none; }
       .expandable-content.active { display: block; }
 
@@ -713,7 +717,8 @@
               </div>
 
               <div class="dashboard-card">
-                  <h3 class="expandable-header active">OWN YOUR PLAYLIST</h3>
+                   Added no-indicator class to remove [-] 
+                  <h3 class="expandable-header active no-indicator">OWN YOUR PLAYLIST</h3>
                   <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
@@ -1100,9 +1105,10 @@
           const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
           const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
           
+          /* Fixed disconnect button to be hidden by default */
           document.getElementById('walletStatus').innerHTML = 
               `WALLET: <span class="${walletClass}" onclick="toggleWalletDisconnect()">${walletStatus}</span>
-               <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: ${walletConnected ? 'inline-block' : 'none'};">DISCONNECT</button>`;
+               <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
 
           document.getElementById('walletStatusHome').innerHTML =
               ` <span class="${walletClass}">${walletStatus}</span>`;
@@ -1128,12 +1134,22 @@
           }
       }
 
-      function toggleSpotifyDisconnect() {
-          // Function removed - disconnect button now shows directly
+      /* Fixed toggleWalletDisconnect function to show/hide disconnect button */
+      function toggleWalletDisconnect() {
+          const disconnectBtn = document.getElementById('walletDisconnectBtn');
+          const statusSpan = document.querySelector('#walletStatus .status-connected');
+          
+          if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
+              disconnectBtn.style.display = 'inline-block';
+              statusSpan.style.display = 'none';
+          } else {
+              disconnectBtn.style.display = 'none';
+              statusSpan.style.display = 'inline';
+          }
       }
 
-      function toggleWalletDisconnect() {
-          // Function removed - disconnect button now shows directly  
+      function toggleSpotifyDisconnect() {
+          // Function removed - disconnect button now shows directly
       }
 
       // --- AUTHENTICATION PERSISTENCE ---
@@ -1171,9 +1187,10 @@
           const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
           const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
           
+          /* Fixed disconnect button to be hidden by default */
           document.getElementById('connectionStatus').innerHTML = 
               `SPOTIFY: <span class="${spotifyClass}" onclick="toggleSpotifyDisconnect()">${spotifyStatus}</span>
-               <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: ${spotifyConnected ? 'inline-block' : 'none'};">DISCONNECT</button>`;
+               <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>`;
 
           document.getElementById('spotifyStatusHome').innerHTML =
               ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
@@ -1261,6 +1278,20 @@
           updateConnectionStatus();
           updateExploreInstructions();
           showSuccess('Logged out from Spotify.');
+      }
+
+      /* Fixed toggleSpotifyDisconnect function to show/hide disconnect button */
+      function toggleSpotifyDisconnect() {
+          const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
+          const statusSpan = document.querySelector('#connectionStatus .status-connected');
+          
+          if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
+              disconnectBtn.style.display = 'inline-block';
+              statusSpan.style.display = 'none';
+          } else {
+              disconnectBtn.style.display = 'none';
+              statusSpan.style.display = 'inline';
+          }
       }
 
       // --- DASHBOARD ---
