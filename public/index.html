@@ -819,151 +819,6 @@
               </div>
           </div>
 
-      <div class="panel" id="connectionPanel" style="display: none;">
-          <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
-          <button class="connect-btn" id="spotifyLogoutBtn" onclick="logoutSpotify()" style="display: none;">DISCONNECT SPOTIFY</button>
-          <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
-          <button class="connect-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
-          
-          <div class="status-line" id="connectionStatus">
-              SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
-              <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>
-          </div>
-          <div class="status-line" id="walletStatus">
-              WALLET: <span class="status-disconnected">DISCONNECTED</span>
-              <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>
-          </div>
-          <div class="communities-line" id="communitiesStatus" style="display: none;">
-              <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
-          </div>
-          
-          <div class="error" id="errorMessage" style="display: none;"></div>
-          <div class="success" id="successMessage" style="display: none;"></div>
-      </div>
-
-      <div class="dashboard" id="spotifyDashboard" style="display: none;">
-          <div class="dashboard-grid">
-              <div class="dashboard-card">
-                  <div id="profileContentOld" class="profile-card">
-                      <p>Loading...</p>
-                  </div>
-              </div>
-
-              <div class="dashboard-card">
-                  <div class="expandable-content active" id="exploreOld">
-                      <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
-                          <input 
-                              type="text" 
-                              id="playlistUrlInputOld"
-                              placeholder="Paste Spotify playlist URL here..." 
-                              style="width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid #333; color: #fff; font-family: 'Orbitron', monospace; font-size: 11px; margin-bottom: 8px;"
-                          />
-                          <button 
-                              type="submit" 
-                              style="background: #1db954; color: #fff; border: none; padding: 8px 15px; font-family: 'Orbitron', monospace; font-size: 11px; cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;"
-                          >
-                              Get Playlist Info
-                          </button>
-                      </form>
-                      <div id="publicPlaylistResultOld">
-                          <p style="color: #666; text-align: center; font-size: 10px;">
-                              <span id="exploreInstructionsOld">Enter a Spotify playlist URL above to explore any public playlist</span>
-                          </p>
-                      </div>
-
-                      <div class="mint-card" id="mintFormCardOld">
-                          <h3>Mint Your Playlist NFT</h3>
-                          <form id="mintFormOld">
-                              <div class="image-upload-area">
-                                  <img id="mintImagePreviewOld" src="/placeholder.svg?height=100&width=100" alt="NFT Image Preview" class="image-preview">
-                                  <div class="image-upload-buttons">
-                                      <input type="file" id="mintImageUploadOld" accept="image/*" onchange="handleImageUpload(event)">
-                                      <label for="mintImageUploadOld">Upload Image</label>
-                                      <button type="button" onclick="resetMintImage()">Reset Image</button>
-                                  </div>
-                              </div>
-                              <div class="mint-form-group">
-                                  <label for="mintTitleOld">Title</label>
-                                  <input type="text" id="mintTitleOld" placeholder="NFT Title" required>
-                              </div>
-                              <!-- Removed separate duration and creator fields -->
-                              <div class="mint-form-group">
-                                  <label for="mintDescriptionOld">Description</label>
-                                  <textarea id="mintDescriptionOld" placeholder="NFT Description"></textarea>
-                              </div>
-                              <div class="mint-form-actions">
-                                  <button type="button" class="mint-cancel-btn" onclick="hideMintForm()">Cancel</button>
-                                  <!-- Updated mint button to check wallet connection and enable minting -->
-                                  <button type="button" class="mint-confirm-btn" id="mintNFTButtonOld" onclick="handleMintNFT()">Connect Wallet to Mint</button>
-                              </div>
-                              <!-- Added progress indicator for minting process -->
-                              <div class="mint-progress" id="mintProgressOld">
-                                  <div class="progress-step" id="step1Old">
-                                      <div class="progress-icon">⏳</div>
-                                      <span>Preparing metadata...</span>
-                                  </div>
-                                  <div class="progress-step" id="step2Old">
-                                      <div class="progress-icon">⏳</div>
-                                      <span>Uploading to IPFS...</span>
-                                  </div>
-                                  <div class="progress-step" id="step3Old">
-                                      <div class="progress-icon">⏳</div>
-                                      <span>Minting NFT...</span>
-                                  </div>
-                                  <div class="progress-step" id="step4Old">
-                                      <div class="progress-icon">⏳</div>
-                                      <span>Confirming transaction...</span>
-                                  </div>
-                              </div>
-                          </form>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="dashboard-card">
-                  <h3 class="expandable-header" onclick="toggleExpandable('playlistsOld')">🎵 Your Playlists</h3>
-                  <div class="expandable-content" id="playlistsOld">
-                      <div id="playlistsContentOld">
-                          <p>Loading...</p>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="dashboard-card">
-                  <h3 class="expandable-header" onclick="toggleExpandable('artistsOld')">⭐ Top Artists</h3>
-                  <div class="expandable-content" id="artistsOld">
-                      <ul id="topArtistsContentOld" class="item-list">
-                          <li>Loading...</li>
-                      </ul>
-                  </div>
-              </div>
-
-              <div class="dashboard-card">
-                  <h3 class="expandable-header" onclick="toggleExpandable('tracksOld')">🔥 Top Tracks</h3>
-                  <div class="expandable-content" id="tracksOld">
-                      <ul id="topTracksContentOld" class="item-list">
-                          <li>Loading...</li>
-                      </ul>
-                  </div>
-              </div>
-
-              <div class="dashboard-card">
-                  <h3 class="expandable-header" onclick="toggleExpandable('communitiesOld')">🏛️ Communities</h3>
-                  <div class="expandable-content" id="communitiesOld">
-                      <div class="coming-soon">
-                          <div class="coming-soon-icon">🚀</div>
-                          <div class="coming-soon-text">Coming Soon!</div>
-                          <div class="coming-soon-desc">
-                              Community features are being developed.<br>
-                              Connect your wallet to access exclusive<br>
-                              playlists and content from your NFT communities.
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      
       <div class="footer">OK PLAYLISTS © 2025 | OWN YOUR PLAYLISTS</div>
 
       <!-- Added success modal for better user feedback -->
@@ -1147,20 +1002,26 @@ async function checkNFTCommunities() {
         const response = await fetch('/api/wallet/status');
         const data = await response.json();
         
-        if (data.connected && data.communities && data.communities.length > 0) {
-            const communitiesStatus = document.getElementById('communitiesStatus');
-            const communityLabel = document.getElementById('communityLabel');
-            const communitiesList = document.getElementById('communitiesList');
-            
-            if (communitiesStatus && communityLabel && communitiesList) {
-                const communityText = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-                communityLabel.textContent = communityText;
-                communitiesList.textContent = data.communities.join(', ');
-                communitiesStatus.style.display = 'block';
-            }
+        console.log('[v0] NFT Communities response:', data);
+        
+        const communitiesStatus = document.getElementById('communitiesStatus');
+        const communitiesList = document.getElementById('communitiesList');
+        const communityLabel = document.getElementById('communityLabel');
+        
+        if (data.communities && data.communities.length > 0) {
+            const communityText = data.communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+            communityLabel.textContent = communityText;
+            communitiesList.textContent = data.communities.join(', ');
+            communitiesStatus.style.display = 'block';
+        } else {
+            communitiesStatus.style.display = 'none';
         }
     } catch (error) {
-        console.error('Error checking NFT communities:', error);
+        console.error('[v0] Error checking NFT communities:', error);
+        const communitiesStatus = document.getElementById('communitiesStatus');
+        if (communitiesStatus) {
+            communitiesStatus.style.display = 'none';
+        }
     }
 }
 
@@ -1231,17 +1092,18 @@ function updateConnectionStatus() {
     document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
 }
 
-function toggleWalletDisconnect() {
-    const disconnectBtn = document.getElementById('walletDisconnectBtn');
-    if (disconnectBtn) {
-        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
-    }
-}
-
 function toggleSpotifyDisconnect() {
     const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
-    if (disconnectBtn) {
-        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
+    const statusSpan = document.querySelector('#connectionStatus .status-connected');
+    
+    if (disconnectBtn && statusSpan) {
+        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
+            disconnectBtn.style.display = 'inline-block';
+            statusSpan.style.display = 'none';
+        } else {
+            disconnectBtn.style.display = 'none';
+            statusSpan.style.display = 'inline';
+        }
     }
 }
 
@@ -1322,21 +1184,6 @@ function toggleSpotifyDisconnect() {
           updateExploreInstructions();
           showSuccess('Logged out from Spotify.');
       }
-
-function toggleSpotifyDisconnect() {
-    const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
-    const statusSpan = document.querySelector('#connectionStatus .status-connected');
-    
-    if (disconnectBtn && statusSpan) {
-        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
-            disconnectBtn.style.display = 'inline-block';
-            statusSpan.style.display = 'none';
-        } else {
-            disconnectBtn.style.display = 'none';
-            statusSpan.style.display = 'inline';
-        }
-    }
-}
 
       // --- DASHBOARD ---
       async function fetchDashboard() {
@@ -1937,5 +1784,16 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
           }, 100);
       });
   </script>
+<div class="connection-panel">
+    <div id="connectionStatus" class="connection-status">
+        SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
+    </div>
+    <div id="walletStatus" class="connection-status">
+        WALLET: <span class="status-disconnected">DISCONNECTED</span>
+    </div>
+    <div id="communitiesStatus" class="connection-status" style="display: none;">
+        <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
+    </div>
+</div>
 </body>
 </html>
