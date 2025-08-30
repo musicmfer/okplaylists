@@ -998,12 +998,8 @@
             }
             
             if (tabName === 'profile' && spotifyConnected) {
-                // Check if profile content is still showing "Loading..."
-                const profileContent = document.getElementById('profileContent');
-                if (profileContent && profileContent.innerHTML.includes('Loading...')) {
-                    fetchDashboard();
-                    fetchPlaylists();
-                }
+                fetchDashboard();
+                fetchPlaylists();
             }
         }
 
@@ -1445,7 +1441,6 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                                      <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1627,7 +1622,6 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-                          <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
