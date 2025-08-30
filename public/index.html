@@ -1106,19 +1106,28 @@ function updateWalletStatus() {
     
     if (walletConnected) {
         document.getElementById('walletStatus').innerHTML = 
-            `WALLET: <span class="${walletClass}" onclick="toggleWalletDisconnect()" style="cursor: pointer;">${walletStatus}</span>
+            `<div onclick="toggleWalletDisconnect()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                WALLET: <span class="${walletClass}">${walletStatus}</span>
+             </div>
              <button id="walletDisconnectBtn" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
     } else {
         document.getElementById('walletStatus').innerHTML = 
             `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
     }
 
-    document.getElementById('walletStatusHome').innerHTML =
-        ` <span class="${walletClass}">${walletStatus}</span>`;
+    const homeWalletStatus = document.getElementById('walletStatusHome');
+    if (homeWalletStatus) {
+        homeWalletStatus.className = walletClass;
+        homeWalletStatus.textContent = walletStatus === 'CONNECTED' ? 'Connected' : 'Disconnected';
+    }
+    
+    const homeWalletButton = document.getElementById('walletButtonHome');
+    if (homeWalletButton) {
+        homeWalletButton.style.display = walletConnected ? 'none' : 'inline-block';
+    }
     
     document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
     document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
-    document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
     
     const communitiesStatus = document.getElementById('communitiesStatus');
     if (walletConnected && communities && communities.length > 0) {
@@ -1134,21 +1143,6 @@ function updateWalletStatus() {
         document.getElementById('communitiesList').innerHTML = '<span style="color: #666;">None found</span>';
     } else {
         communitiesStatus.style.display = 'none';
-    }
-}
-
-function toggleWalletDisconnect() {
-    const disconnectBtn = document.getElementById('walletDisconnectBtn');
-    const statusSpan = document.querySelector('#walletStatus .status-connected');
-    
-    if (disconnectBtn && statusSpan) {
-        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
-            disconnectBtn.style.display = 'inline-block';
-            statusSpan.style.display = 'none';
-        } else {
-            disconnectBtn.style.display = 'none';
-            statusSpan.style.display = 'inline';
-        }
     }
 }
 
@@ -1188,19 +1182,42 @@ function updateConnectionStatus() {
     
     if (spotifyConnected) {
         document.getElementById('connectionStatus').innerHTML = 
-            `SPOTIFY: <span class="${spotifyClass}" onclick="toggleSpotifyDisconnect()" style="cursor: pointer;">${spotifyStatus}</span>
+            `<div onclick="toggleSpotifyDisconnect()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>
+             </div>
              <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>`;
     } else {
         document.getElementById('connectionStatus').innerHTML = 
             `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
     }
 
-    document.getElementById('spotifyStatusHome').innerHTML =
-        ` <span class="${spotifyClass}">${spotifyStatus}</span>`;
+    const homeSpotifyStatus = document.getElementById('spotifyStatusHome');
+    if (homeSpotifyStatus) {
+        homeSpotifyStatus.className = spotifyClass;
+        homeSpotifyStatus.textContent = spotifyStatus === 'CONNECTED' ? 'Connected' : 'Disconnected';
+    }
+    
+    const homeSpotifyButton = document.getElementById('spotifyButtonHome');
+    if (homeSpotifyButton) {
+        homeSpotifyButton.style.display = spotifyConnected ? 'none' : 'inline-block';
+    }
     
     document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
     document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
-    document.getElementById('spotifyButtonHome').style.display = spotifyConnected ? 'none' : 'inline-block';
+}
+
+function toggleWalletDisconnect() {
+    const disconnectBtn = document.getElementById('walletDisconnectBtn');
+    if (disconnectBtn) {
+        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
+    }
+}
+
+function toggleSpotifyDisconnect() {
+    const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
+    if (disconnectBtn) {
+        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
+    }
 }
 
       function updateExploreInstructions() {
