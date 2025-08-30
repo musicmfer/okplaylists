@@ -713,6 +713,7 @@
               </div>
 
               <div class="dashboard-card">
+                  <h3 class="expandable-header active">🎧 OWN YOUR PLAYLIST</h3>
                   <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
@@ -729,9 +730,7 @@
                           </button>
                       </form>
                       <div id="publicPlaylistResult">
-                          <p style="color: #666; text-align: center; font-size: 10px;">
-                              <span id="exploreInstructions">Enter a Spotify playlist URL above to explore any public playlist</span>
-                          </p>
+                          
                       </div>
 
                       <div class="mint-card" id="mintFormCard">
@@ -818,15 +817,14 @@
 
       <div class="panel" id="connectionPanel" style="display: none;">
           <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
-          <button class="connect-btn" id="spotifyLogoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
+          <button class="connect-btn" id="spotifyLogoutBtn" onclick="logoutSpotify()" style="display: none;">DISCONNECT SPOTIFY</button>
+          <button class="connect-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+          <button class="connect-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
           
-          <button class="connect-btn wallet-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
-          <button class="connect-btn wallet-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
-          
-          <div class="status-line" id="connectionStatus">
+          <div class="status-line" id="connectionStatus" onclick="toggleSpotifyDisconnect()">
               SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
           </div>
-          <div class="status-line" id="walletStatus">
+          <div class="status-line" id="walletStatus" onclick="toggleWalletDisconnect()">
               WALLET: <span class="status-disconnected">DISCONNECTED</span>
           </div>
           <div class="communities-line" id="communitiesStatus" style="display: none;">
@@ -1111,26 +1109,36 @@
 
           document.getElementById('walletButtonHome').style.display = walletConnected ? 'none' : 'inline-block';
           
-          // Update communities display with singular/plural
           const communitiesStatus = document.getElementById('communitiesStatus');
-          const communityLabel = document.getElementById('communityLabel');
-          const communitiesList = document.getElementById('communitiesList');
-          
           if (walletConnected && communities.length > 0) {
-              communitiesStatus.style.display = 'block';
-              
-              // Use singular "COMMUNITY" or plural "COMMUNITIES"
-              communityLabel.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-              
-              communitiesList.innerHTML = communities.map(community => 
+              const communityLabel = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+              document.getElementById('communityLabel').textContent = communityLabel;
+              document.getElementById('communitiesList').innerHTML = communities.map(community => 
                   `<span class="community-tag">${community.name}</span>`
               ).join('');
+              communitiesStatus.style.display = 'block';
           } else if (walletConnected) {
               communitiesStatus.style.display = 'block';
-              communityLabel.textContent = 'COMMUNITY:';
-              communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
+              document.getElementById('communityLabel').textContent = 'COMMUNITY:';
+              document.getElementById('communitiesList').innerHTML = '<span style="color: #666;">None found</span>';
           } else {
               communitiesStatus.style.display = 'none';
+          }
+      }
+
+      function toggleSpotifyDisconnect() {
+          if (spotifyConnected) {
+              if (confirm('Disconnect from Spotify?')) {
+                  logoutSpotify();
+              }
+          }
+      }
+
+      function toggleWalletDisconnect() {
+          if (walletConnected) {
+              if (confirm('Disconnect wallet?')) {
+                  disconnectWallet();
+              }
           }
       }
 
@@ -1434,7 +1442,6 @@
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
-                                      <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1616,7 +1623,6 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
-                          <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
