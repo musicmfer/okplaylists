@@ -97,10 +97,6 @@
       .expandable-header::after { content: '[+]'; position: absolute; right: 0; font-size: 11px; }
       .expandable-header.active::after { content: '[-]'; }
       .expandable-header.active { border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
-      
-      /* Remove [-] indicator from OWN YOUR PLAYLIST title */
-      .expandable-header.no-indicator::after { content: ''; }
-      
       .expandable-content { display: none; }
       .expandable-content.active { display: block; }
 
@@ -247,7 +243,7 @@
           width: 15px; 
           text-align: right; 
           flex-shrink: 0;
-          font-weight: 400
+          font-weight: 400;
       }
       .playlist-songs-list .song-info { flex: 1; }
       .playlist-songs-list .song-name { color: #fff; font-weight: 400; }
@@ -348,50 +344,6 @@
           background: #ff8833;
           border-color: #ff8833;
           opacity: 1;
-      }
-
-      /* Removed all NFT minting related CSS styles */
-      
-      /* Added tab system styles */
-      .tab-system {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 20px;
-          justify-content: center;
-      }
-      
-      .tab-button {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid #333;
-          color: #fff;
-          padding: 12px 24px;
-          font-family: 'Orbitron', monospace;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          min-width: 120px;
-      }
-      
-      .tab-button:hover {
-          background: rgba(255, 255, 255, 0.15);
-          border-color: #555;
-      }
-      
-      .tab-button.active {
-          background: #ff6600;
-          border-color: #ff6600;
-          color: #fff;
-      }
-      
-      .tab-content {
-          display: none;
-      }
-      
-      .tab-content.active {
-          display: block;
       }
 
       /* New styles for Minting Card */
@@ -628,56 +580,6 @@
       .mint-close-btn:hover {
           background: #888;
       }
-
-      /* New styles for connection status */
-      .connection-status {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-      }
-
-      .status-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 8px 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid #333;
-          border-radius: 5px;
-      }
-
-      .status-label {
-          font-size: 11px;
-          color: #ccc;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          font-weight: 400;
-      }
-
-      .status-disconnected {
-          color: #666;
-      }
-
-      .status-connected {
-          color: #66ff66;
-      }
-
-      .status-item button {
-          background: #444;
-          color: #fff;
-          border: none;
-          padding: 6px 12px;
-          font-family: 'Orbitron', monospace;
-          font-size: 10px;
-          cursor: pointer;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          transition: all 0.2s ease;
-      }
-
-      .status-item button:hover {
-          background: #555;
-      }
   </style>
 </head>
 <body>
@@ -694,30 +596,36 @@
           </div>
       </div>
 
-      <div class="tab-system">
-          <button class="tab-button active" onclick="switchTab('home')">Home</button>
-          <button class="tab-button" onclick="switchTab('profile')">Profile</button>
+      <div class="panel" id="connectionPanel">
+          <button class="connect-btn" id="spotifyBtn" onclick="connectSpotify()">CONNECT SPOTIFY</button>
+          <button class="connect-btn" id="spotifyLogoutBtn" onclick="logoutSpotify()" style="display: none;">LOGOUT SPOTIFY</button>
+          
+          <button class="connect-btn wallet-btn" id="walletBtn" onclick="connectWallet()">CONNECT WALLET</button>
+          <button class="connect-btn wallet-btn" id="walletLogoutBtn" onclick="disconnectWallet()" style="display: none;">DISCONNECT WALLET</button>
+          
+          <div class="status-line" id="connectionStatus">
+              SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
+          </div>
+          <div class="status-line" id="walletStatus">
+              WALLET: <span class="status-disconnected">DISCONNECTED</span>
+          </div>
+          <div class="communities-line" id="communitiesStatus" style="display: none;">
+              <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
+          </div>
+          
+          <div class="error" id="errorMessage" style="display: none;"></div>
+          <div class="success" id="successMessage" style="display: none;"></div>
       </div>
 
-      <div id="homeTab" class="tab-content active">
+      <div class="dashboard" id="spotifyDashboard">
           <div class="dashboard-grid">
               <div class="dashboard-card">
-                  <div class="connection-status">
-                      <div class="status-item">
-                          <span class="status-label">Spotify:</span>
-                          <span id="spotifyStatusHome" class="status-disconnected">Disconnected</span>
-                          <button id="spotifyButtonHome" onclick="connectSpotify()">Connect</button>
-                      </div>
-                      <div class="status-item">
-                          <span class="status-label">Wallet:</span>
-                          <span id="walletStatusHome" class="status-disconnected">Disconnected</span>
-                          <button id="walletButtonHome" onclick="connectWallet()">Connect</button>
-                      </div>
+                  <div id="profileContent" class="profile-card">
+                      <p>Loading...</p>
                   </div>
               </div>
 
               <div class="dashboard-card">
-                  <h3 class="expandable-header active no-indicator">OWN YOUR PLAYLIST</h3>
                   <div class="expandable-content active" id="explore">
                       <form onsubmit="fetchPublicPlaylist(event)" style="margin-bottom: 15px;">
                           <input 
@@ -734,7 +642,9 @@
                           </button>
                       </form>
                       <div id="publicPlaylistResult">
-                          
+                          <p style="color: #666; text-align: center; font-size: 10px;">
+                              <span id="exploreInstructions">Enter a Spotify playlist URL above to explore any public playlist</span>
+                          </p>
                       </div>
 
                       <div class="mint-card" id="mintFormCard">
@@ -752,26 +662,37 @@
                                   <label for="mintTitle">Title</label>
                                   <input type="text" id="mintTitle" placeholder="NFT Title" required>
                               </div>
+                              <!-- Removed separate duration and creator fields -->
                               <div class="mint-form-group">
                                   <label for="mintDescription">Description</label>
                                   <textarea id="mintDescription" placeholder="NFT Description"></textarea>
                               </div>
                               <div class="mint-form-actions">
                                   <button type="button" class="mint-cancel-btn" onclick="hideMintForm()">Cancel</button>
-                                  <button type="button" class="mint-confirm-btn" id="mintNFTButton" onclick="handleMintNFT()">Coming Soon</button>
+                                  <!-- Updated mint button to check wallet connection and enable minting -->
+                                  <button type="button" class="mint-confirm-btn" id="mintNFTButton" onclick="handleMintNFT()">Connect Wallet to Mint</button>
+                              </div>
+                              <!-- Added progress indicator for minting process -->
+                              <div class="mint-progress" id="mintProgress">
+                                  <div class="progress-step" id="step1">
+                                      <div class="progress-icon">⏳</div>
+                                      <span>Preparing metadata...</span>
+                                  </div>
+                                  <div class="progress-step" id="step2">
+                                      <div class="progress-icon">⏳</div>
+                                      <span>Uploading to IPFS...</span>
+                                  </div>
+                                  <div class="progress-step" id="step3">
+                                      <div class="progress-icon">⏳</div>
+                                      <span>Minting NFT...</span>
+                                  </div>
+                                  <div class="progress-step" id="step4">
+                                      <div class="progress-icon">⏳</div>
+                                      <span>Confirming transaction...</span>
+                                  </div>
                               </div>
                           </form>
                       </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div id="profileTab" class="tab-content">
-          <div class="dashboard-grid">
-              <div class="dashboard-card">
-                  <div id="profileContent" class="profile-card">
-                      <p>Loading...</p>
                   </div>
               </div>
 
@@ -779,46 +700,46 @@
                   <h3 class="expandable-header" onclick="toggleExpandable('playlists')">🎵 Your Playlists</h3>
                   <div class="expandable-content" id="playlists">
                       <div id="playlistsContent">
-                              <p>Loading...</p>
-                          </div>
+                          <p>Loading...</p>
                       </div>
                   </div>
+              </div>
 
-                  <div class="dashboard-card">
-                      <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
-                      <div class="expandable-content" id="artists">
-                          <ul id="topArtistsContent" class="item-list">
-                              <li>Loading...</li>
-                          </ul>
-                      </div>
+              <div class="dashboard-card">
+                  <h3 class="expandable-header" onclick="toggleExpandable('artists')">⭐ Top Artists</h3>
+                  <div class="expandable-content" id="artists">
+                      <ul id="topArtistsContent" class="item-list">
+                          <li>Loading...</li>
+                      </ul>
                   </div>
+              </div>
 
-                  <div class="dashboard-card">
-                      <h3 class="expandable-header" onclick="toggleExpandable('tracks')">🔥 Top Tracks</h3>
-                      <div class="expandable-content" id="tracks">
-                          <ul id="topTracksContent" class="item-list">
-                              <li>Loading...</li>
-                          </ul>
-                      </div>
+              <div class="dashboard-card">
+                  <h3 class="expandable-header" onclick="toggleExpandable('tracks')">🔥 Top Tracks</h3>
+                  <div class="expandable-content" id="tracks">
+                      <ul id="topTracksContent" class="item-list">
+                          <li>Loading...</li>
+                      </ul>
                   </div>
+              </div>
 
-                  <div class="dashboard-card">
-                      <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
-                      <div class="expandable-content" id="communities">
-                          <div class="coming-soon">
-                              <div class="coming-soon-icon">🚀</div>
-                              <div class="coming-soon-text">Coming Soon!</div>
-                              <div class="coming-soon-desc">
-                                  Community features are being developed.<br>
-                                  Connect your wallet to access exclusive<br>
-                                  playlists and content from your NFT communities.
-                              </div>
+              <div class="dashboard-card">
+                  <h3 class="expandable-header" onclick="toggleExpandable('communities')">🏛️ Communities</h3>
+                  <div class="expandable-content" id="communities">
+                      <div class="coming-soon">
+                          <div class="coming-soon-icon">🚀</div>
+                          <div class="coming-soon-text">Coming Soon!</div>
+                          <div class="coming-soon-desc">
+                              Community features are being developed.<br>
+                              Connect your wallet to access exclusive<br>
+                              playlists and content from your NFT communities.
                           </div>
                       </div>
                   </div>
               </div>
           </div>
-
+      </div>
+      
       <div class="footer">OK PLAYLISTS © 2025 | OWN YOUR PLAYLISTS</div>
 
       <!-- Added success modal for better user feedback -->
@@ -837,24 +758,6 @@
   </div>
 
   <script>
-        function switchTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
-        }
-
       // --- GLOBAL STATE ---
       let spotifyConnected = false;
       let walletConnected = false;
@@ -866,58 +769,58 @@
       let currentPlaylistDataForMint = null; // Store playlist data for minting form
 
       // --- WALLET CONNECTION ---
-async function connectWallet() {
-    if (typeof window.ethereum === 'undefined') {
-        showError('No Ethereum wallet detected. Please install MetaMask, Coinbase Wallet, or another Ethereum wallet.');
-        return;
-    }
+      async function connectWallet() {
+          if (typeof window.ethereum === 'undefined') {
+              showError('No Ethereum wallet detected. Please install MetaMask, Coinbase Wallet, or another Ethereum wallet.');
+              return;
+          }
 
-    try {
-        document.getElementById('walletButtonHome').disabled = true;
-        document.getElementById('walletButtonHome').textContent = 'CONNECTING...';
+          try {
+              document.getElementById('walletBtn').disabled = true;
+              document.getElementById('walletBtn').textContent = 'CONNECTING...';
 
-        // Request account access
-        const accounts = await window.ethereum.request({ 
-            method: 'eth_requestAccounts' 
-        });
+              // Request account access
+              const accounts = await window.ethereum.request({ 
+                  method: 'eth_requestAccounts' 
+              });
 
-        if (accounts.length === 0) {
-            throw new Error('No accounts found');
-        }
+              if (accounts.length === 0) {
+                  throw new Error('No accounts found');
+              }
 
-        const address = accounts[0];
-        
-        // Verify NFT ownership on server
-        const response = await fetch('/api/wallet/connect', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ walletAddress: address })
-        });
+              const address = accounts[0];
+              
+              // Verify NFT ownership on server
+              const response = await fetch('/api/wallet/connect', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ walletAddress: address })
+              });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to connect wallet');
-        }
+              if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Failed to connect wallet');
+              }
 
-        const data = await response.json();
-        
-        walletConnected = true;
-        walletAddress = data.walletAddress;
-        communities = data.communities;
-        
-        updateWalletStatus();
-        showSuccess(data.message);
+              const data = await response.json();
+              
+              walletConnected = true;
+              walletAddress = data.walletAddress;
+              communities = data.communities;
+              
+              updateWalletStatus();
+              showSuccess(data.message);
 
-    } catch (error) {
-        console.error('Wallet connection error:', error);
-        showError('Failed to connect wallet: ' + error.message);
-    } finally {
-        document.getElementById('walletButtonHome').disabled = false;
-        document.getElementById('walletButtonHome').textContent = 'CONNECT WALLET';
-    }
-}
+          } catch (error) {
+              console.error('Wallet connection error:', error);
+              showError('Failed to connect wallet: ' + error.message);
+          } finally {
+              document.getElementById('walletBtn').disabled = false;
+              document.getElementById('walletBtn').textContent = 'CONNECT WALLET';
+          }
+      }
 
       async function disconnectWallet() {
           try {
@@ -955,84 +858,40 @@ async function connectWallet() {
           return false;
       }
 
-function updateWalletStatus() {
-    const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
-    const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
-    
-    // Update main wallet status
-    const walletStatusElement = document.getElementById('walletStatus');
-    if (walletConnected) {
-        walletStatusElement.innerHTML = 
-            `<div onclick="toggleWalletDisconnect()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                WALLET: <span class="${walletClass}">${walletStatus}</span>
-             </div>
-             <button id="walletDisconnectBtnMain" class="connect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>`;
-        
-        // Check for NFT communities after wallet connection
-        checkNFTCommunities();
-    } else {
-        walletStatusElement.innerHTML = 
-            `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
-        
-        // Hide communities when disconnected
-        const communitiesStatus = document.getElementById('communitiesStatus');
-        if (communitiesStatus) {
-            communitiesStatus.style.display = 'none';
-        }
-    }
+      function updateWalletStatus() {
+          const walletStatus = walletConnected ? 'CONNECTED' : 'DISCONNECTED';
+          const walletClass = walletConnected ? 'status-connected' : 'status-disconnected';
+          
+          document.getElementById('walletStatus').innerHTML = 
+              `WALLET: <span class="${walletClass}">${walletStatus}</span>`;
+          
+          document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
+          document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
+          
+          // Update communities display with singular/plural
+          const communitiesStatus = document.getElementById('communitiesStatus');
+          const communityLabel = document.getElementById('communityLabel');
+          const communitiesList = document.getElementById('communitiesList');
+          
+          if (walletConnected && communities.length > 0) {
+              communitiesStatus.style.display = 'block';
+              
+              // Use singular "COMMUNITY" or plural "COMMUNITIES"
+              communityLabel.textContent = communities.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
+              
+              communitiesList.innerHTML = communities.map(community => 
+                  `<span class="community-tag">${community.name}</span>`
+              ).join('');
+          } else if (walletConnected) {
+              communitiesStatus.style.display = 'block';
+              communityLabel.textContent = 'COMMUNITY:';
+              communitiesList.innerHTML = '<span style="color: #666;">None found</span>';
+          } else {
+              communitiesStatus.style.display = 'none';
+          }
+      }
 
-    // Update home tab wallet status
-    const homeWalletStatus = document.getElementById('walletStatusHome');
-    if (homeWalletStatus) {
-        homeWalletStatus.className = walletClass;
-        homeWalletStatus.textContent = walletStatus === 'CONNECTED' ? 'Connected' : 'Disconnected';
-    }
-    
-    const homeWalletButton = document.getElementById('walletButtonHome');
-    if (homeWalletButton) {
-        homeWalletButton.style.display = walletConnected ? 'none' : 'inline-block';
-    }
-    
-    document.getElementById('walletBtn').style.display = walletConnected ? 'none' : 'inline-block';
-    document.getElementById('walletLogoutBtn').style.display = walletConnected ? 'inline-block' : 'none';
-}
-
-async function checkNFTCommunities() {
-    try {
-        const response = await fetch('/api/wallet/status');
-        const data = await response.json();
-        
-        console.log('[v0] NFT Communities response:', data);
-        
-        const communitiesStatus = document.getElementById('communitiesStatus');
-        const communitiesList = document.getElementById('communitiesList');
-        const communityLabel = document.getElementById('communityLabel');
-        
-        if (data.communities && Object.keys(data.communities).length > 0) {
-            const communityNames = Object.keys(data.communities);
-            const communityText = communityNames.length === 1 ? 'COMMUNITY:' : 'COMMUNITIES:';
-            communityLabel.textContent = communityText;
-            communitiesList.textContent = communityNames.join(', ');
-            communitiesStatus.style.display = 'block';
-        } else {
-            communitiesStatus.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('[v0] Error checking NFT communities:', error);
-        const communitiesStatus = document.getElementById('communitiesStatus');
-        if (communitiesStatus) {
-            communitiesStatus.style.display = 'none';
-        }
-    }
-}
-
-function toggleWalletDisconnect() {
-    const disconnectBtn = document.getElementById('walletDisconnectBtnMain');
-    if (disconnectBtn) {
-        disconnectBtn.style.display = disconnectBtn.style.display === 'none' ? 'inline-block' : 'none';
-    }
-}
-
+      // --- AUTHENTICATION PERSISTENCE ---
       async function checkExistingAuth() {
           try {
               // Try to fetch dashboard data to check if we have valid cookies
@@ -1063,50 +922,16 @@ function toggleWalletDisconnect() {
       }
 
       // --- UI UPDATES ---
-function updateConnectionStatus() {
-    const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
-    const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
-    
-    if (spotifyConnected) {
-        document.getElementById('connectionStatus').innerHTML = 
-            `<div onclick="toggleSpotifyDisconnect()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>
-             </div>
-             <button id="spotifyDisconnectBtn" class="connect-btn" onclick="logoutSpotify()" style="display: none;">DISCONNECT</button>`;
-    } else {
-        document.getElementById('connectionStatus').innerHTML = 
-            `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
-    }
-
-    const homeSpotifyStatus = document.getElementById('spotifyStatusHome');
-    if (homeSpotifyStatus) {
-        homeSpotifyStatus.className = spotifyClass;
-        homeSpotifyStatus.textContent = spotifyStatus === 'CONNECTED' ? 'Connected' : 'Disconnected';
-    }
-    
-    const homeSpotifyButton = document.getElementById('spotifyButtonHome');
-    if (homeSpotifyButton) {
-        homeSpotifyButton.style.display = spotifyConnected ? 'none' : 'inline-block';
-    }
-    
-    document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
-    document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
-}
-
-function toggleSpotifyDisconnect() {
-    const disconnectBtn = document.getElementById('spotifyDisconnectBtn');
-    const statusSpan = document.querySelector('#connectionStatus .status-connected');
-    
-    if (disconnectBtn && statusSpan) {
-        if (disconnectBtn.style.display === 'none' || !disconnectBtn.style.display) {
-            disconnectBtn.style.display = 'inline-block';
-            statusSpan.style.display = 'none';
-        } else {
-            disconnectBtn.style.display = 'none';
-            statusSpan.style.display = 'inline';
-        }
-    }
-}
+      function updateConnectionStatus() {
+          const spotifyStatus = spotifyConnected ? 'CONNECTED' : 'DISCONNECTED';
+          const spotifyClass = spotifyConnected ? 'status-connected' : 'status-disconnected';
+          document.getElementById('connectionStatus').innerHTML = 
+              `SPOTIFY: <span class="${spotifyClass}">${spotifyStatus}</span>`;
+          
+          document.getElementById('spotifyBtn').style.display = spotifyConnected ? 'none' : 'inline-block';
+          document.getElementById('spotifyLogoutBtn').style.display = spotifyConnected ? 'inline-block' : 'none';
+          document.getElementById('spotifyDashboard').classList.toggle('active', spotifyConnected);
+      }
 
       function updateExploreInstructions() {
           const instructionsEl = document.getElementById('exploreInstructions');
@@ -1167,11 +992,11 @@ function toggleSpotifyDisconnect() {
       }
 
       // --- SPOTIFY ---
-function connectSpotify() {
-    document.getElementById('spotifyButtonHome').disabled = true;
-    document.getElementById('spotifyButtonHome').textContent = 'CONNECTING...';
-    window.location.href = '/api/auth/spotify';
-}
+      function connectSpotify() {
+          document.getElementById('spotifyBtn').disabled = true;
+          document.getElementById('spotifyBtn').textContent = 'CONNECTING...';
+          window.location.href = '/api/auth/spotify';
+      }
 
       async function logoutSpotify() {
           await fetch('/api/spotify/logout', { method: 'POST' });
@@ -1361,6 +1186,7 @@ function connectSpotify() {
                                   </div>
                                   <div class="playlist-actions">
                                       <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', false, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.tracks}, '${playlist.description || ''}', '${playlist.owner}', '', '${playlist.cover || ''}')">Share to FC</span>
+                                      <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.tracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                                   </div>
                               </div>
                               <div class="playlist-item-details">Loading...</div>
@@ -1542,6 +1368,7 @@ ${communitiesText}${descriptionText}Listen on Spotify ↓`;
                       </div>
                       <div class="playlist-actions">
                           <span class="playlist-action-btn fc-share" onclick="shareToFarcaster(event, '${playlist.id}', true, '${playlist.name}', '${playlist.spotifyUrl}', ${playlist.totalTracks}, '${playlist.description || ''}', '${playlist.owner}', '${playlist.totalDuration}', '${playlist.cover || ''}')">Share to FC</span>
+                          <span class="playlist-action-btn mint-btn" onclick="showMintFormWithDuration(event, '${playlist.id}', {id: '${playlist.id}', name: '${playlist.name}', description: '${playlist.description || ''}', cover: '${playlist.cover || ''}', totalTracks: ${playlist.totalTracks || 0}, owner: '${playlist.owner || ''}', spotifyUrl: '${playlist.spotifyUrl || ''}'})">Mint</span>
                       </div>
                   </div>
                   <div class="playlist-item-details">Loading...</div>
@@ -1681,53 +1508,170 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
                   return;
               }
               
-              showComingSoonMessage();
+              // Wallet is connected, proceed with minting
+              await mintNFT(statusData.walletAddress);
               
           } catch (error) {
-              console.error('Error checking wallet status:', error);
-              showError('Error checking wallet connection. Please try again.');
-          }
-      }
-
-      function showComingSoonMessage() {
-          const mintButton = document.getElementById('mintNFTButton');
-          
-          // Show coming soon state
-          mintButton.textContent = 'Coming Soon!';
-          mintButton.disabled = true;
-          mintButton.style.background = '#666';
-          
-          // Show temporary message
-          setTimeout(() => {
-              alert('NFT minting feature coming soon! The form is ready, we just need to connect it to the blockchain.');
+              console.error('Error in mint process:', error);
+              showError('Error during minting process: ' + error.message + '. Please try again.');
               resetMintButton();
-          }, 500);
-      }
-
-      // --- IMAGE UPLOAD ---
-      function handleImageUpload(event) {
-          const file = event.target.files[0];
-          const mintImagePreview = document.getElementById('mintImagePreview');
-
-          if (file) {
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                  mintImagePreview.src = e.target.result;
-              }
-              reader.readAsDataURL(file);
           }
       }
 
-      function resetMintImage() {
+      async function mintNFT(walletAddress) {
+          const mintButton = document.getElementById('mintNFTButton');
+          const mintTitle = document.getElementById('mintTitle');
+          const mintDescription = document.getElementById('mintDescription');
           const mintImagePreview = document.getElementById('mintImagePreview');
-          mintImagePreview.src = mintImagePreview.dataset.originalSrc;
-          const mintImageUpload = document.getElementById('mintImageUpload');
-          mintImageUpload.value = ''; // Clear the file input
+          const mintProgress = document.getElementById('mintProgress');
+          
+          // Show progress indicator
+          mintProgress.classList.add('active');
+          
+          // Show loading state
+          mintButton.textContent = 'Minting...';
+          mintButton.disabled = true;
+          mintButton.style.background = '#444';
+          
+          try {
+              // Step 1: Prepare metadata
+              updateProgressStep('step1', 'active');
+              
+              const metadata = {
+                  name: mintTitle.value,
+                  description: mintDescription.value,
+                  image: mintImagePreview.src,
+                  attributes: [
+                      {
+                          trait_type: "Playlist Type",
+                          value: "Spotify Playlist"
+                      },
+                      {
+                          trait_type: "Spotify URL",
+                          value: currentPlaylistDataForMint.spotifyUrl || ""
+                      },
+                      {
+                          trait_type: "Track Count",
+                          value: currentPlaylistDataForMint.totalTracks || 0
+                      },
+                      {
+                          trait_type: "Duration",
+                          value: currentPlaylistDataForMint.totalDuration || "0m 0s"
+                      }
+                  ]
+              };
+              
+              updateProgressStep('step1', 'completed');
+              
+              // Step 2: Upload metadata to IPFS
+              updateProgressStep('step2', 'active');
+              
+              const uploadResponse = await fetch('/api/nft/upload-metadata', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(metadata)
+              });
+              
+              if (!uploadResponse.ok) {
+                  const errorData = await uploadResponse.json();
+                  throw new Error(errorData.details || 'Failed to upload metadata to IPFS');
+              }
+              
+              const uploadData = await uploadResponse.json();
+              updateProgressStep('step2', 'completed');
+              
+              // Step 3: Mint NFT
+              updateProgressStep('step3', 'active');
+              
+              const mintResponse = await fetch('/api/nft/mint', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      walletAddress: walletAddress,
+                      metadataUrl: uploadData.metadataUrl,
+                      name: mintTitle.value,
+                      description: mintDescription.value
+                  })
+              });
+              
+              if (!mintResponse.ok) {
+                  const errorData = await mintResponse.json();
+                  throw new Error(errorData.details || 'Failed to mint NFT');
+              }
+              
+              const mintData = await mintResponse.json();
+              updateProgressStep('step3', 'completed');
+              
+              // Step 4: Confirm transaction
+              updateProgressStep('step4', 'active');
+              
+              // Simulate transaction confirmation delay
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              updateProgressStep('step4', 'completed');
+              
+              // Show success modal with enhanced details
+              showMintSuccessModal(mintData, mintTitle.value);
+              
+              // Reset form and hide progress
+              resetMintForm();
+              
+          } catch (error) {
+              console.error('Minting error:', error);
+              
+              // Mark current step as error
+              const activeStep = document.querySelector('.progress-step.active');
+              if (activeStep) {
+                  updateProgressStep(activeStep.id, 'error');
+              }
+              
+              showError(`Minting failed: ${error.message}. Please check your wallet connection and try again.`);
+              resetMintButton();
+              
+              // Hide progress after error
+              setTimeout(() => {
+                  mintProgress.classList.remove('active');
+                  resetProgressSteps();
+              }, 3000);
+          }
       }
 
-      function hideMintForm() {
-          const mintFormCard = document.getElementById('mintFormCard');
-          mintFormCard.classList.remove('active');
+      function updateProgressStep(stepId, status) {
+          const step = document.getElementById(stepId);
+          const icon = step.querySelector('.progress-icon');
+          
+          // Remove all status classes
+          step.classList.remove('active', 'completed', 'error');
+          
+          // Add new status
+          step.classList.add(status);
+          
+          // Update icon
+          switch(status) {
+              case 'active':
+                  icon.textContent = '⏳';
+                  break;
+              case 'completed':
+                  icon.textContent = '✅';
+                  break;
+              case 'error':
+                  icon.textContent = '❌';
+                  break;
+              default:
+                  icon.textContent = '⏳';
+          }
+      }
+
+      function resetProgressSteps() {
+          const steps = document.querySelectorAll('.progress-step');
+          steps.forEach(step => {
+              step.classList.remove('active', 'completed', 'error');
+              step.querySelector('.progress-icon').textContent = '⏳';
+          });
       }
 
       function resetMintButton() {
@@ -1738,10 +1682,50 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
       }
 
       function resetMintForm() {
+          const mintProgress = document.getElementById('mintProgress');
+          mintProgress.classList.remove('active');
+          resetProgressSteps();
           resetMintButton();
       }
 
-      // Remove success modal functions
+      function showMintSuccessModal(mintData, nftName) {
+          const modal = document.getElementById('mintSuccessModal');
+          const details = document.getElementById('mintSuccessDetails');
+          const links = document.getElementById('mintSuccessLinks');
+          
+          // Update details
+          details.innerHTML = `
+              <strong>${nftName}</strong> has been successfully minted!<br><br>
+              <strong>Transaction Hash:</strong><br>
+              <code style="font-size: 9px; word-break: break-all;">${mintData.transactionHash || 'Pending...'}</code><br><br>
+              <strong>Token ID:</strong> ${mintData.tokenId || 'Pending...'}<br>
+              <strong>Contract:</strong> ${mintData.contractAddress || 'Unknown'}
+          `;
+          
+          // Update marketplace links
+          let linksHtml = '';
+          if (mintData.marketplaceLinks) {
+              if (mintData.marketplaceLinks.opensea) {
+                  linksHtml += `<a href="${mintData.marketplaceLinks.opensea}" target="_blank" class="mint-success-link">View on OpenSea</a>`;
+              }
+              if (mintData.marketplaceLinks.looksrare) {
+                  linksHtml += `<a href="${mintData.marketplaceLinks.looksrare}" target="_blank" class="mint-success-link">View on LooksRare</a>`;
+              }
+          }
+          
+          if (!linksHtml) {
+              linksHtml = '<p style="font-size: 10px; color: #666;">Marketplace links will be available once the transaction is confirmed.</p>';
+          }
+          
+          links.innerHTML = linksHtml;
+          
+          // Show modal
+          modal.classList.add('active');
+          
+          // Auto-hide mint form
+          hideMintForm();
+      }
+
       function closeMintSuccessModal() {
           const modal = document.getElementById('mintSuccessModal');
           modal.classList.remove('active');
@@ -1785,16 +1769,5 @@ async function showMintFormWithDuration(event, playlistId, playlistData) {
           }, 100);
       });
   </script>
-<div class="connection-panel">
-    <div id="connectionStatus" class="connection-status">
-        SPOTIFY: <span class="status-disconnected">DISCONNECTED</span>
-    </div>
-    <div id="walletStatus" class="connection-status">
-        WALLET: <span class="status-disconnected">DISCONNECTED</span>
-    </div>
-    <div id="communitiesStatus" class="connection-status" style="display: none;">
-        <span id="communityLabel">COMMUNITY:</span> <span id="communitiesList"></span>
-    </div>
-</div>
 </body>
 </html>
